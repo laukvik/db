@@ -27,11 +27,89 @@ import org.laukvik.csv.MetaData;
  */
 public abstract class Column<T> implements Comparable {
 
+    public final static int TYPE_BIT = -7;
+    public final static int TYPE_TINYINT = -6;
+    public final static int TYPE_BIGINT = -5;
+    public final static int TYPE_LONGVARBINARY = -4;
+    public final static int TYPE_VARBINARY = -3;
+    public final static int TYPE_BINARY = -2;
+    public final static int TYPE_LONGVARCHAR = -1;
+
+    public final static int TYPE_CHAR = 1;
+    public final static int TYPE_NUMERIC = 2;
+    public final static int TYPE_DECIMAL = 3;
+    public final static int TYPE_INTEGER = 4;
+    public final static int TYPE_SMALLINT = 5;
+    public final static int TYPE_FLOAT = 6;
+    public final static int TYPE_REAL = 7;
+    public final static int TYPE_DOUBLE = 8;
+    public final static int TYPE_VARCHAR = 12;
+
+    public final static int TYPE_DATE = 91;
+    public final static int TYPE_TIME = 92;
+    public final static int TYPE_TIMESTAMP = 93;
+    public final static int TYPE_OTHER = 1111;
+
     private MetaData metaData;
     private boolean primaryKey;
     private boolean allowNulls;
     private ForeignKey foreignKey;
     private String defaultValue;
+    private Table table;
+
+    public static Column parse(int columnType, String name) {
+        switch (columnType) {
+            case TYPE_BIT:
+                return new BooleanColumn(name);
+//            case TYPE_TINYINT:
+//                return new TinyIntColumn(name);
+//            case TYPE_BIGINT:
+//                return new BigIntColumn(name);
+//            case TYPE_LONGVARBINARY:
+//                return new LongVarBinaryColumn(name);
+//            case TYPE_VARBINARY:
+//                return new VarBinaryColumn(name);
+//            case TYPE_BINARY:
+//                return new BinaryColumn(name);
+//            case TYPE_LONGVARCHAR:
+//                return new LongVarCharColumn(name);
+//            case TYPE_CHAR:
+//                return new CharColumn(name);
+//            case TYPE_NUMERIC:
+//                return new NumericColumn(name);
+//            case TYPE_DECIMAL:
+//                return new DecimalColumn(name);
+            case TYPE_INTEGER:
+                return new IntegerColumn(name);
+//            case TYPE_SMALLINT:
+//                return new SmallIntColumn(name);
+            case TYPE_FLOAT:
+                return new FloatColumn(name);
+//            case TYPE_REAL:
+//                return new RealColumn(name);
+            case TYPE_DOUBLE:
+                return new DoubleColumn(name);
+//            case TYPE_VARCHAR:
+//                return new VarCharColumn(name);
+//            case TYPE_DATE:
+//                return new DateColumn(name);
+//            case TYPE_TIME:
+//                return new TimeColumn(name);
+//            case TYPE_TIMESTAMP:
+//                return new TimestampColumn(name);
+//            case TYPE_OTHER:
+//                return new OtherColumn(name);
+        }
+        throw new IllegalArgumentException("ColumnType: " + columnType);
+    }
+
+    public Table getTable() {
+        return table;
+    }
+
+    public void setTable(Table table) {
+        this.table = table;
+    }
 
     public abstract String asString(T value);
 
@@ -287,6 +365,25 @@ public abstract class Column<T> implements Comparable {
             }
         }
         return null;
+    }
+
+    public String getColumnName() {
+        String name = this.getClass().getSimpleName();
+        return name.substring(0, name.length() - "Column".length()).toUpperCase();
+    }
+
+    public String getDDL() {
+        return getColumnName() + "" + (allowNulls ? " NULL" : " NOT NULL");
+    }
+
+    /**
+     * Returns the SQL formatted value of the object
+     *
+     * @param value
+     * @return
+     */
+    public String getFormatted(Object value) {
+        return value.toString();
     }
 
 }

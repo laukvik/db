@@ -15,15 +15,13 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
-package org.laukvik.sql.ddl;
+package org.laukvik.csv.columns;
 
-import org.laukvik.sql.DatabaseConnection;
-
-import javax.xml.crypto.Data;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import org.laukvik.sql.DatabaseConnection;
 
 /**
  *
@@ -36,7 +34,7 @@ public class Table implements Sqlable {
     private Schema schema;
 
     public Table(String name) {
-        if (name == null || name.trim().isEmpty()){
+        if (name == null || name.trim().isEmpty()) {
             throw new IllegalArgumentException("Table name cant be null or empty!");
         }
         this.name = name;
@@ -64,20 +62,20 @@ public class Table implements Sqlable {
         columns.add(c);
     }
 
-    public List<Column> findForeignKeys(){
+    public List<Column> findForeignKeys() {
         List<Column> cols = new ArrayList<>();
-        for (Column c : columns){
-            if (c.getForeignKey() != null){
+        for (Column c : columns) {
+            if (c.getForeignKey() != null) {
                 cols.add(c);
             }
         }
         return cols;
     }
 
-    public List<Column> findPrimaryKeys(){
+    public List<Column> findPrimaryKeys() {
         List<Column> cols = new ArrayList<>();
-        for (Column c : columns){
-            if (c.isPrimaryKey()){
+        for (Column c : columns) {
+            if (c.isPrimaryKey()) {
                 cols.add(c);
             }
         }
@@ -85,21 +83,20 @@ public class Table implements Sqlable {
     }
 
     public Column findColumnByName(String name) {
-        for (Column c : columns){
-            if (c.getName().equalsIgnoreCase(name)){
+        for (Column c : columns) {
+            if (c.getName().equalsIgnoreCase(name)) {
                 return c;
             }
         }
         return null;
     }
 
-
-    public String getInsertSQL( ResultSet rs ) throws SQLException{
+    public String getInsertSQL(ResultSet rs) throws SQLException {
         StringBuilder b = new StringBuilder();
-        b.append("INSERT INTO "+ name +"(");
+        b.append("INSERT INTO " + name + "(");
         // Names
-        int x=0;
-        for (Column c: columns){
+        int x = 0;
+        for (Column c : columns) {
             b.append(x > 0 ? "," : "");
             b.append(c.getName());
             x++;
@@ -107,18 +104,17 @@ public class Table implements Sqlable {
         b.append(") VALUES (");
         // Values
         int z = 0;
-        for (Column c : columns){
+        for (Column c : columns) {
             b.append(z > 0 ? "," : "");
 
             Object value = rs.getObject(z + 1);
 
-            if (rs.wasNull()){
+            if (rs.wasNull()) {
                 b.append("NULL");
 
             } else {
-                b.append( c.getFormatted(value ) );
+                b.append(c.getFormatted(value));
             }
-
 
             z++;
         }
@@ -126,39 +122,39 @@ public class Table implements Sqlable {
         return b.toString();
     }
 
-    public String getSelectTable(){
+    public String getSelectTable() {
         return "SELECT * FROM " + name + " ORDER BY " + getColumns().get(0).getName() + " ASC";
     }
 
-    public List<String> getPostConstraintScript(DatabaseConnection db){
+    public List<String> getPostConstraintScript(DatabaseConnection db) {
         List<String> list = new ArrayList<>();
-        for (Column c : columns){
-            if (c.getForeignKey() != null){
+        for (Column c : columns) {
+            if (c.getForeignKey() != null) {
                 ForeignKey fk = c.getForeignKey();
-                list.add( "ALTER TABLE "+ c.getTable().getName() +" ADD FOREIGN KEY ("+ c.getName() +") REFERENCES " + fk.getDDL()  +";"  );
+                list.add("ALTER TABLE " + c.getTable().getName() + " ADD FOREIGN KEY (" + c.getName() + ") REFERENCES " + fk.getDDL() + ";");
             }
         }
         return list;
     }
 
-    public List<String> getPostAutoNumberScript(DatabaseConnection db){
+    public List<String> getPostAutoNumberScript(DatabaseConnection db) {
         List<String> list = new ArrayList<>();
-        for (Column c : columns){
-            if (c.isAutoIncrement()){
-
-                if (db.getDriver() == null){
-                    // Do nothing
-                } else if (db.getDriver().equalsIgnoreCase("postgres")){
-                    //b.append("ALTER TABLE " + name + " ALTER COLUMN "+ c.getName() +" TYPE SERIAL;");
-
-                } else if (db.getDriver().equalsIgnoreCase("mysql")){
-                    //b.append( "ALTER TABLE " + name + " MODIFY COLUMN " + c.getName() + " " + c.getColumnName() + " auto_increment;" );
-                    list.add( "ALTER TABLE " + name + " MODIFY COLUMN " + c.getName() + " " + c.getColumnName() + " auto_increment;" );
-                } else {
-
-                }
-            }
-        }
+//        for (Column c : columns) {
+//            if (c.isAutoIncrement()) {
+//
+//                if (db.getDriver() == null) {
+//                    // Do nothing
+//                } else if (db.getDriver().equalsIgnoreCase("postgres")) {
+//                    //b.append("ALTER TABLE " + name + " ALTER COLUMN "+ c.getName() +" TYPE SERIAL;");
+//
+//                } else if (db.getDriver().equalsIgnoreCase("mysql")) {
+//                    //b.append( "ALTER TABLE " + name + " MODIFY COLUMN " + c.getName() + " " + c.getColumnName() + " auto_increment;" );
+//                    list.add("ALTER TABLE " + name + " MODIFY COLUMN " + c.getName() + " " + c.getColumnName() + " auto_increment;");
+//                } else {
+//
+//                }
+//            }
+//        }
         return list;
     }
 
@@ -175,35 +171,35 @@ public class Table implements Sqlable {
             b.append("\t");
             b.append(c.getDDL());
             /*
-            if (c.getForeignKey() == null){
+             if (c.getForeignKey() == null){
 
-            } else {
-                b.append(" REFERENCES ");
-                b.append( c.getForeignKey().findTableByName() );
-                b.append("(");
-                b.append( c.getForeignKey().getColumn() );
-                b.append(")");
-            }
-            */
-            if (c.getDefaultValue() != null){
+             } else {
+             b.append(" REFERENCES ");
+             b.append( c.getForeignKey().findTableByName() );
+             b.append("(");
+             b.append( c.getForeignKey().getColumn() );
+             b.append(")");
+             }
+             */
+            if (c.getDefaultValue() != null) {
                 b.append(" DEFAULT ");
-                b.append( c.getDefaultValue());
+                b.append(c.getDefaultValue());
                 b.append("");
             }
-            if (c.isAutoIncrement()){
-                //b.append(" AUTOINCREMENT");
-            }
+//            if (c.isAutoIncrement()) {
+//                //b.append(" AUTOINCREMENT");
+//            }
             x++;
         }
-        x=0;
+        x = 0;
 
         List<Column> primaryKeys = findPrimaryKeys();
-        if (primaryKeys.isEmpty()){
+        if (primaryKeys.isEmpty()) {
 
         } else {
             b.append(",\n\tPRIMARY KEY(");
             for (Column c : primaryKeys) {
-                if (x == 0){
+                if (x == 0) {
                 } else {
                     b.append(",");
                 }
@@ -212,9 +208,6 @@ public class Table implements Sqlable {
             }
             b.append(")");
         }
-
-
-
 
         b.append("\n");
         b.append(");");
@@ -229,11 +222,11 @@ public class Table implements Sqlable {
      */
     public boolean isPostInstallRequired() {
         boolean required = false;
-        for (Column c : columns){
-            if (c.isAutoIncrement()){
-                required = true;
-            }
-            if (c.getForeignKey() != null){
+        for (Column c : columns) {
+//            if (c.isAutoIncrement()) {
+//                required = true;
+//            }
+            if (c.getForeignKey() != null) {
                 required = true;
             }
         }
@@ -242,12 +235,18 @@ public class Table implements Sqlable {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
 
         Table table = (Table) o;
 
-        if (!name.equals(table.name)) return false;
+        if (!name.equals(table.name)) {
+            return false;
+        }
         return !(schema != null ? !schema.equals(table.schema) : table.schema != null);
 
     }

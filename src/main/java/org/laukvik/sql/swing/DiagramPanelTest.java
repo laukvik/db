@@ -1,9 +1,14 @@
 package org.laukvik.sql.swing;
 
-import org.laukvik.sql.ddl.*;
-
-import javax.swing.*;
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Point;
+import javax.swing.JFrame;
+import javax.swing.JScrollPane;
+import org.laukvik.csv.columns.Column;
+import org.laukvik.csv.columns.ForeignKey;
+import org.laukvik.csv.columns.IntegerColumn;
+import org.laukvik.csv.columns.StringColumn;
+import org.laukvik.csv.columns.Table;
 
 /**
  * Created by morten on 25.10.2015.
@@ -22,10 +27,9 @@ public class DiagramPanelTest {
         eID.setAllowNulls(true);
         employee.addColumn(eID);
 
-        employee.addColumn(new VarCharColumn("firstName"));
-        employee.addColumn(new VarCharColumn("lastName"));
-        employee.addColumn(new VarCharColumn("email"));
-
+        employee.addColumn(new StringColumn("firstName"));
+        employee.addColumn(new StringColumn("lastName"));
+        employee.addColumn(new StringColumn("email"));
 
         IntegerColumn employeeCompanyID = new IntegerColumn("companyID");
         employeeCompanyID.setForeignKey(new ForeignKey("Company", "companyID"));
@@ -41,7 +45,7 @@ public class DiagramPanelTest {
         Column cID = new IntegerColumn("companyID");
         cID.setPrimaryKey(true);
         company.addColumn(cID);
-        company.addColumn(new VarCharColumn("name"));
+        company.addColumn(new StringColumn("name"));
 
         // Department
         Table department = new Table("Department");
@@ -49,9 +53,8 @@ public class DiagramPanelTest {
         dID.setPrimaryKey(true);
         dID.setAllowNulls(false);
         department.addColumn(dID);
-        department.addColumn(new VarCharColumn("name"));
-        department.addColumn(new VarCharColumn("contact"));
-
+        department.addColumn(new StringColumn("name"));
+        department.addColumn(new StringColumn("contact"));
 
         IntegerColumn companyID = new IntegerColumn("companyID");
         ForeignKey contactFK = new ForeignKey("Company", "companyID");

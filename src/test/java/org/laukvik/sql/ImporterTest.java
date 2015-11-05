@@ -1,13 +1,7 @@
 package org.laukvik.sql;
 
-import org.junit.Assert;
-import org.junit.Test;
-import org.laukvik.csv.ParseException;
-import org.laukvik.sql.ddl.Column;
-import org.laukvik.sql.ddl.Table;
-
 import java.io.File;
-import java.io.IOException;
+import org.junit.Test;
 
 /**
  * Created by morten on 16.10.2015.

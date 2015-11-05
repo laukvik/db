@@ -4,9 +4,9 @@ import java.io.File;
 import java.io.IOException;
 import java.sql.SQLException;
 import org.junit.Test;
-import org.laukvik.sql.ddl.Column;
-import org.laukvik.sql.ddl.IntegerColumn;
-import org.laukvik.sql.ddl.Table;
+import org.laukvik.csv.columns.Column;
+import org.laukvik.csv.columns.IntegerColumn;
+import org.laukvik.csv.columns.Table;
 
 /**
  * Created by morten on 13.10.2015.
@@ -42,7 +42,7 @@ public class ExporterTest {
         {
             Column c = new IntegerColumn("id");
             c.setPrimaryKey(true);
-            c.setAutoIncrement(true);
+//            c.setAutoIncrement(true);
             c.setAllowNulls(false);
             t.addColumn(c);
         }

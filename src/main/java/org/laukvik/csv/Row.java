@@ -150,6 +150,14 @@ public class Row implements Serializable {
         return (Integer) map.get(column);
     }
 
+    public Boolean getBoolean(BooleanColumn column) {
+        return (Boolean) map.get(column);
+    }
+
+    public Double getDouble(DoubleColumn column) {
+        return (Double) map.get(column);
+    }
+
     @Override
     public int hashCode() {
         int hash = 5;

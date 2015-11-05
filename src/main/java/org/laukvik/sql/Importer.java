@@ -1,15 +1,28 @@
 package org.laukvik.sql;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.logging.Logger;
 import org.laukvik.csv.ParseException;
-import org.laukvik.sql.ddl.Table;
+import org.laukvik.csv.Row;
+import org.laukvik.csv.columns.BooleanColumn;
+import org.laukvik.csv.columns.Column;
+import org.laukvik.csv.columns.DateColumn;
+import org.laukvik.csv.columns.DoubleColumn;
+import org.laukvik.csv.columns.FloatColumn;
+import org.laukvik.csv.columns.IntegerColumn;
+import org.laukvik.csv.columns.Table;
+import org.laukvik.csv.io.CsvReader;
 import org.laukvik.sql.swing.BackupMetaDataFileFilter;
 
 /**
@@ -204,150 +217,149 @@ public class Importer {
      */
     public long installFromCsvFile(Table t, File data, Charset charset) throws Exception {
         LOG.fine("Reading data file " + data.getAbsolutePath());
-//        InputStream is = new FileInputStream(data);
-//        CsvReader r = new CsvReader(is, charset);
+        InputStream is = new FileInputStream(data);
+        CsvReader r = new CsvReader(is, charset);
         long updateCount = 0;
         long failedCount = 0;
         long totalCount = 0;
-//        try (
-//                Connection conn = db.getConnection();
-//                Statement st = conn.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE);
-//                /**
-//                 * @todo - Add schema when importing
-//                 */
-//                ResultSet rs = st.executeQuery("SELECT * FROM " + t.getName());) {
-//            int n = 1;
-//            rs.next();
-//            while (r.hasNext()) {
-//                totalCount++;
-//                Row row = r.getRow();
-        //                try {
-        //                    // Prepare new row
-        //                    rs.moveToInsertRow();
-        //
-        //                    // Fill data
-        //                    for (int x = 0; x < t.getColumns().size(); x++) {
-        //                        // Get column definition
-        //                        Column c = t.getColumns().get(x);
-        //                        int columnIndex = x + 1;
+        try (
+                Connection conn = db.getConnection();
+                Statement st = conn.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE);
+                /**
+                 * @todo - Add schema when importing
+                 */
+                ResultSet rs = st.executeQuery("SELECT * FROM " + t.getName());) {
+            int n = 1;
+            rs.next();
+            while (r.hasNext()) {
+                totalCount++;
+                Row row = r.getRow();
+                try {
+                    // Prepare new row
+                    rs.moveToInsertRow();
 
-        //                        //
-        //                        if (c instanceof BigIntColumn) {
-        //                            BigIntColumn bi = (BigIntColumn) c;
-        //                            Integer value = row.getInteger(bi);
-        //                            if (value != null) {
-        //                                rs.updateInt(columnIndex, value);
-        //                            }
-        //                        } else if (c instanceof BinaryColumn) {
-        //                            /* @todo - Implement BinaryColumn support */
-        //
-        //                        } else if (c instanceof BooleanColumn) {
-        //                            Boolean value = row.getBoolean(x);
-        //                            if (value != null) {
-        //                                rs.updateBoolean(columnIndex, value);
-        //                            }
-        //
-        //                        } else if (c instanceof CharColumn) {
-        //                            /* @todo - Implement CharColumn support */
-        //
-        //                        } else if (c instanceof DateColumn) {
-        //                            String value = row.getString(x);
-        //                            if (value == null || value.trim().isEmpty()) {
-        //                                rs.updateNull(columnIndex);
-        //                            } else {
-        //                                DateColumn dc = (DateColumn) c;
-        //                                SimpleDateFormat format = new SimpleDateFormat(dc.getFormat());
-        //                                Date date = format.parse(value);
-        //                                rs.updateDate(columnIndex, new java.sql.Date(date.getTime()));
-        //                            }
-        //
-        //                        } else if (c instanceof DecimalColumn) {
-        //                            /* @todo - Implement DecimalColumn support */
-        //
-        //                        } else if (c instanceof DoubleColumn) {
-        //                            Double value = row.getDouble(x);
-        //                            if (value != null) {
-        //                                rs.updateDouble(columnIndex, value);
-        //                            }
-        //
-        //                        } else if (c instanceof FloatColumn) {
-        //                            Float value = row.getFloat(x);
-        //                            if (value != null) {
-        //                                rs.updateFloat(columnIndex, value);
-        //                            }
-        //
-        //                        } else if (c instanceof IntegerColumn) {
-        //                            Integer value = row.getInteger(x);
-        //                            if (value != null) {
-        //                                rs.updateInt(columnIndex, value);
-        //                            }
-        //
-        //                        } else if (c instanceof LongVarBinaryColumn) {
-        //                            /* @todo - Implement LongVarBinaryColumn support */
-        //
-        //                        } else if (c instanceof LongVarCharColumn) {
-        //                            String s = row.getString(columnIndex);
-        //                            if (s != null) {
-        //                                rs.updateString(columnIndex, s);
-        //                            }
-        //
-        //                        } else if (c instanceof NumericColumn) {
-        //                            /* @todo - Implement NumericColumn support */
-        //
-        //                        } else if (c instanceof OtherColumn) {
-        //                            /* @todo - Implement OtherColumn support */
-        //
-        //                        } else if (c instanceof RealColumn) {
-        //                            /* @todo - Implement RealColumn support */
-        //
-        //                        } else if (c instanceof SmallIntColumn) {
-        //                            /* @todo - Implement SmallIntColumn support */
-        //                            short s = 0;
-        //                            rs.updateShort(columnIndex, s);
-        //
-        //                        } else if (c instanceof TimeColumn) {
-        //                            /* @todo - Implement TimeColumn support */
-        //
-        //                        } else if (c instanceof TimestampColumn) {
-        //                            String value = row.getString(x);
-        //                            if (value == null || value.trim().isEmpty()) {
-        //
-        //                            } else {
-        //                                TimestampColumn dc = (TimestampColumn) c;
-        //                                SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"); // 2011-10-13 16:26:45.0
-        //                                Date date = format.parse(value);
-        //                                rs.updateTimestamp(columnIndex, new java.sql.Timestamp(date.getTime()));
-        //                            }
-        //
-        //                        } else if (c instanceof TinyIntColumn) {
-        //                            /* @todo - Implement TinyIntColumn support */
-        //
-        //                        } else if (c instanceof VarBinaryColumn) {
-        //                            /* @todo - Implement VarBinaryColumn support */
-        //
-        //                        } else if (c instanceof VarCharColumn) {
-        //                            String value = row.getString(x);
-        //                            rs.updateString(columnIndex, value);
-        //
-        //                        }
-        //                    }
-        //                        // Add new row
-        //                        rs.insertRow();
-        //
-        //                        updateCount++;
-        //                        System.out.println(t.getName() + ": #" + n + " imported. " + row.getString(0));
-        //                    }
-        //                    catch (SQLException e2) {
-        //                    failedCount++;
-        //                    System.out.println(t.getName() + ": #" + n + " failed: " + e2.getMessage());
-        //                }
-        //                    n++;
-        //                }
-        //            }
-        //            catch (Exception e) {
-        //            e.printStackTrace();
-        //        }
-        //            System.out.println(t.getName() + ": Imported " + updateCount + "/" + totalCount + ".");
+                    // Fill data
+                    for (int x = 0; x < t.getColumns().size(); x++) {
+                        // Get column definition
+                        Column c = t.getColumns().get(x);
+                        int columnIndex = x + 1;
+
+//                        //
+//                        if (c instanceof BigIntColumn) {
+//                            Integer value = row.getInteger(x);
+//                            if (value != null) {
+//                                rs.updateInt(columnIndex, value);
+//                            }
+//                        } else if (c instanceof BinaryColumn) {
+//                            /* @todo - Implement BinaryColumn support */
+//
+//                        } else
+                        if (c instanceof BooleanColumn) {
+                            BooleanColumn bc = (BooleanColumn) c;
+                            Boolean value = row.getBoolean(bc);
+                            if (value != null) {
+                                rs.updateBoolean(columnIndex, value);
+                            }
+
+//                        } else if (c instanceof CharColumn) {
+//                            /* @todo - Implement CharColumn support */
+                        } else if (c instanceof DateColumn) {
+                            DateColumn dc = (DateColumn) c;
+                            Date value = row.getDate(dc);
+//                            rs.updateDate(columnIndex, value);
+
+//                            if (value == null || value.trim().isEmpty()) {
+//                                rs.updateNull(columnIndex);
+//                            } else {
+//                                DateColumn dc = (DateColumn) c;
+//                                SimpleDateFormat format = new SimpleDateFormat(dc.getFormat());
+//                                Date date = format.parse(value);
+//                                rs.updateDate(columnIndex, new java.sql.Date(date.getTime()));
+//                            }
+//                        } else if (c instanceof DecimalColumn) {
+//                            /* @todo - Implement DecimalColumn support */
+                        } else if (c instanceof DoubleColumn) {
+                            Double value = row.getDouble((DoubleColumn) c);
+                            if (value != null) {
+                                rs.updateDouble(columnIndex, value);
+                            }
+
+                        } else if (c instanceof FloatColumn) {
+                            Float value = row.getFloat((FloatColumn) c);
+                            if (value != null) {
+                                rs.updateFloat(columnIndex, value);
+                            }
+
+                        } else if (c instanceof IntegerColumn) {
+                            Integer value = row.getInteger((IntegerColumn) c);
+                            if (value != null) {
+                                rs.updateInt(columnIndex, value);
+                            }
+
+//                        } else if (c instanceof LongVarBinaryColumn) {
+//                            /* @todo - Implement LongVarBinaryColumn support */
+//                        } else if (c instanceof LongVarCharColumn) {
+//                            String s = row.getString(columnIndex);
+//                            if (s != null) {
+//                                rs.updateString(columnIndex, s);
+//                            }
+//
+//                        } else if (c instanceof NumericColumn) {
+//                            /* @todo - Implement NumericColumn support */
+//
+//                        } else if (c instanceof OtherColumn) {
+//                            /* @todo - Implement OtherColumn support */
+//
+//                        } else if (c instanceof RealColumn) {
+//                            /* @todo - Implement RealColumn support */
+//
+//                        } else if (c instanceof SmallIntColumn) {
+//                            /* @todo - Implement SmallIntColumn support */
+//                            short s = 0;
+//                            rs.updateShort(columnIndex, s);
+//                        } else if (c instanceof TimeColumn) {
+//                            /* @todo - Implement TimeColumn support */
+//
+//                        } else if (c instanceof TimestampColumn) {
+//                            String value = row.getString(x);
+//                            if (value == null || value.trim().isEmpty()) {
+//
+//                            } else {
+//                                TimestampColumn dc = (TimestampColumn) c;
+//                                SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"); // 2011-10-13 16:26:45.0
+//                                Date date = format.parse(value);
+//                                rs.updateTimestamp(columnIndex, new java.sql.Timestamp(date.getTime()));
+//                            }
+//
+//                        } else if (c instanceof TinyIntColumn) {
+//                            /* @todo - Implement TinyIntColumn support */
+//
+//                        } else if (c instanceof VarBinaryColumn) {
+//                            /* @todo - Implement VarBinaryColumn support */
+//
+//                        } else if (c instanceof VarCharColumn) {
+//                            String value = row.getString(x);
+//                            rs.updateString(columnIndex, value);
+                        }
+                    }
+
+                    // Add new row
+                    rs.insertRow();
+
+                    updateCount++;
+                    System.out.println(t.getName() + ": #" + n + " imported. ");
+                }
+                catch (SQLException e2) {
+                    failedCount++;
+                    System.out.println(t.getName() + ": #" + n + " failed: " + e2.getMessage());
+                }
+                n++;
+            }
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+        System.out.println(t.getName() + ": Imported " + updateCount + "/" + totalCount + ".");
         return updateCount;
     }
 

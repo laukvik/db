@@ -17,7 +17,6 @@
  */
 package org.laukvik.sql.swing;
 
-import java.io.IOException;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -28,10 +27,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.event.TableModelListener;
 import javax.swing.table.TableModel;
-
+import org.laukvik.csv.columns.Table;
 import org.laukvik.sql.DatabaseConnection;
-import org.laukvik.sql.SQL;
-import org.laukvik.sql.ddl.Table;
 
 /**
  *
@@ -68,20 +65,23 @@ public class ResultSetTableModel implements TableModel {
 
             rs = st.executeQuery(table.getSelectTable());
             rs.next();
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    public void close(){
+    public void close() {
         try {
             rs.close();
-        } catch (SQLException e) {
+        }
+        catch (SQLException e) {
             e.printStackTrace();
         }
         try {
             conn.close();
-        } catch (SQLException e) {
+        }
+        catch (SQLException e) {
             e.printStackTrace();
         }
     }
@@ -95,7 +95,8 @@ public class ResultSetTableModel implements TableModel {
     public int getColumnCount() {
         try {
             return rs.getMetaData().getColumnCount();
-        } catch (SQLException ex) {
+        }
+        catch (SQLException ex) {
             ex.printStackTrace();
             return 0;
         }
@@ -105,7 +106,8 @@ public class ResultSetTableModel implements TableModel {
     public String getColumnName(int columnIndex) {
         try {
             return rs.getMetaData().getColumnLabel(columnIndex + 1);
-        } catch (SQLException ex) {
+        }
+        catch (SQLException ex) {
             return null;
         }
     }
@@ -114,7 +116,8 @@ public class ResultSetTableModel implements TableModel {
     public Class<?> getColumnClass(int columnIndex) {
         try {
             return rs.getMetaData().getColumnClassName(columnIndex + 1).getClass();
-        } catch (SQLException ex) {
+        }
+        catch (SQLException ex) {
             return String.class;
         }
     }
@@ -127,17 +130,19 @@ public class ResultSetTableModel implements TableModel {
     @Override
     public Object getValueAt(int rowIndex, int columnIndex) {
         try {
-            if (rowIndex == rs.getRow()-1) {
+            if (rowIndex == rs.getRow() - 1) {
                 return rs.getObject(columnIndex + 1);
             } else {
                 try {
-                    rs.absolute(rowIndex+1);
+                    rs.absolute(rowIndex + 1);
                     return rs.getObject(columnIndex + 1);
-                } catch (SQLException e) {
+                }
+                catch (SQLException e) {
                     System.err.println("Row: " + rowIndex + " Column: " + columnIndex + " Message: " + e.getMessage());
                 }
             }
-        } catch (SQLException ex) {
+        }
+        catch (SQLException ex) {
             ex.printStackTrace();
         }
         return null;

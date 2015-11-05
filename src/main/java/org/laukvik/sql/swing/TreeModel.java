@@ -22,19 +22,18 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
-import javax.swing.*;
+import javax.swing.Icon;
+import javax.swing.JTree;
 import javax.swing.event.TreeModelEvent;
 import javax.swing.event.TreeModelListener;
 import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.TreePath;
-
+import org.laukvik.csv.columns.Function;
+import org.laukvik.csv.columns.Schema;
+import org.laukvik.csv.columns.Table;
+import org.laukvik.csv.columns.View;
 import org.laukvik.sql.Analyzer;
 import org.laukvik.sql.DatabaseConnection;
-import org.laukvik.sql.SQL;
-import org.laukvik.sql.ddl.Function;
-import org.laukvik.sql.ddl.Schema;
-import org.laukvik.sql.ddl.Table;
-import org.laukvik.sql.ddl.View;
 import org.laukvik.sql.swing.icons.ResourceManager;
 
 /**
@@ -56,9 +55,9 @@ public class TreeModel extends DefaultTreeCellRenderer implements javax.swing.tr
     private String stringFunctions;
     private String numericFunctions;
     private Icon ICON_TABLE = ResourceManager.getIcon("table.gif");
-    private Icon ICON_DATABASE = ResourceManager.getIcon("db.gif" );
-    private Icon ICON_VIEW = ResourceManager.getIcon("view.gif" );
-    private Icon ICON_FUNCTION = ResourceManager.getIcon("table.gif" );
+    private Icon ICON_DATABASE = ResourceManager.getIcon("db.gif");
+    private Icon ICON_VIEW = ResourceManager.getIcon("view.gif");
+    private Icon ICON_FUNCTION = ResourceManager.getIcon("table.gif");
 
     public TreeModel() {
         super();
@@ -77,7 +76,7 @@ public class TreeModel extends DefaultTreeCellRenderer implements javax.swing.tr
         return schema;
     }
 
-    public String getTableRootNode(){
+    public String getTableRootNode() {
         return tables;
     }
 
@@ -88,7 +87,7 @@ public class TreeModel extends DefaultTreeCellRenderer implements javax.swing.tr
      */
     public void setDatabaseConnection(DatabaseConnection db) {
         this.db = db;
-        if (db.isEmpty()){
+        if (db.isEmpty()) {
 
         } else {
             try {
@@ -98,7 +97,8 @@ public class TreeModel extends DefaultTreeCellRenderer implements javax.swing.tr
                 for (TreeModelListener l : listeners) {
                     l.treeStructureChanged(evt);
                 }
-            } catch (IOException e) {
+            }
+            catch (IOException e) {
                 e.printStackTrace();
             }
         }
@@ -109,28 +109,27 @@ public class TreeModel extends DefaultTreeCellRenderer implements javax.swing.tr
         return schema;
     }
 
-
     @Override
     public int getChildCount(Object parent) {
-        if (parent == schema){
+        if (parent == schema) {
             return 7;
 
-        } else if (parent == tables){
+        } else if (parent == tables) {
             return schema.getTables().size();
 
-        } else if (parent == views){
+        } else if (parent == views) {
             return schema.getViews().size();
 
-        } else if (parent == functions){
+        } else if (parent == functions) {
             return schema.getFunctions().size();
 
-        } else if (parent == systemFunctions){
+        } else if (parent == systemFunctions) {
             return schema.getSystemFunctions().size();
-        } else if (parent == timeFunctions){
+        } else if (parent == timeFunctions) {
             return schema.getTimeFunctions().size();
-        } else if (parent == stringFunctions){
+        } else if (parent == stringFunctions) {
             return schema.getStringFunctions().size();
-        } else if (parent == numericFunctions){
+        } else if (parent == numericFunctions) {
             return schema.getNumericFunctions().size();
 
         } else {
@@ -140,34 +139,42 @@ public class TreeModel extends DefaultTreeCellRenderer implements javax.swing.tr
 
     @Override
     public Object getChild(Object parent, int index) {
-        if (parent == schema){
-            switch (index){
-                case 0 : return tables;
-                case 1 : return views;
-                case 2 : return functions;
+        if (parent == schema) {
+            switch (index) {
+                case 0:
+                    return tables;
+                case 1:
+                    return views;
+                case 2:
+                    return functions;
 
-                case 3 : return systemFunctions;
-                case 4 : return timeFunctions;
-                case 5 : return stringFunctions;
-                case 6 : return numericFunctions;
-                default : return null;
+                case 3:
+                    return systemFunctions;
+                case 4:
+                    return timeFunctions;
+                case 5:
+                    return stringFunctions;
+                case 6:
+                    return numericFunctions;
+                default:
+                    return null;
             }
-        } else if (parent == tables){
+        } else if (parent == tables) {
             return schema.getTables().get(index);
 
-        } else if (parent == views){
+        } else if (parent == views) {
             return schema.getViews().get(index);
 
-        } else if (parent == functions){
+        } else if (parent == functions) {
             return schema.getFunctions().get(index);
 
-        } else if (parent == systemFunctions){
+        } else if (parent == systemFunctions) {
             return schema.getSystemFunctions().get(index);
-        } else if (parent == timeFunctions){
+        } else if (parent == timeFunctions) {
             return schema.getTimeFunctions().get(index);
-        } else if (parent == stringFunctions){
+        } else if (parent == stringFunctions) {
             return schema.getStringFunctions().get(index);
-        } else if (parent == numericFunctions){
+        } else if (parent == numericFunctions) {
             return schema.getNumericFunctions().get(index);
 
         } else {
@@ -178,38 +185,36 @@ public class TreeModel extends DefaultTreeCellRenderer implements javax.swing.tr
     @Override
     public int getIndexOfChild(Object parent, Object node) {
         //LOG.info("getIndexOfChild: " + parent + " child: " + node);
-        if (parent == schema){
+        if (parent == schema) {
 
-
-            if (node == tables){
+            if (node == tables) {
                 return 0;
-            } else if (node == views){
+            } else if (node == views) {
                 return 1;
-            } else if (node == functions){
+            } else if (node == functions) {
                 return 2;
 
-            } else if (node == systemFunctions){
+            } else if (node == systemFunctions) {
                 return 3;
-            } else if (node == timeFunctions){
+            } else if (node == timeFunctions) {
                 return 4;
-            } else if (node == stringFunctions){
+            } else if (node == stringFunctions) {
                 return 5;
-            } else if (node == numericFunctions){
+            } else if (node == numericFunctions) {
                 return 6;
 
             } else {
                 return -1;
             }
 
+        } else if (parent == tables) {
+            return schema.getTables().indexOf(node);
 
-        } else if (parent == tables){
-            return schema.getTables().indexOf( node );
-
-        } else if (parent == views){
+        } else if (parent == views) {
             return schema.getViews().indexOf(node);
 
-        } else if (parent == functions){
-            return schema.getFunctions().indexOf( node );
+        } else if (parent == functions) {
+            return schema.getFunctions().indexOf(node);
 
         } else {
             return 0;
@@ -218,25 +223,25 @@ public class TreeModel extends DefaultTreeCellRenderer implements javax.swing.tr
 
     @Override
     public boolean isLeaf(Object parent) {
-        if (parent == schema){
+        if (parent == schema) {
             return false;
 
-        } else if (parent == tables){
+        } else if (parent == tables) {
             return false;
 
-        } else if (parent == views){
+        } else if (parent == views) {
             return false;
 
-        } else if (parent == functions){
+        } else if (parent == functions) {
             return false;
 
-        } else if (parent == systemFunctions){
+        } else if (parent == systemFunctions) {
             return false;
-        } else if (parent == timeFunctions){
+        } else if (parent == timeFunctions) {
             return false;
-        } else if (parent == stringFunctions){
+        } else if (parent == stringFunctions) {
             return false;
-        } else if (parent == numericFunctions){
+        } else if (parent == numericFunctions) {
             return false;
 
         } else {
@@ -247,7 +252,7 @@ public class TreeModel extends DefaultTreeCellRenderer implements javax.swing.tr
     @Override
     public void valueForPathChanged(TreePath path, Object newValue) {
         for (TreeModelListener l : listeners) {
-            l.treeNodesChanged( new TreeModelEvent( this,path ));
+            l.treeNodesChanged(new TreeModelEvent(this, path));
         }
     }
 
@@ -268,9 +273,8 @@ public class TreeModel extends DefaultTreeCellRenderer implements javax.swing.tr
 
         setOpaque(true);
 
-
         if (value == schema) {
-            setIcon( ICON_DATABASE );
+            setIcon(ICON_DATABASE);
             setText(schema.isDefault() ? "default" : schema.getName());
 
         } else if (value == views) {
@@ -292,14 +296,14 @@ public class TreeModel extends DefaultTreeCellRenderer implements javax.swing.tr
             setText("Numeric");
 
         } else if (value instanceof Table) {
-            setText( ((Table) value).getName());
-            setIcon( ICON_TABLE );
+            setText(((Table) value).getName());
+            setIcon(ICON_TABLE);
 
-        } else if (value instanceof View){
-            setText( ((View) value).getName());
+        } else if (value instanceof View) {
+            setText(((View) value).getName());
 
-        } else if (value instanceof Function){
-            setText( ((Function) value).getName());
+        } else if (value instanceof Function) {
+            setText(((Function) value).getName());
 
         } else {
             setText(value.toString());

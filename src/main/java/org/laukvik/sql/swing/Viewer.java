@@ -34,15 +34,15 @@ import javax.swing.JScrollPane;
 import javax.swing.UIManager;
 import javax.swing.table.TableColumn;
 import javax.swing.tree.TreePath;
+import org.laukvik.csv.columns.Function;
+import org.laukvik.csv.columns.Schema;
+import org.laukvik.csv.columns.Table;
+import org.laukvik.csv.columns.View;
 import org.laukvik.sql.Analyzer;
 import org.laukvik.sql.DatabaseConnection;
 import org.laukvik.sql.DatabaseConnectionInvalidException;
 import org.laukvik.sql.DatabaseConnectionNotFoundException;
 import org.laukvik.sql.Exporter;
-import org.laukvik.sql.ddl.Function;
-import org.laukvik.sql.ddl.Schema;
-import org.laukvik.sql.ddl.Table;
-import org.laukvik.sql.ddl.View;
 import org.laukvik.sql.swing.icons.ResourceManager;
 
 /**
@@ -606,9 +606,6 @@ public class Viewer extends javax.swing.JFrame implements ConnectionDialogListen
                     catch (IOException e) {
                         JOptionPane.showMessageDialog(this, e.getMessage());
                         e.printStackTrace();
-                    }
-                    catch (Exception ex) {
-                        JOptionPane.showMessageDialog(this, ex.getMessage());
                     }
 
                 }

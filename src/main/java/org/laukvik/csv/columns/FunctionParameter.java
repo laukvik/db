@@ -1,4 +1,4 @@
-package org.laukvik.sql.ddl;
+package org.laukvik.csv.columns;
 
 /**
  * Created by morten on 10.10.2015.

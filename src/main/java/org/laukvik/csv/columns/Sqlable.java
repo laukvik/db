@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015 Morten Laukvik <morten@laukvik.no>
+ * Copyright (C) 2014 morten
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -15,21 +15,14 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
-package org.laukvik.sql.ddl;
+package org.laukvik.csv.columns;
 
 /**
  *
- * @author Morten Laukvik <morten@laukvik.no>
+ * @author morten
  */
-public class LongVarBinaryColumn extends Column {
+public interface Sqlable {
 
-    public LongVarBinaryColumn(String name) {
-        super(name);
-    }
-
-    @Override
-    public int getType() {
-        return Column.TYPE_LONGVARBINARY;
-    }
+    public String getName();
 
 }

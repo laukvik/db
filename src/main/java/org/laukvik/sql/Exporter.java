@@ -12,9 +12,9 @@ import java.util.List;
 import java.util.logging.Logger;
 import org.laukvik.csv.CSV;
 import org.laukvik.csv.MetaData;
+import org.laukvik.csv.columns.Schema;
+import org.laukvik.csv.columns.Table;
 import org.laukvik.csv.io.CsvWriter;
-import org.laukvik.sql.ddl.Schema;
-import org.laukvik.sql.ddl.Table;
 
 /**
  *
@@ -37,7 +37,7 @@ public class Exporter {
      * @throws SQLException
      * @throws DatabaseConnectionNotFoundException
      */
-    public void backupCSV(File directory) throws IOException, SQLException, DatabaseConnectionNotFoundException, Exception {
+    public void backupCSV(File directory) throws IOException, SQLException, DatabaseConnectionNotFoundException {
         LOG.info("Creating CSV backup to " + directory.getAbsolutePath());
 
         Analyzer a = new Analyzer();
@@ -209,11 +209,16 @@ public class Exporter {
      * @param table
      * @param file
      */
-    public static void createMetaData(Table table, File file) throws IOException, Exception {
+    public static void createMetaData(Table table, File file) throws IOException {
         CSV csv = Exporter.createMetaDataCSV(table);
-        csv.write(new CsvWriter(new FileOutputStream(file)));
+//        csv.write(file);
     }
 
+    /**
+     * @todo REmove metadata as separate file
+     * @param table
+     * @return
+     */
     public static CSV createMetaDataCSV(Table table) {
         CSV csv = new CSV();
         csv.addColumn("column");

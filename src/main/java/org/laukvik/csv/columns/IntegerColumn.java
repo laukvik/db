@@ -24,6 +24,9 @@ public class IntegerColumn extends Column<Integer> {
     private String name;
 
     public IntegerColumn(String name) {
+        if (name == null || name.trim().isEmpty()) {
+            throw new IllegalArgumentException("Column name cant be empty");
+        }
         this.name = name;
     }
 

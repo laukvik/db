@@ -1,7 +1,7 @@
 package org.laukvik.sql;
 
 import org.junit.Test;
-import org.laukvik.sql.ddl.IntegerColumn;
+import org.laukvik.csv.columns.IntegerColumn;
 
 /**
  * Created by morten on 16.10.2015.
@@ -9,12 +9,12 @@ import org.laukvik.sql.ddl.IntegerColumn;
 public class IntegerColumnTest {
 
     @Test(expected = IllegalArgumentException.class)
-    public void shouldFailWithEmptyName(){
+    public void shouldFailWithEmptyName() {
         new IntegerColumn("");
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void shouldFailWithNullName(){
+    public void shouldFailWithNullName() {
         new IntegerColumn(null);
     }
 

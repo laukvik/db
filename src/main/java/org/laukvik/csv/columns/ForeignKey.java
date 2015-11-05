@@ -72,6 +72,10 @@ public class ForeignKey {
         this.column = column;
     }
 
+    public String getDDL() {
+        return table + "(" + column + ")";
+    }
+
     @Override
     public int hashCode() {
         int hash = 3;

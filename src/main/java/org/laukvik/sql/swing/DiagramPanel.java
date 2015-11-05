@@ -18,16 +18,18 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.Icon;
 import javax.swing.JPanel;
 import org.laukvik.csv.CSV;
+import org.laukvik.csv.Row;
+import org.laukvik.csv.columns.Column;
+import org.laukvik.csv.columns.ForeignKey;
 import org.laukvik.csv.columns.IntegerColumn;
 import org.laukvik.csv.columns.StringColumn;
+import org.laukvik.csv.columns.Table;
 import org.laukvik.csv.io.CsvWriter;
-import org.laukvik.sql.ddl.Column;
-import org.laukvik.sql.ddl.ForeignKey;
-import org.laukvik.sql.ddl.Table;
 import org.laukvik.sql.swing.icons.ResourceManager;
 
 public class DiagramPanel extends JPanel implements MouseListener, MouseMotionListener {
@@ -187,11 +189,11 @@ public class DiagramPanel extends JPanel implements MouseListener, MouseMotionLi
                 int endTableIndex = getIndex(pk.getTable());
 
                 Point start = new Point(locations.get(tableIndex));
-                start.y += column.index() * rowHeight + headerHeight + (rowHeight / 2);
+                start.y += column.indexOf() * rowHeight + headerHeight + (rowHeight / 2);
                 start.x += tableWidth;
 
                 Point end = new Point(locations.get(endTableIndex));
-                end.y += pk.index() * rowHeight + headerHeight + (rowHeight / 2);
+                end.y += pk.indexOf() * rowHeight + headerHeight + (rowHeight / 2);
 
                 paintForeignKeyLine(g, start, end);
             }
@@ -306,8 +308,11 @@ public class DiagramPanel extends JPanel implements MouseListener, MouseMotionLi
             try {
                 write(file);
             }
-            catch (Exception e) {
+            catch (IOException e) {
                 e.printStackTrace();
+            }
+            catch (Exception ex) {
+                Logger.getLogger(DiagramPanel.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
     }
@@ -328,8 +333,11 @@ public class DiagramPanel extends JPanel implements MouseListener, MouseMotionLi
             try {
                 write(file);
             }
-            catch (Exception e1) {
+            catch (IOException e1) {
                 e1.printStackTrace();
+            }
+            catch (Exception ex) {
+                Logger.getLogger(DiagramPanel.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
         isDragging = false;
@@ -386,9 +394,9 @@ public class DiagramPanel extends JPanel implements MouseListener, MouseMotionLi
     public void write(File file) throws IOException, Exception {
         LOG.fine("Writing diagram to file " + file.getAbsolutePath());
         CSV csv = new CSV();
-        StringColumn tableCol = csv.addStringColumn("table");
-        IntegerColumn xcol = (IntegerColumn) csv.addIntegerColumn(new IntegerColumn("x"));
-        IntegerColumn ycol = (IntegerColumn) csv.addIntegerColumn(new IntegerColumn("y"));
+        StringColumn tableCol = (StringColumn) csv.addColumn("table");
+        IntegerColumn xcol = (IntegerColumn) csv.addColumn("x");
+        IntegerColumn ycol = (IntegerColumn) csv.addColumn("y");
         for (int y = 0; y < tables.size(); y++) {
             Point p = locations.get(y);
             Table t = tables.get(y);
@@ -412,14 +420,16 @@ public class DiagramPanel extends JPanel implements MouseListener, MouseMotionLi
         } else {
             CSV csv = new CSV();
             csv.read(file);
+
             StringColumn tableCol = (StringColumn) csv.getMetaData().getColumn("table");
             IntegerColumn xcol = (IntegerColumn) csv.getMetaData().getColumn("x");
             IntegerColumn ycol = (IntegerColumn) csv.getMetaData().getColumn("y");
 
             for (int n = 0; n < csv.getRowCount(); n++) {
-                String table = csv.getRow(n).getString(tableCol);
-                int x = csv.getRow(n).getInteger(xcol);
-                int y = csv.getRow(n).getInteger(ycol);
+                Row row = csv.getRow(n);
+                String table = row.getString(tableCol);
+                int x = row.getInteger(xcol);
+                int y = row.getInteger(ycol);
                 Table t = findTableByName(table);
                 LOG.fine("Table: " + table + " " + x + "/" + y);
                 if (t != null) {

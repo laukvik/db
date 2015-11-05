@@ -21,8 +21,8 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.swing.event.TableModelListener;
 import javax.swing.table.TableModel;
-import org.laukvik.sql.ddl.Column;
-import org.laukvik.sql.ddl.Table;
+import org.laukvik.csv.columns.Column;
+import org.laukvik.csv.columns.Table;
 
 /**
  *
@@ -89,7 +89,11 @@ public class TableDefinitionTableModel implements TableModel {
             case 2:
                 return c.getColumnName();
             case 3:
-                return c.getSize();
+                /**
+                 * @todo - Implement size
+                 */
+//                return c.getSize();
+                return 0;
         }
         return null;
     }
