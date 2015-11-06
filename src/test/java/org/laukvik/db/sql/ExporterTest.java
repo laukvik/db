@@ -1,0 +1,57 @@
+package org.laukvik.db.sql;
+
+import org.laukvik.db.sql.DatabaseConnectionNotFoundException;
+import org.laukvik.db.sql.Exporter;
+import org.laukvik.db.sql.Analyzer;
+import java.io.File;
+import java.io.IOException;
+import java.sql.SQLException;
+import org.junit.Test;
+import org.laukvik.db.ddl.Column;
+import org.laukvik.db.ddl.IntegerColumn;
+import org.laukvik.db.ddl.Table;
+
+/**
+ * Created by morten on 13.10.2015.
+ */
+public class ExporterTest {
+
+    public static File getTestFolder() {
+        ClassLoader classLoader = org.laukvik.db.sql.ImporterTest.class.getClassLoader();
+        return new File(classLoader.getResource("").getFile());
+    }
+
+    public static File getResource(String filename) {
+        ClassLoader classLoader = org.laukvik.db.sql.ImporterTest.class.getClassLoader();
+        return new File(classLoader.getResource(filename).getFile());
+    }
+
+    @Test
+    public void shouldExportToFile() throws DatabaseConnectionNotFoundException, IOException, SQLException {
+        Analyzer a = new Analyzer();
+        /*
+         a.findSchema(db.get)
+         sql.openConnectionByName("default");
+         Table t = new Table("Activity");
+         DatabaseConnection db = sql.getDatabaseConnection();
+         Exporter exporter = new Exporter(db);
+         exporter.exportTableCSV( t, new File("/Users/morten/Desktop/Activity.csv") );
+         */
+    }
+
+    @Test
+    public void shouldWriteMetaData() throws IOException {
+        Table t = new Table("Activity");
+        {
+            Column c = new IntegerColumn("id");
+            c.setPrimaryKey(true);
+//            c.setAutoIncrement(true);
+            c.setAllowNulls(false);
+            t.addColumn(c);
+        }
+
+        Exporter exp = new Exporter(null);
+//        exp.createMetaData(t, new File("/Users/morten/Desktop/Activity.meta.csv"));
+    }
+
+}
