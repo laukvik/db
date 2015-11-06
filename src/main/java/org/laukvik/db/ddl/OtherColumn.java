@@ -15,56 +15,52 @@
  */
 package org.laukvik.db.ddl;
 
-import java.util.Arrays;
+import java.util.Objects;
 
 /**
  *
  * @author Morten Laukvik <morten@laukvik.no>
  */
-public class ByteColumn extends Column<byte[]> {
+public class OtherColumn extends Column<String> {
 
-    private String name;
-
-    public ByteColumn(String name) {
-        this.name = name;
+    public OtherColumn(String name) {
+        super(name);
     }
 
     @Override
-    public void setName(String name) {
-        this.name = name;
+    public String asString(String value) {
+        return value;
     }
 
     @Override
-    public String getName() {
-        return name;
+    public String parse(String value) {
+        return value;
     }
 
     @Override
-    public String asString(byte[] value) {
-        return value.toString();
+    public int compare(String one, String another) {
+        return one.compareTo(another);
     }
 
     @Override
-    public byte[] parse(String value) {
-        return value.getBytes();
+    public int hashCode() {
+        int hash = 7;
+        return hash;
     }
 
-    /**
-     * @todo implement sorting for bytecolumn
-     *
-     * @param one
-     * @param another
-     * @return
-     */
-    public int compare(byte[] one, byte[] another) {
-        if (Arrays.equals(one, another)) {
-            return 0;
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
         }
-        return 1;
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final OtherColumn other = (OtherColumn) obj;
+        if (!Objects.equals(this.name, other.name)) {
+            return false;
+        }
+        return true;
     }
 
-    @Override
-    public String toString() {
-        return name + "(Byte)";
-    }
 }

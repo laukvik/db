@@ -19,40 +19,47 @@ package org.laukvik.db.ddl;
  *
  * @author Morten Laukvik <morten@laukvik.no>
  */
-public class BooleanColumn extends Column<Boolean> {
+public class TinyIntColumn extends Column<Byte> {
 
-    private String name;
-
-    public BooleanColumn(String name) {
-        this.name = name;
+    public TinyIntColumn(String name) {
+        super(name);
     }
 
     @Override
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    @Override
-    public String getName() {
-        return name;
-    }
-
-    @Override
-    public String asString(Boolean value) {
+    public String asString(Byte value) {
         return value.toString();
     }
 
     @Override
-    public Boolean parse(String value) {
-        return Boolean.parseBoolean(value);
+    public Byte parse(String value) {
+        return Byte.parseByte(value);
     }
 
-    public int compare(Boolean one, Boolean another) {
+    public int compare(Byte one, Byte another) {
         return one.compareTo(another);
     }
 
     @Override
     public String toString() {
-        return name + "(Boolean)";
+        return name + "(Byte)";
     }
+
+    @Override
+    public int hashCode() {
+        int hash = 8;
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final TinyIntColumn other = (TinyIntColumn) obj;
+        return true;
+    }
+
 }

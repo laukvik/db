@@ -31,45 +31,22 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.laukvik.db.ddl.BooleanColumn;
-import org.laukvik.db.ddl.ByteColumn;
-import org.laukvik.db.ddl.Column;
-import org.laukvik.db.ddl.FloatColumn;
-import org.laukvik.db.ddl.IntegerColumn;
-import org.laukvik.db.ddl.VarCharColumn;
 import org.laukvik.db.csv.io.CsvReader;
 import org.laukvik.db.csv.io.CsvWriter;
 import org.laukvik.db.csv.io.Readable;
 import org.laukvik.db.csv.io.Writeable;
 import org.laukvik.db.csv.query.Query;
+import org.laukvik.db.ddl.BinaryColumn;
+import org.laukvik.db.ddl.BitColumn;
+import org.laukvik.db.ddl.Column;
+import org.laukvik.db.ddl.FloatColumn;
+import org.laukvik.db.ddl.IntegerColumn;
+import org.laukvik.db.ddl.VarCharColumn;
 
 /**
  * An API for reading and writing to Viewer. The implementation is based on the
  * specficiations from http://tools.ietf.org/rfc/rfc4180.txt
  *
- * Read whole file into memory<br>
- *
- * <code>
- * Viewer c = new Viewer( new File("nerds.csv") );
- * </code>
- *
- * Write Viewer to file
- *
- * <code>
- * Viewer c = new Viewer("First","Last");
- * c.addRow( "Bill","Gates" );
- * c.addRow( new Row("Steve","Jobs") );
- * c.removeColumn("First");
- * c.addColumn("Email);
- * c.addColumn("Address",0);
- * c.write( new File("nerds.csv") );
- * </code>
- *
- * <code>
- * Viewer c = new Viewer( Person.class );
- * c.addValue( new Person("Bill","Gates") );
- * c.write( new File("persons.csv") );
- * </code>
  *
  *
  * @author Morten Laukvik <morten@laukvik.no>
@@ -215,12 +192,12 @@ public class CSV implements Serializable {
         return column;
     }
 
-    public BooleanColumn addBooleanColumn(BooleanColumn column) {
+    public BitColumn addBooleanColumn(BitColumn column) {
         addColumn(column);
         return column;
     }
 
-    public ByteColumn addByteColumn(ByteColumn column) {
+    public BinaryColumn addByteColumn(BinaryColumn column) {
         addColumn(column);
         return column;
     }

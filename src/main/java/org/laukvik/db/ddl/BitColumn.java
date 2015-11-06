@@ -19,42 +19,30 @@ package org.laukvik.db.ddl;
  *
  * @author Morten Laukvik <morten@laukvik.no>
  */
-public class FloatColumn extends Column<Double> {
+public class BitColumn extends Column<Boolean> {
 
-    public FloatColumn(String name) {
+    private String name;
+
+    public BitColumn(String name) {
         super(name);
     }
 
     @Override
-    public String asString(Double value) {
+    public String asString(Boolean value) {
         return value.toString();
     }
 
     @Override
-    public Double parse(String value) {
-        return Double.parseDouble(value);
+    public Boolean parse(String value) {
+        return Boolean.parseBoolean(value);
     }
 
-    public int compare(Double one, Double another) {
+    public int compare(Boolean one, Boolean another) {
         return one.compareTo(another);
     }
 
     @Override
-    public int hashCode() {
-        int hash = 7;
-        return hash;
+    public String toString() {
+        return name + "(Boolean)";
     }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (obj == null) {
-            return false;
-        }
-        if (getClass() != obj.getClass()) {
-            return false;
-        }
-        final FloatColumn other = (FloatColumn) obj;
-        return true;
-    }
-
 }

@@ -24,14 +24,13 @@ import java.util.List;
 import org.laukvik.db.csv.CSV;
 import org.laukvik.db.csv.MetaData;
 import org.laukvik.db.csv.Row;
-import org.laukvik.db.ddl.BooleanColumn;
+import org.laukvik.db.ddl.BitColumn;
 import org.laukvik.db.ddl.Column;
 import org.laukvik.db.ddl.DateColumn;
 import org.laukvik.db.ddl.DoubleColumn;
 import org.laukvik.db.ddl.FloatColumn;
 import org.laukvik.db.ddl.IntegerColumn;
 import org.laukvik.db.ddl.VarCharColumn;
-import org.laukvik.db.ddl.UrlColumn;
 
 /**
  *
@@ -87,11 +86,8 @@ public class CsvReader implements AutoCloseable, Readable {
                 } else if (c instanceof IntegerColumn) {
                     IntegerColumn ic = (IntegerColumn) c;
                     row.update(ic, ic.parse(value));
-                } else if (c instanceof UrlColumn) {
-                    UrlColumn uc = (UrlColumn) c;
-                    row.update(uc, uc.parse(value));
-                } else if (c instanceof BooleanColumn) {
-                    BooleanColumn bc = (BooleanColumn) c;
+                } else if (c instanceof BitColumn) {
+                    BitColumn bc = (BitColumn) c;
                     row.update(bc, bc.parse(value));
                 } else if (c instanceof DoubleColumn) {
                     DoubleColumn dc = (DoubleColumn) c;

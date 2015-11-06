@@ -15,55 +15,45 @@
  */
 package org.laukvik.db.ddl;
 
-import java.math.BigDecimal;
-
 /**
  *
  * @author Morten Laukvik <morten@laukvik.no>
  */
-public class BigDecimalColumn extends Column<BigDecimal> {
+public class CharColumn extends Column<String> {
 
-    private String name;
+    private int size;
 
-    public BigDecimalColumn(String name) {
-        this.name = name;
+    public CharColumn(String name) {
+        super(name);
     }
 
-    public BigDecimalColumn() {
+    public int getSize() {
+        return size;
     }
 
-    @Override
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    @Override
-    public String getName() {
-        return name;
+    public void setSize(int size) {
+        this.size = size;
     }
 
     @Override
-    public String asString(BigDecimal value) {
-        return value.toString();
+    public String asString(String value) {
+        return value;
     }
 
     @Override
-    public BigDecimal parse(String value) {
-        return new BigDecimal(value);
+    public String parse(String value) {
+        return value;
     }
 
-    public int compare(BigDecimal one, BigDecimal another) {
+    @Override
+    public int compare(String one, String another) {
         return one.compareTo(another);
     }
 
     @Override
-    public String toString() {
-        return name + "(Integer)";
-    }
-
-    @Override
     public int hashCode() {
-        int hash = 7;
+        int hash = 5;
+        hash = 71 * hash + this.size;
         return hash;
     }
 
@@ -75,7 +65,10 @@ public class BigDecimalColumn extends Column<BigDecimal> {
         if (getClass() != obj.getClass()) {
             return false;
         }
-        final BigDecimalColumn other = (BigDecimalColumn) obj;
+        final CharColumn other = (CharColumn) obj;
+        if (this.size != other.size) {
+            return false;
+        }
         return true;
     }
 

@@ -31,7 +31,6 @@ import org.laukvik.db.csv.Row;
 import org.laukvik.db.ddl.DateColumn;
 import org.laukvik.db.ddl.IntegerColumn;
 import org.laukvik.db.ddl.VarCharColumn;
-import org.laukvik.db.ddl.UrlColumn;
 
 /**
  *
@@ -67,7 +66,6 @@ public class QueryTest {
     public void readMetaData() {
         IntegerColumn presidency = (IntegerColumn) csv.getMetaData().getColumn("Presidency");
         DateColumn tookOffice = (DateColumn) csv.getMetaData().getColumn("Took office");
-        UrlColumn wikipedia = (UrlColumn) csv.getMetaData().getColumn("Wikipedia Entry");
         Assert.assertNotNull(presidency);
     }
 

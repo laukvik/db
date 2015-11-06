@@ -15,61 +15,31 @@
  */
 package org.laukvik.db.ddl;
 
-import java.net.MalformedURLException;
-import java.net.URL;
+import java.util.Arrays;
 
 /**
  *
  * @author Morten Laukvik <morten@laukvik.no>
  */
-public class UrlColumn extends Column<URL> {
+public class LongVarBinaryColumn extends Column<byte[]> {
 
-    private String name;
-
-    public UrlColumn(String name) {
-        this.name = name;
-    }
-
-    public UrlColumn() {
+    public LongVarBinaryColumn(String name) {
+        super(name);
     }
 
     @Override
-    public void setName(String name) {
-        this.name = name;
+    public String asString(byte[] value) {
+        return new String(value);
     }
 
     @Override
-    public String getName() {
-        return name;
-    }
-
-    @Override
-    public String asString(URL value) {
-        return value.toExternalForm();
-    }
-
-    @Override
-    public URL parse(String value) {
-        try {
-            return new URL(value);
-        }
-        catch (MalformedURLException ex) {
-            return null;
-        }
-    }
-
-    public int compare(URL one, URL another) {
-        return one.toExternalForm().compareTo(another.toExternalForm());
-    }
-
-    @Override
-    public String toString() {
-        return name + "(URL)";
+    public byte[] parse(String value) {
+        return value.getBytes();
     }
 
     @Override
     public int hashCode() {
-        int hash = 3;
+        int hash = 7;
         return hash;
     }
 
@@ -81,8 +51,27 @@ public class UrlColumn extends Column<URL> {
         if (getClass() != obj.getClass()) {
             return false;
         }
-        final UrlColumn other = (UrlColumn) obj;
+        final LongVarBinaryColumn other = (LongVarBinaryColumn) obj;
         return true;
+    }
+
+    /**
+     * @todo implement sorting for bytecolumn
+     *
+     * @param one
+     * @param another
+     * @return
+     */
+    public int compare(byte[] one, byte[] another) {
+        if (Arrays.equals(one, another)) {
+            return 0;
+        }
+        return 1;
+    }
+
+    @Override
+    public String toString() {
+        return name + "(Byte)";
     }
 
 }

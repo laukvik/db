@@ -21,26 +21,8 @@ package org.laukvik.db.ddl;
  */
 public class IntegerColumn extends Column<Integer> {
 
-    private String name;
-
     public IntegerColumn(String name) {
-        if (name == null || name.trim().isEmpty()) {
-            throw new IllegalArgumentException("Column name cant be empty");
-        }
-        this.name = name;
-    }
-
-    public IntegerColumn() {
-    }
-
-    @Override
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    @Override
-    public String getName() {
-        return name;
+        super(name);
     }
 
     @Override

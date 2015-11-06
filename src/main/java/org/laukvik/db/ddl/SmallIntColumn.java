@@ -19,29 +19,29 @@ package org.laukvik.db.ddl;
  *
  * @author Morten Laukvik <morten@laukvik.no>
  */
-public class FloatColumn extends Column<Double> {
+public class SmallIntColumn extends Column<Short> {
 
-    public FloatColumn(String name) {
+    public SmallIntColumn(String name) {
         super(name);
     }
 
     @Override
-    public String asString(Double value) {
+    public String asString(Short value) {
         return value.toString();
     }
 
     @Override
-    public Double parse(String value) {
-        return Double.parseDouble(value);
+    public Short parse(String value) {
+        return Short.parseShort(value);
     }
 
-    public int compare(Double one, Double another) {
+    public int compare(Short one, Short another) {
         return one.compareTo(another);
     }
 
     @Override
     public int hashCode() {
-        int hash = 7;
+        int hash = 8;
         return hash;
     }
 
@@ -53,7 +53,7 @@ public class FloatColumn extends Column<Double> {
         if (getClass() != obj.getClass()) {
             return false;
         }
-        final FloatColumn other = (FloatColumn) obj;
+        final SmallIntColumn other = (SmallIntColumn) obj;
         return true;
     }
 

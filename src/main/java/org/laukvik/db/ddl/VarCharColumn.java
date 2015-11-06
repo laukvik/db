@@ -23,14 +23,10 @@ import java.util.Objects;
  */
 public class VarCharColumn extends Column<String> {
 
-    private String name;
     private int size;
 
-    public VarCharColumn() {
-    }
-
     public VarCharColumn(String name) {
-        this.name = name;
+        super(name);
     }
 
     public int getSize() {
@@ -39,16 +35,6 @@ public class VarCharColumn extends Column<String> {
 
     public void setSize(int size) {
         this.size = size;
-    }
-
-    @Override
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    @Override
-    public String getName() {
-        return name;
     }
 
     @Override

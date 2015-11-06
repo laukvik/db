@@ -27,80 +27,73 @@ import org.laukvik.db.csv.MetaData;
  */
 public abstract class Column<T> implements Comparable {
 
-    public final static int TYPE_BIT = -7;
-    public final static int TYPE_TINYINT = -6;
-    public final static int TYPE_BIGINT = -5;
-    public final static int TYPE_LONGVARBINARY = -4;
-    public final static int TYPE_VARBINARY = -3;
-    public final static int TYPE_BINARY = -2;
-    public final static int TYPE_LONGVARCHAR = -1;
-
-    public final static int TYPE_CHAR = 1;
-    public final static int TYPE_NUMERIC = 2;
-    public final static int TYPE_DECIMAL = 3;
-    public final static int TYPE_INTEGER = 4;
-    public final static int TYPE_SMALLINT = 5;
-    public final static int TYPE_FLOAT = 6;
-    public final static int TYPE_REAL = 7;
-    public final static int TYPE_DOUBLE = 8;
-    public final static int TYPE_VARCHAR = 12;
-
-    public final static int TYPE_DATE = 91;
-    public final static int TYPE_TIME = 92;
-    public final static int TYPE_TIMESTAMP = 93;
-    public final static int TYPE_OTHER = 1111;
-
     private MetaData metaData;
     private boolean primaryKey;
     private boolean allowNulls;
     private ForeignKey foreignKey;
     private String defaultValue;
     private Table table;
+    String name;
+
+    public Column(String name) {
+        setName(name);
+    }
 
     public static Column parse(int columnType, String name) {
         switch (columnType) {
-            case TYPE_BIT:
-                return new BooleanColumn(name);
+            case java.sql.Types.BIT:
+                return new BitColumn(name);
 //            case TYPE_TINYINT:
 //                return new TinyIntColumn(name);
-//            case TYPE_BIGINT:
-//                return new BigIntColumn(name);
-//            case TYPE_LONGVARBINARY:
-//                return new LongVarBinaryColumn(name);
-//            case TYPE_VARBINARY:
-//                return new VarBinaryColumn(name);
-//            case TYPE_BINARY:
-//                return new BinaryColumn(name);
-//            case TYPE_LONGVARCHAR:
-//                return new LongVarCharColumn(name);
-//            case TYPE_CHAR:
-//                return new CharColumn(name);
-//            case TYPE_NUMERIC:
-//                return new NumericColumn(name);
-//            case TYPE_DECIMAL:
-//                return new DecimalColumn(name);
-            case TYPE_INTEGER:
+            case java.sql.Types.BIGINT:
+                return new BigIntColumn(name);
+            case java.sql.Types.LONGVARBINARY:
+                return new LongVarBinaryColumn(name);
+            case java.sql.Types.VARBINARY:
+                return new VarBinaryColumn(name);
+            case java.sql.Types.BINARY:
+                return new BinaryColumn(name);
+            case java.sql.Types.LONGVARCHAR:
+                return new LongVarCharColumn(name);
+            case java.sql.Types.CHAR:
+                return new CharColumn(name);
+            case java.sql.Types.NUMERIC:
+                return new NumericColumn(name);
+            case java.sql.Types.DECIMAL:
+                return new DecimalColumn(name);
+            case java.sql.Types.INTEGER:
                 return new IntegerColumn(name);
-//            case TYPE_SMALLINT:
-//                return new SmallIntColumn(name);
-            case TYPE_FLOAT:
+            case java.sql.Types.SMALLINT:
+                return new SmallIntColumn(name);
+            case java.sql.Types.FLOAT:
                 return new FloatColumn(name);
-//            case TYPE_REAL:
-//                return new RealColumn(name);
-            case TYPE_DOUBLE:
+            case java.sql.Types.REAL:
+                return new RealColumn(name);
+            case java.sql.Types.DOUBLE:
                 return new DoubleColumn(name);
-//            case TYPE_VARCHAR:
-//                return new VarCharColumn(name);
-//            case TYPE_DATE:
-//                return new DateColumn(name);
-//            case TYPE_TIME:
-//                return new TimeColumn(name);
-//            case TYPE_TIMESTAMP:
-//                return new TimestampColumn(name);
-//            case TYPE_OTHER:
-//                return new OtherColumn(name);
+            case java.sql.Types.VARCHAR:
+                return new VarCharColumn(name);
+            case java.sql.Types.DATE:
+                return new DateColumn(name);
+            case java.sql.Types.TIME:
+                return new TimeColumn(name);
+            case java.sql.Types.TIMESTAMP:
+                return new TimestampColumn(name);
+            case java.sql.Types.OTHER:
+                return new OtherColumn(name);
         }
         throw new IllegalArgumentException("ColumnType: " + columnType);
+    }
+
+    public final String getName() {
+        return name;
+    }
+
+    public final void setName(String name) {
+        if (name == null || name.trim().isEmpty()) {
+            throw new IllegalArgumentException("Column name cant be empty");
+        }
+        this.name = name;
     }
 
     public Table getTable() {
@@ -116,10 +109,6 @@ public abstract class Column<T> implements Comparable {
     public abstract T parse(String value);
 
     public abstract int compare(T one, T another);
-
-    public abstract String getName();
-
-    public abstract void setName(String name);
 
     public MetaData getMetaData() {
         return metaData;
@@ -296,15 +285,8 @@ public abstract class Column<T> implements Comparable {
             c.setDefaultValue(defaultValue);
             c.setForeignKey(foreignKey);
             return c;
-        } else if (s.equalsIgnoreCase("URL")) {
-            UrlColumn c = new UrlColumn(columnName);
-            c.setPrimaryKey(primaryKey);
-            c.setAllowNulls(allowsNull);
-            c.setDefaultValue(defaultValue);
-            c.setForeignKey(foreignKey);
-            return c;
         } else if (s.equalsIgnoreCase("BOOLEAN")) {
-            BooleanColumn c = new BooleanColumn(columnName);
+            BitColumn c = new BitColumn(columnName);
             c.setPrimaryKey(primaryKey);
             c.setAllowNulls(allowsNull);
             c.setDefaultValue(defaultValue);
@@ -328,7 +310,7 @@ public abstract class Column<T> implements Comparable {
             c.setForeignKey(foreignKey);
             return c;
         } else if (s.equalsIgnoreCase("BIGDECIMAL")) {
-            BigDecimalColumn c = new BigDecimalColumn(columnName);
+            NumericColumn c = new NumericColumn(columnName);
             c.setPrimaryKey(primaryKey);
             c.setAllowNulls(allowsNull);
             c.setDefaultValue(defaultValue);

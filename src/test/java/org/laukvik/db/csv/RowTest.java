@@ -15,11 +15,9 @@
  */
 package org.laukvik.db.csv;
 
-import org.laukvik.db.csv.CSV;
-import org.laukvik.db.csv.Row;
 import org.junit.Test;
-import org.laukvik.db.ddl.BooleanColumn;
-import org.laukvik.db.ddl.ByteColumn;
+import org.laukvik.db.ddl.BinaryColumn;
+import org.laukvik.db.ddl.BitColumn;
 import org.laukvik.db.ddl.Column;
 import org.laukvik.db.ddl.FloatColumn;
 import org.laukvik.db.ddl.IntegerColumn;
@@ -54,7 +52,7 @@ public class RowTest {
         CSV csv = new CSV();
         FloatColumn fc = csv.addFloatColumn(new FloatColumn("id"));
         Row r = csv.addRow();
-        r.update(fc, 123.45f);
+        r.update(fc, 123.45d);
     }
 
     @Test
@@ -68,7 +66,7 @@ public class RowTest {
     @Test
     public void shouldSetBoolean() {
         CSV csv = new CSV();
-        BooleanColumn bc = csv.addBooleanColumn(new BooleanColumn("isTrue"));
+        BitColumn bc = csv.addBooleanColumn(new BitColumn("isTrue"));
         Row r = csv.addRow();
         r.update(bc, true);
     }
@@ -76,7 +74,7 @@ public class RowTest {
     @Test
     public void shouldSetByte() {
         CSV csv = new CSV();
-        ByteColumn bc = csv.addByteColumn(new ByteColumn("byte"));
+        BinaryColumn bc = csv.addByteColumn(new BinaryColumn("byte"));
         Row r = csv.addRow();
         byte a = 2;
         r.update(bc, a);

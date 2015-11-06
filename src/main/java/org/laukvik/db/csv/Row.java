@@ -16,20 +16,18 @@
 package org.laukvik.db.csv;
 
 import java.io.Serializable;
-import java.net.URL;
 import java.util.Date;
 import java.util.Map;
 import java.util.Objects;
 import java.util.TreeMap;
-import org.laukvik.db.ddl.BooleanColumn;
-import org.laukvik.db.ddl.ByteColumn;
+import org.laukvik.db.ddl.BinaryColumn;
+import org.laukvik.db.ddl.BitColumn;
 import org.laukvik.db.ddl.Column;
 import org.laukvik.db.ddl.DateColumn;
 import org.laukvik.db.ddl.DoubleColumn;
 import org.laukvik.db.ddl.FloatColumn;
 import org.laukvik.db.ddl.IntegerColumn;
 import org.laukvik.db.ddl.VarCharColumn;
-import org.laukvik.db.ddl.UrlColumn;
 
 /**
  * Date created = is.readDate("created");<br>
@@ -86,7 +84,7 @@ public class Row implements Serializable {
         this.csv = csv;
     }
 
-    public Row update(ByteColumn column, Byte value) {
+    public Row update(BinaryColumn column, Byte value) {
         map.put(column, value);
         return this;
     }
@@ -96,7 +94,7 @@ public class Row implements Serializable {
         return this;
     }
 
-    public Row update(FloatColumn column, Float value) {
+    public Row update(FloatColumn column, Double value) {
         map.put(column, value);
         return this;
     }
@@ -106,17 +104,12 @@ public class Row implements Serializable {
         return this;
     }
 
-    public Row update(BooleanColumn column, Boolean value) {
+    public Row update(BitColumn column, Boolean value) {
         map.put(column, value);
         return this;
     }
 
     public Row update(VarCharColumn column, String value) {
-        map.put(column, value);
-        return this;
-    }
-
-    public Row update(UrlColumn column, URL value) {
         map.put(column, value);
         return this;
     }
@@ -150,7 +143,7 @@ public class Row implements Serializable {
         return (Integer) map.get(column);
     }
 
-    public Boolean getBoolean(BooleanColumn column) {
+    public Boolean getBoolean(BitColumn column) {
         return (Boolean) map.get(column);
     }
 

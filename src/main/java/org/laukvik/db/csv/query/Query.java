@@ -69,10 +69,6 @@ public class Query {
             this.col = col;
         }
 
-//        private int getColumnIndex() {
-//            return where.query.metaData.getColumnIndex(name);
-//        }
-
         /* Common */
         public Where isNotEmpty() {
             matcher = new NotEmptyMatcher(col);
@@ -111,8 +107,8 @@ public class Query {
             return where;
         }
 
-        public Where isIn(Float[] values) {
-            matcher = new IsInMatcher<>((FloatColumn) col, values);
+        public Where isIn(Float... values) {
+            matcher = new IsInMatcher((FloatColumn) col, values);
             return where;
         }
 

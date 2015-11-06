@@ -21,20 +21,8 @@ package org.laukvik.db.ddl;
  */
 public class DoubleColumn extends Column<Double> {
 
-    private String name;
-
     public DoubleColumn(String name) {
-        this.name = name;
-    }
-
-    @Override
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    @Override
-    public String getName() {
-        return name;
+        super(name);
     }
 
     @Override

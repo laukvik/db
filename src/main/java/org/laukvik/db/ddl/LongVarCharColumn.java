@@ -15,28 +15,46 @@
  */
 package org.laukvik.db.ddl;
 
+import java.util.Objects;
+
 /**
  *
  * @author Morten Laukvik <morten@laukvik.no>
  */
-public class FloatColumn extends Column<Double> {
+public class LongVarCharColumn extends Column<String> {
 
-    public FloatColumn(String name) {
+    private int size;
+
+    public LongVarCharColumn(String name) {
         super(name);
     }
 
-    @Override
-    public String asString(Double value) {
-        return value.toString();
+    public int getSize() {
+        return size;
+    }
+
+    public void setSize(int size) {
+        this.size = size;
     }
 
     @Override
-    public Double parse(String value) {
-        return Double.parseDouble(value);
+    public String asString(String value) {
+        return value;
     }
 
-    public int compare(Double one, Double another) {
+    @Override
+    public String parse(String value) {
+        return value;
+    }
+
+    @Override
+    public int compare(String one, String another) {
         return one.compareTo(another);
+    }
+
+    @Override
+    public String toString() {
+        return name + "(String)";
     }
 
     @Override
@@ -53,7 +71,10 @@ public class FloatColumn extends Column<Double> {
         if (getClass() != obj.getClass()) {
             return false;
         }
-        final FloatColumn other = (FloatColumn) obj;
+        final LongVarCharColumn other = (LongVarCharColumn) obj;
+        if (!Objects.equals(this.name, other.name)) {
+            return false;
+        }
         return true;
     }
 

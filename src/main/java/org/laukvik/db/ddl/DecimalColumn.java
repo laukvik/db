@@ -15,27 +15,29 @@
  */
 package org.laukvik.db.ddl;
 
+import java.math.BigDecimal;
+
 /**
  *
  * @author Morten Laukvik <morten@laukvik.no>
  */
-public class FloatColumn extends Column<Double> {
+public class DecimalColumn extends Column<BigDecimal> {
 
-    public FloatColumn(String name) {
+    public DecimalColumn(String name) {
         super(name);
     }
 
     @Override
-    public String asString(Double value) {
+    public String asString(BigDecimal value) {
         return value.toString();
     }
 
     @Override
-    public Double parse(String value) {
-        return Double.parseDouble(value);
+    public BigDecimal parse(String value) {
+        return new BigDecimal(value);
     }
 
-    public int compare(Double one, Double another) {
+    public int compare(BigDecimal one, BigDecimal another) {
         return one.compareTo(another);
     }
 
@@ -53,7 +55,7 @@ public class FloatColumn extends Column<Double> {
         if (getClass() != obj.getClass()) {
             return false;
         }
-        final FloatColumn other = (FloatColumn) obj;
+        final DecimalColumn other = (DecimalColumn) obj;
         return true;
     }
 

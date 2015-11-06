@@ -15,28 +15,28 @@
  */
 package org.laukvik.db.ddl;
 
+import java.util.Arrays;
+
 /**
  *
  * @author Morten Laukvik <morten@laukvik.no>
  */
-public class FloatColumn extends Column<Double> {
+public class BinaryColumn extends Column<byte[]> {
 
-    public FloatColumn(String name) {
+    private String name;
+
+    public BinaryColumn(String name) {
         super(name);
     }
 
     @Override
-    public String asString(Double value) {
-        return value.toString();
+    public String asString(byte[] value) {
+        return new String(value);
     }
 
     @Override
-    public Double parse(String value) {
-        return Double.parseDouble(value);
-    }
-
-    public int compare(Double one, Double another) {
-        return one.compareTo(another);
+    public byte[] parse(String value) {
+        return value.getBytes();
     }
 
     @Override
@@ -53,8 +53,27 @@ public class FloatColumn extends Column<Double> {
         if (getClass() != obj.getClass()) {
             return false;
         }
-        final FloatColumn other = (FloatColumn) obj;
+        final BinaryColumn other = (BinaryColumn) obj;
         return true;
+    }
+
+    /**
+     * @todo implement sorting for bytecolumn
+     *
+     * @param one
+     * @param another
+     * @return
+     */
+    public int compare(byte[] one, byte[] another) {
+        if (Arrays.equals(one, another)) {
+            return 0;
+        }
+        return 1;
+    }
+
+    @Override
+    public String toString() {
+        return name + "(Byte)";
     }
 
 }

@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.logging.Logger;
 import org.laukvik.db.csv.ParseException;
 import org.laukvik.db.csv.Row;
-import org.laukvik.db.ddl.BooleanColumn;
+import org.laukvik.db.ddl.BitColumn;
 import org.laukvik.db.ddl.Column;
 import org.laukvik.db.ddl.DateColumn;
 import org.laukvik.db.ddl.DoubleColumn;
@@ -254,8 +254,8 @@ public class Importer {
 //                            /* @todo - Implement BinaryColumn support */
 //
 //                        } else
-                        if (c instanceof BooleanColumn) {
-                            BooleanColumn bc = (BooleanColumn) c;
+                        if (c instanceof BitColumn) {
+                            BitColumn bc = (BitColumn) c;
                             Boolean value = row.getBoolean(bc);
                             if (value != null) {
                                 rs.updateBoolean(columnIndex, value);

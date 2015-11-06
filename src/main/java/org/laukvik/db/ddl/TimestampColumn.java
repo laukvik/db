@@ -26,25 +26,23 @@ import java.util.GregorianCalendar;
  *
  * @author Morten Laukvik <morten@laukvik.no>
  */
-public class DateColumn extends Column<Date> {
+public class TimestampColumn extends Column<Date> {
 
     private DateFormat dateFormat;
     private String format;
 
-    public DateColumn(String name, String format) {
+    public TimestampColumn(String name, String format) {
         super(name);
-        this.format = format;
         setFormat(format);
-    }
-
-    public DateColumn(String name) {
-        super(name);
-        setFormat("yyyy.MM.dd hh:mm:ss");
     }
 
     public final void setFormat(String format) {
         this.format = format;
         this.dateFormat = new SimpleDateFormat(format);
+    }
+
+    public TimestampColumn(String name) {
+        this(name, "yyyy.MM.dd hh:mm:ss");
     }
 
     public String getFormat() {
@@ -91,6 +89,11 @@ public class DateColumn extends Column<Date> {
     }
 
     @Override
+    public String toString() {
+        return name + "(Date)";
+    }
+
+    @Override
     public int hashCode() {
         int hash = 3;
         return hash;
@@ -104,7 +107,7 @@ public class DateColumn extends Column<Date> {
         if (getClass() != obj.getClass()) {
             return false;
         }
-        final DateColumn other = (DateColumn) obj;
+        final TimestampColumn other = (TimestampColumn) obj;
         return true;
     }
 
