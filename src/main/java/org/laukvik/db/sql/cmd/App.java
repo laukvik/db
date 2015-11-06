@@ -1,10 +1,7 @@
 package org.laukvik.db.sql.cmd;
 
-import org.laukvik.db.sql.DatabaseConnection;
-import org.laukvik.db.sql.SQL;
-import org.laukvik.db.sql.swing.Viewer;
-
 import java.util.logging.Logger;
+import org.laukvik.db.sql.swing.Viewer;
 
 /**
  * Starts the app
@@ -19,13 +16,12 @@ public class App extends SqlCommand {
     }
 
     @Override
-    public int run(DatabaseConnection db, String value) {
+    public int run(String value) {
         LOG.info("Opening Swing application for database '" + (db == null ? "" : db.getFilename()) + "'");
 
-
-                Viewer v = new Viewer();
-                v.setDatabaseConnection(db);
-                v.setVisible(true);
+        Viewer v = new Viewer();
+        v.setDatabaseConnection(db);
+        v.setVisible(true);
 
         return SUCCESS;
     }

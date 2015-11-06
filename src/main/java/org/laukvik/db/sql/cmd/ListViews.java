@@ -2,7 +2,6 @@ package org.laukvik.db.sql.cmd;
 
 import org.laukvik.db.ddl.View;
 import org.laukvik.db.sql.Analyzer;
-import org.laukvik.db.sql.DatabaseConnection;
 
 public class ListViews extends SqlCommand {
 
@@ -11,7 +10,7 @@ public class ListViews extends SqlCommand {
     }
 
     @Override
-    public int run(DatabaseConnection db, String value) {
+    public int run(String value) {
         Analyzer a = new Analyzer();
         for (View v : a.findViews(null, db)) {
             System.out.println(v.getName());

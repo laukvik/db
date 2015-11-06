@@ -2,7 +2,6 @@ package org.laukvik.db.sql.cmd;
 
 import java.io.File;
 import java.nio.charset.Charset;
-import org.laukvik.db.sql.DatabaseConnection;
 import org.laukvik.db.sql.DatabaseReadOnlyException;
 import org.laukvik.db.sql.Importer;
 
@@ -17,7 +16,7 @@ public class Restore extends SqlCommand {
     }
 
     @Override
-    public int run(DatabaseConnection db, String value) {
+    public int run(String value) {
         File directory = new File(value);
         if (directory.exists()) {
             try {

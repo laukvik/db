@@ -1,13 +1,12 @@
 package org.laukvik.db.sql.cmd;
 
-import org.laukvik.db.sql.DatabaseConnection;
-import org.laukvik.db.sql.DatabaseConnectionInvalidException;
-import org.laukvik.db.sql.DatabaseConnectionNotFoundException;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
 import java.util.logging.Logger;
+import org.laukvik.db.sql.DatabaseConnection;
+import org.laukvik.db.sql.DatabaseConnectionInvalidException;
+import org.laukvik.db.sql.DatabaseConnectionNotFoundException;
 
 /**
  *
@@ -16,10 +15,9 @@ import java.util.logging.Logger;
 public class CommandManager {
 
     private static final Logger LOG = Logger.getLogger(CommandManager.class.getName());
-    private List<Command> commands;
-    private String filename;
+    private final List<Command> commands;
+    private final String filename;
     private ResourceBundle bundle;
-
 
     public CommandManager(String filename) {
         this.filename = filename;
@@ -27,7 +25,7 @@ public class CommandManager {
         commands = new ArrayList<>();
     }
 
-    public void add(Command command){
+    public void add(Command command) {
         commands.add(command);
     }
 
@@ -35,36 +33,53 @@ public class CommandManager {
      * Runs the specified named command
      *
      * @param args
+     * @return
      */
-    public int run( String... args ){
+    public int run(String... args) {
         //
-        String namedConnection = args.length > 0 ? args[0] : null;
-        if (namedConnection == null || namedConnection.trim().isEmpty()){
-            usage();
-            return Command.EXCEPTION;
+        String namedConnection = null;
+        String action = null;
+        String parameter = null;
+        //
+        for (String a : args) {
+            if (a.startsWith("-")) {
+                //
+                action = a.substring(1);
+                if (action.contains("=")) {
+                    String[] arr = action.split("=");
+                    action = arr[0];
+                    parameter = arr[1];
+                }
+            } else {
+                namedConnection = a;
+            }
         }
-        //
-        String action = args.length > 1 ? args[1].substring(1) : null;
-        //
-        String parameter = args.length > 2 ? args[2] : null;
 
         LOG.fine("Connection=" + namedConnection + " action=" + action + " parameter=" + parameter);
 
-        Command cmd = getCommandByName(action);
-        if (cmd == null){
-            LOG.fine("Could not find command with name " + action);
-        } else {
-
-            try {
-                DatabaseConnection db = DatabaseConnection.read(namedConnection);
-                LOG.fine("Found named command " + action + ". Option=" + parameter);
-                return cmd.run(db,parameter);
-            } catch (DatabaseConnectionNotFoundException e) {
-                LOG.fine("Failed to connect to " + namedConnection);
-            } catch (DatabaseConnectionInvalidException e) {
-                LOG.fine("Failed to read named conneciton " + namedConnection + "!");
+        try {
+            Command cmd = getCommandByName(action);
+            LOG.fine("Found named command " + action + ". Option=" + parameter);
+            if (cmd instanceof SqlCommand) {
+                try {
+                    DatabaseConnection db = DatabaseConnection.read(namedConnection);
+                    SqlCommand sqlCommand = (SqlCommand) cmd;
+                    sqlCommand.setDatabaseConnection(db);
+                    return sqlCommand.run(parameter);
+                }
+                catch (DatabaseConnectionNotFoundException e) {
+                    LOG.fine("Failed to connect to " + namedConnection);
+                }
+                catch (DatabaseConnectionInvalidException e) {
+                    LOG.fine("Failed to read named conneciton " + namedConnection + "!");
+                }
+            } else {
+                return cmd.run(parameter);
             }
-
+        }
+        catch (Exception e) {
+            usage(null);
+            return Command.ERROR;
         }
 
         return Command.SUCCESS;
@@ -76,27 +91,31 @@ public class CommandManager {
      * @param name
      * @return
      */
-    public Command getCommandByName(String name){
-        for (Command c : commands){
-            if (c.getAction().equalsIgnoreCase(  name )){
+    public Command getCommandByName(String name) throws org.laukvik.db.sql.cmd.CommandNotFoundException {
+        for (Command c : commands) {
+            if (c.getAction().equalsIgnoreCase(name)) {
                 return c;
             }
         }
-        return null;
+        throw new CommandNotFoundException(name);
     }
 
     /**
      * Display application parameters
      *
      */
-    public void usage(){
-        System.out.println("Usage: " + filename + " <connection> <option>" );
-        for (Command c : commands){
-            if (c.getParameter() == null){
+    public void usage(String action) {
+        if (action != null) {
+            System.out.println("sql: Illegal option " + action);
+        }
+        System.out.println("Usage: " + filename + " <option> <connection>");
+        for (Command c : commands) {
+            if (c.getParameter() == null) {
                 System.out.printf("\t-%-20s\t%s\n", c.getAction(), c.getDescription());
             } else {
                 System.out.printf("\t-%-20s\t%s\n", c.getAction() + "=" + c.getParameter(), c.getDescription());
             }
         }
     }
+
 }

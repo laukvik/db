@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.sql.SQLException;
 import org.laukvik.db.ddl.Function;
 import org.laukvik.db.sql.Analyzer;
-import org.laukvik.db.sql.DatabaseConnection;
 
 /**
  * Displays a summary of a function
@@ -17,7 +16,7 @@ public class DisplayFunction extends SqlCommand {
     }
 
     @Override
-    public int run(DatabaseConnection db, String value) {
+    public int run(String value) {
         Analyzer a = new Analyzer();
         Function f = new Function(getParameter());
 

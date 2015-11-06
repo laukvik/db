@@ -1,10 +1,8 @@
 package org.laukvik.db.sql.cmd;
 
-import org.laukvik.db.sql.DatabaseConnection;
+import java.io.IOException;
 import org.laukvik.db.sql.DatabaseExportFailedException;
 import org.laukvik.db.sql.Exporter;
-
-import java.io.IOException;
 
 /**
  *
@@ -17,14 +15,16 @@ public class ExportScripts extends SqlCommand {
     }
 
     @Override
-    public int run(DatabaseConnection db, String value) {
+    public int run(String value) {
         Exporter exporter = new Exporter(db);
         try {
             exporter.exportDatabaseScripts(db.getSchema());
             return SUCCESS;
-        } catch (DatabaseExportFailedException e) {
+        }
+        catch (DatabaseExportFailedException e) {
             System.out.println(e.getMessage());
-        } catch (IOException e) {
+        }
+        catch (IOException e) {
             e.printStackTrace();
         }
         return EXCEPTION;

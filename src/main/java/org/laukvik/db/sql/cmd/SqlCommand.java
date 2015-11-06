@@ -1,13 +1,16 @@
 package org.laukvik.db.sql.cmd;
 
+import org.laukvik.db.sql.DatabaseConnection;
+
 /**
  * Created by morten on 17.10.2015.
  */
-public abstract class SqlCommand implements Command{
+public abstract class SqlCommand implements Command {
 
-    private String action;
-    private String description;
-    private String parameter;
+    private final String action;
+    private final String description;
+    private final String parameter;
+    DatabaseConnection db;
 
     public SqlCommand(String action, String parameter, String description) {
         this.action = action;
@@ -19,6 +22,10 @@ public abstract class SqlCommand implements Command{
         this.action = action;
         this.parameter = null;
         this.description = description;
+    }
+
+    public void setDatabaseConnection(DatabaseConnection db) {
+        this.db = db;
     }
 
     @Override

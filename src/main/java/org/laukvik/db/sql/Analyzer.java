@@ -54,7 +54,7 @@ public class Analyzer {
     }
 
     public static File getConnectionsHome() {
-        File home = new File(getLibraryHome(), "org.laukvik.sql");
+        File home = new File(getLibraryHome(), "org.laukvik.db");
         if (!home.exists()) {
             home.mkdir();
         }

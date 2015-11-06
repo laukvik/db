@@ -3,7 +3,6 @@ package org.laukvik.db.sql.cmd;
 import java.util.List;
 import org.laukvik.db.ddl.Table;
 import org.laukvik.db.sql.Analyzer;
-import org.laukvik.db.sql.DatabaseConnection;
 import org.laukvik.db.sql.Exporter;
 
 /**
@@ -17,7 +16,7 @@ public class ExportTable extends SqlCommand {
     }
 
     @Override
-    public int run(DatabaseConnection db, String tableName) {
+    public int run(String tableName) {
 
         Analyzer a = new Analyzer();
         List<Table> tables = a.findTables(null, db);

@@ -1,9 +1,7 @@
 package org.laukvik.db.sql.cmd;
 
-import org.laukvik.db.sql.DatabaseConnection;
 import org.laukvik.db.sql.DatabaseReadOnlyException;
 import org.laukvik.db.sql.Importer;
-import org.laukvik.db.sql.SQL;
 
 /**
  *
@@ -16,11 +14,12 @@ public class Import extends SqlCommand {
     }
 
     @Override
-    public int run(DatabaseConnection db, String value) {
+    public int run(String value) {
         try {
             Importer importer = new Importer(db);
             return SUCCESS;
-        } catch (DatabaseReadOnlyException e) {
+        }
+        catch (DatabaseReadOnlyException e) {
             e.printStackTrace();
         }
 

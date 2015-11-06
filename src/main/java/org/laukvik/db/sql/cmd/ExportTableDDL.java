@@ -4,7 +4,6 @@ import java.io.IOException;
 import org.laukvik.db.ddl.Schema;
 import org.laukvik.db.ddl.Table;
 import org.laukvik.db.sql.Analyzer;
-import org.laukvik.db.sql.DatabaseConnection;
 
 /**
  *
@@ -17,7 +16,7 @@ public class ExportTableDDL extends SqlCommand {
     }
 
     @Override
-    public int run(DatabaseConnection db, String value) {
+    public int run(String value) {
 
         Analyzer a = new Analyzer();
         try {

@@ -15,7 +15,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
-package org.laukvik.db.sql;
+package org.laukvik.db;
 
 import java.util.logging.Logger;
 import org.laukvik.db.sql.cmd.App;
@@ -64,7 +64,6 @@ public class SQL {
         mgr.add(new ExportTableDDL());
         mgr.add(new ExportTable());
         int status = mgr.run(args);
-        //System.exit(status);
     }
 
 }
