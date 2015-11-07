@@ -26,6 +26,11 @@ public class RealColumn extends Column<Float> {
     }
 
     @Override
+    public String getMeta() {
+        return "type=REAL";
+    }
+
+    @Override
     public String asString(Float value) {
         return value.toString();
     }

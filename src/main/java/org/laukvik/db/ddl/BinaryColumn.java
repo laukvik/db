@@ -30,6 +30,11 @@ public class BinaryColumn extends Column<byte[]> {
     }
 
     @Override
+    public String getMeta() {
+        return "type=BINARY";
+    }
+
+    @Override
     public String asString(byte[] value) {
         return new String(value);
     }

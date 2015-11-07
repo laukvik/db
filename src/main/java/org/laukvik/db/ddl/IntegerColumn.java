@@ -26,6 +26,11 @@ public class IntegerColumn extends Column<Integer> {
     }
 
     @Override
+    public String getMeta() {
+        return "type=INTEGER";
+    }
+
+    @Override
     public String asString(Integer value) {
         return value.toString();
     }

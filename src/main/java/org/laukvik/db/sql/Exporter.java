@@ -9,12 +9,14 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.laukvik.db.csv.CSV;
 import org.laukvik.db.csv.MetaData;
+import org.laukvik.db.csv.io.CsvWriter;
+import org.laukvik.db.ddl.Column;
 import org.laukvik.db.ddl.Schema;
 import org.laukvik.db.ddl.Table;
-import org.laukvik.db.csv.io.CsvWriter;
 
 /**
  *
@@ -38,21 +40,19 @@ public class Exporter {
      * @throws DatabaseConnectionNotFoundException
      */
     public void backupCSV(File directory) throws IOException, SQLException, DatabaseConnectionNotFoundException {
-        LOG.info("Creating CSV backup to " + directory.getAbsolutePath());
-
+        LOG.log(Level.INFO, "Creating CSV backup to {0}", directory.getAbsolutePath());
         Analyzer a = new Analyzer();
         Schema s = a.findSchema(null, databaseConnection);
         int max = s.getTables().size();
         int counter = 0;
         for (Table t : s.getTables()) {
             counter++;
-            LOG.fine(counter + "/" + max + " " + t.getName());
+            LOG.log(Level.FINE, "{0}/{1} {2}", new Object[]{counter, max, t.getName()});
             System.out.println(counter + "/" + max + " " + t.getName());
             File dataFile = new File(directory.getAbsolutePath(), t.getName() + ".csv");
             exportTableCSV(t, dataFile);
-
-            File metaFile = new File(directory.getAbsolutePath(), t.getName() + ".meta.csv");
-            Exporter.createMetaData(t, metaFile);
+//            File metaFile = new File(directory.getAbsolutePath(), t.getName() + ".meta.csv");
+//            Exporter.createMetaData(t, metaFile);
         }
     }
 
@@ -74,13 +74,18 @@ public class Exporter {
             LOG.fine("Found " + columnCount + " columns in table " + table.getName());
             System.out.println("Found " + columnCount + " columns in table " + table.getName());
 
+            // 
             MetaData md = new MetaData();
             for (int x = 0; x < columnCount; x++) {
                 String column = rs.getMetaData().getColumnName(x + 1);
-                LOG.fine("Column: " + column);
+                Column c = md.getColumn(x);
+                String header = "\"" + c.getName() + "(" + c.getMeta() + ")" + "\"";
+
+                LOG.fine("Column: " + c);
                 md.addColumn(column);
             }
             writer.writeMetaData(md);
+
             int rowCounter = 0;
             while (rs.next()) {
                 rowCounter++;

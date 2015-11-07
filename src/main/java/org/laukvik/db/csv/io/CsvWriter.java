@@ -87,7 +87,10 @@ public final class CsvWriter implements Writeable {
     public void writeMetaData(MetaData metaData) throws IOException {
         List<String> items = new ArrayList<>();
         for (int x = 0; x < metaData.getColumnCount(); x++) {
-            items.add(metaData.getColumnName(x));
+            Column c = metaData.getColumn(x);
+            String header = "\"" + c.getName() + "(" + c.getMeta() + ")" + "\"";
+//            System.out.println(c.getName() + " = " + header + " " + c.getClass().getName());
+            items.add(header);
         }
         writeValues(items);
     }

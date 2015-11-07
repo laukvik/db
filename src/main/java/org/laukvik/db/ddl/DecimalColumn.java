@@ -28,6 +28,11 @@ public class DecimalColumn extends Column<BigDecimal> {
     }
 
     @Override
+    public String getMeta() {
+        return "type=DECIMAL";
+    }
+
+    @Override
     public String asString(BigDecimal value) {
         return value.toString();
     }

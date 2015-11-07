@@ -39,12 +39,19 @@ public abstract class Column<T> implements Comparable {
         setName(name);
     }
 
+    /**
+     * Returns the meta for CSV headers
+     *
+     * @return
+     */
+    public abstract String getMeta();
+
     public static Column parse(int columnType, String name) {
         switch (columnType) {
             case java.sql.Types.BIT:
                 return new BitColumn(name);
-//            case TYPE_TINYINT:
-//                return new TinyIntColumn(name);
+            case java.sql.Types.TINYINT:
+                return new TinyIntColumn(name);
             case java.sql.Types.BIGINT:
                 return new BigIntColumn(name);
             case java.sql.Types.LONGVARBINARY:

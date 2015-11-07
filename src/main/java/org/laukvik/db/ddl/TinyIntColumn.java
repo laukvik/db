@@ -26,6 +26,11 @@ public class TinyIntColumn extends Column<Byte> {
     }
 
     @Override
+    public String getMeta() {
+        return "type=TINYINT";
+    }
+
+    @Override
     public String asString(Byte value) {
         return value.toString();
     }

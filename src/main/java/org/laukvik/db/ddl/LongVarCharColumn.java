@@ -29,6 +29,11 @@ public class LongVarCharColumn extends Column<String> {
         super(name);
     }
 
+    @Override
+    public String getMeta() {
+        return "type=LONGVARCHAR";
+    }
+
     public int getSize() {
         return size;
     }

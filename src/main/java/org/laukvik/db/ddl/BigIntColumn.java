@@ -26,6 +26,11 @@ public class BigIntColumn extends Column<Long> {
     }
 
     @Override
+    public String getMeta() {
+        return "type=BIGINT";
+    }
+
+    @Override
     public String asString(Long value) {
         return value.toString();
     }

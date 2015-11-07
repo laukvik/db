@@ -26,6 +26,11 @@ public class SmallIntColumn extends Column<Short> {
     }
 
     @Override
+    public String getMeta() {
+        return "type=SMALLINT";
+    }
+
+    @Override
     public String asString(Short value) {
         return value.toString();
     }

@@ -28,6 +28,11 @@ public class OtherColumn extends Column<String> {
     }
 
     @Override
+    public String getMeta() {
+        return "type=OTHER";
+    }
+
+    @Override
     public String asString(String value) {
         return value;
     }

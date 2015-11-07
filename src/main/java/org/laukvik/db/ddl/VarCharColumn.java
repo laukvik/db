@@ -29,6 +29,11 @@ public class VarCharColumn extends Column<String> {
         super(name);
     }
 
+    @Override
+    public String getMeta() {
+        return "type=VARCHAR";
+    }
+
     public int getSize() {
         return size;
     }

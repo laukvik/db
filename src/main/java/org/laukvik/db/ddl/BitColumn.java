@@ -28,6 +28,11 @@ public class BitColumn extends Column<Boolean> {
     }
 
     @Override
+    public String getMeta() {
+        return "type=BIT";
+    }
+
+    @Override
     public String asString(Boolean value) {
         return value.toString();
     }

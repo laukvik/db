@@ -26,6 +26,11 @@ public class FloatColumn extends Column<Double> {
     }
 
     @Override
+    public String getMeta() {
+        return "type=FLOAT";
+    }
+
+    @Override
     public String asString(Double value) {
         return value.toString();
     }

@@ -28,6 +28,11 @@ public class LongVarBinaryColumn extends Column<byte[]> {
     }
 
     @Override
+    public String getMeta() {
+        return "type=LONGVARBINARY";
+    }
+
+    @Override
     public String asString(byte[] value) {
         return new String(value);
     }

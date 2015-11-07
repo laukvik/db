@@ -28,6 +28,11 @@ public class VarBinaryColumn extends Column<byte[]> {
     }
 
     @Override
+    public String getMeta() {
+        return "type=VARBINARY";
+    }
+
+    @Override
     public String asString(byte[] value) {
         return new String(value);
     }

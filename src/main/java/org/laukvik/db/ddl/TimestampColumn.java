@@ -36,6 +36,11 @@ public class TimestampColumn extends Column<Date> {
         setFormat(format);
     }
 
+    @Override
+    public String getMeta() {
+        return "type=TIMESTAMP";
+    }
+
     public final void setFormat(String format) {
         this.format = format;
         this.dateFormat = new SimpleDateFormat(format);

@@ -181,6 +181,7 @@ public class Analyzer {
                         int columnType = rs.getInt(5);
                         int size = rs.getInt(7);
                         Column c = Column.parse(columnType, columnName);
+                        System.out.println(columnType + "=> " + c);
 //                        c.setSize(size);
 //                        c.setComments(rs.getString("REMARKS"));
 //                        try {
