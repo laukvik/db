@@ -27,11 +27,6 @@ public class CharColumn extends Column<String> {
         super(name);
     }
 
-    @Override
-    public String getMeta() {
-        return "type=CHAR";
-    }
-
     public int getSize() {
         return size;
     }

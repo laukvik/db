@@ -19,30 +19,10 @@ package org.laukvik.db.ddl;
  *
  * @author Morten Laukvik <morten@laukvik.no>
  */
-public class BitColumn extends Column<Boolean> {
+public interface SizeColumn {
 
-    private String name;
+    public int getSize();
 
-    public BitColumn(String name) {
-        super(name);
-    }
+    public void setSize(int size);
 
-    @Override
-    public String asString(Boolean value) {
-        return value.toString();
-    }
-
-    @Override
-    public Boolean parse(String value) {
-        return Boolean.parseBoolean(value);
-    }
-
-    public int compare(Boolean one, Boolean another) {
-        return one.compareTo(another);
-    }
-
-    @Override
-    public String toString() {
-        return name + "(Boolean)";
-    }
 }

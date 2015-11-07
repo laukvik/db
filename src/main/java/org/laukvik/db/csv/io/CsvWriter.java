@@ -88,8 +88,8 @@ public final class CsvWriter implements Writeable {
         List<String> items = new ArrayList<>();
         for (int x = 0; x < metaData.getColumnCount(); x++) {
             Column c = metaData.getColumn(x);
-            String header = "\"" + c.getName() + "(" + c.getMeta() + ")" + "\"";
-            System.out.println(c.getName() + " = " + header + " " + c.getClass().getName());
+            String header = "\"" + c.getName() + "(" + c.getMetaHeader() + ")" + "\"";
+//            System.out.println(c.getName() + " = " + header + " " + c.getClass().getName());
             items.add(header);
         }
         writeValues(items);

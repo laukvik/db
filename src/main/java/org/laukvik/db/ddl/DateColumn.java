@@ -37,11 +37,6 @@ public class DateColumn extends Column<Date> {
         setFormat(format);
     }
 
-    @Override
-    public String getMeta() {
-        return "type=DATE";
-    }
-
     public DateColumn(String name) {
         super(name);
         setFormat("yyyy.MM.dd hh:mm:ss");

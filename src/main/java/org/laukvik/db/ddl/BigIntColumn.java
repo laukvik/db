@@ -19,15 +19,12 @@ package org.laukvik.db.ddl;
  *
  * @author Morten Laukvik <morten@laukvik.no>
  */
-public class BigIntColumn extends Column<Long> {
+public class BigIntColumn extends Column<Long> implements AutoIncrementColumn {
+
+    private boolean autoIncrement;
 
     public BigIntColumn(String name) {
         super(name);
-    }
-
-    @Override
-    public String getMeta() {
-        return "type=BIGINT";
     }
 
     @Override
@@ -60,6 +57,14 @@ public class BigIntColumn extends Column<Long> {
         }
         final BigIntColumn other = (BigIntColumn) obj;
         return true;
+    }
+
+    public boolean isAutoIncrement() {
+        return autoIncrement;
+    }
+
+    public void setAutoIncrement(boolean autoIncrement) {
+        this.autoIncrement = autoIncrement;
     }
 
 }

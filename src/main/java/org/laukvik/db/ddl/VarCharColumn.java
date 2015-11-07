@@ -21,17 +21,12 @@ import java.util.Objects;
  *
  * @author Morten Laukvik <morten@laukvik.no>
  */
-public class VarCharColumn extends Column<String> {
+public class VarCharColumn extends Column<String> implements SizeColumn {
 
     private int size;
 
     public VarCharColumn(String name) {
         super(name);
-    }
-
-    @Override
-    public String getMeta() {
-        return "type=VARCHAR";
     }
 
     public int getSize() {

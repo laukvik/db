@@ -39,13 +39,6 @@ public abstract class Column<T> implements Comparable {
         setName(name);
     }
 
-    /**
-     * Returns the meta for CSV headers
-     *
-     * @return
-     */
-    public abstract String getMeta();
-
     public static Column parse(int columnType, String name) {
         switch (columnType) {
             case java.sql.Types.BIT:
@@ -171,9 +164,9 @@ public abstract class Column<T> implements Comparable {
     }
 
     /**
-     * "President(type=VARCHAR,primaryKey=true,increment=true,foreignKey=null)"
+     * "President(type=VARCHAR,primaryKey=true,increment=true,foreignKey=null,default='',comments='')"
      *
-     * @param columnNameWithOptionalMetaData
+     * @param columnWithMeta
      * @return
      */
     public static Column parseName(String columnWithMeta) {
@@ -382,6 +375,44 @@ public abstract class Column<T> implements Comparable {
      */
     public String getFormatted(Object value) {
         return value.toString();
+    }
+
+    public String getDataTypeName() {
+        String simpleName = this.getClass().getSimpleName();
+        int index = simpleName.indexOf("Column");
+        if (index > -1) {
+            return simpleName.substring(0, index).toUpperCase();
+        }
+        return simpleName;
+    }
+
+    public String getMetaHeader() {
+        StringBuilder b = new StringBuilder();
+        b.append("type=").append(getDataTypeName());
+        if (isPrimaryKey()) {
+            b.append(",primaryKey=true");
+        }
+        if (this instanceof AutoIncrementColumn) {
+            AutoIncrementColumn aic = (AutoIncrementColumn) this;
+            if (aic.isAutoIncrement()) {
+                b.append(",autoIncrement=true");
+            }
+        }
+        if (this instanceof SizeColumn) {
+            SizeColumn sc = (SizeColumn) this;
+            if (sc.getSize() != Integer.MAX_VALUE) {
+                b.append(",size=").append(sc.getSize());
+            }
+
+        }
+        if (!isAllowNulls()) {
+            b.append(",allowNulls=false");
+        }
+        if (getForeignKey() != null) {
+            b.append(",foreignKey=");
+            b.append(getForeignKey().getDDL());
+        }
+        return b.toString();
     }
 
 }

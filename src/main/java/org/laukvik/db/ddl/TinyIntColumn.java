@@ -19,15 +19,20 @@ package org.laukvik.db.ddl;
  *
  * @author Morten Laukvik <morten@laukvik.no>
  */
-public class TinyIntColumn extends Column<Byte> {
+public class TinyIntColumn extends Column<Byte> implements AutoIncrementColumn {
+
+    private boolean autoIncrement;
 
     public TinyIntColumn(String name) {
         super(name);
     }
 
-    @Override
-    public String getMeta() {
-        return "type=TINYINT";
+    public boolean isAutoIncrement() {
+        return autoIncrement;
+    }
+
+    public void setAutoIncrement(boolean autoIncrement) {
+        this.autoIncrement = autoIncrement;
     }
 
     @Override

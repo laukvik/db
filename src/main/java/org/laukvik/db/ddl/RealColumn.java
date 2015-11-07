@@ -19,15 +19,20 @@ package org.laukvik.db.ddl;
  *
  * @author Morten Laukvik <morten@laukvik.no>
  */
-public class RealColumn extends Column<Float> {
+public class RealColumn extends Column<Float> implements AutoIncrementColumn {
+
+    private boolean autoIncrement;
 
     public RealColumn(String name) {
         super(name);
     }
 
-    @Override
-    public String getMeta() {
-        return "type=REAL";
+    public boolean isAutoIncrement() {
+        return autoIncrement;
+    }
+
+    public void setAutoIncrement(boolean autoIncrement) {
+        this.autoIncrement = autoIncrement;
     }
 
     @Override

@@ -19,30 +19,10 @@ package org.laukvik.db.ddl;
  *
  * @author Morten Laukvik <morten@laukvik.no>
  */
-public class BitColumn extends Column<Boolean> {
+public interface AutoIncrementColumn {
 
-    private String name;
+    public void setAutoIncrement(boolean autoIncrement);
 
-    public BitColumn(String name) {
-        super(name);
-    }
+    public boolean isAutoIncrement();
 
-    @Override
-    public String asString(Boolean value) {
-        return value.toString();
-    }
-
-    @Override
-    public Boolean parse(String value) {
-        return Boolean.parseBoolean(value);
-    }
-
-    public int compare(Boolean one, Boolean another) {
-        return one.compareTo(another);
-    }
-
-    @Override
-    public String toString() {
-        return name + "(Boolean)";
-    }
 }

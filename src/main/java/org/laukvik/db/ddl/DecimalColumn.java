@@ -21,15 +21,20 @@ import java.math.BigDecimal;
  *
  * @author Morten Laukvik <morten@laukvik.no>
  */
-public class DecimalColumn extends Column<BigDecimal> {
+public class DecimalColumn extends Column<BigDecimal> implements AutoIncrementColumn {
+
+    private boolean autoIncrement;
 
     public DecimalColumn(String name) {
         super(name);
     }
 
-    @Override
-    public String getMeta() {
-        return "type=DECIMAL";
+    public boolean isAutoIncrement() {
+        return autoIncrement;
+    }
+
+    public void setAutoIncrement(boolean autoIncrement) {
+        this.autoIncrement = autoIncrement;
     }
 
     @Override

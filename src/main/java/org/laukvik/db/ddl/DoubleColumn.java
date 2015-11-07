@@ -19,15 +19,20 @@ package org.laukvik.db.ddl;
  *
  * @author Morten Laukvik <morten@laukvik.no>
  */
-public class DoubleColumn extends Column<Double> {
+public class DoubleColumn extends Column<Double> implements AutoIncrementColumn {
+
+    private boolean autoIncrement;
 
     public DoubleColumn(String name) {
         super(name);
     }
 
-    @Override
-    public String getMeta() {
-        return "type=DOUBLE";
+    public boolean isAutoIncrement() {
+        return autoIncrement;
+    }
+
+    public void setAutoIncrement(boolean autoIncrement) {
+        this.autoIncrement = autoIncrement;
     }
 
     @Override
