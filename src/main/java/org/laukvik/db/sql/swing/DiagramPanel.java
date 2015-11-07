@@ -24,12 +24,12 @@ import javax.swing.Icon;
 import javax.swing.JPanel;
 import org.laukvik.db.csv.CSV;
 import org.laukvik.db.csv.Row;
+import org.laukvik.db.csv.io.CsvWriter;
 import org.laukvik.db.ddl.Column;
 import org.laukvik.db.ddl.ForeignKey;
 import org.laukvik.db.ddl.IntegerColumn;
-import org.laukvik.db.ddl.VarCharColumn;
 import org.laukvik.db.ddl.Table;
-import org.laukvik.db.csv.io.CsvWriter;
+import org.laukvik.db.ddl.VarCharColumn;
 import org.laukvik.db.sql.swing.icons.ResourceManager;
 
 public class DiagramPanel extends JPanel implements MouseListener, MouseMotionListener {
@@ -134,7 +134,8 @@ public class DiagramPanel extends JPanel implements MouseListener, MouseMotionLi
     private Column findPrimaryKey(ForeignKey fk) {
         for (Table t : tables) {
             if (t.getName().equalsIgnoreCase(fk.getTable())) {
-                for (Column c : t.getColumns()) {
+                for (int x = 0; x < t.getMetaData().getColumnCount(); x++) {
+                    Column c = t.getMetaData().getColumn(x);
                     if (c.getName().equalsIgnoreCase(fk.getColumn())) {
                         return c;
                     }
@@ -147,7 +148,8 @@ public class DiagramPanel extends JPanel implements MouseListener, MouseMotionLi
     private void findForeignKeys() {
         foreignKeys.clear();
         for (Table t : tables) {
-            for (Column c : t.getColumns()) {
+            for (int x = 0; x < t.getMetaData().getColumnCount(); x++) {
+                Column c = t.getMetaData().getColumn(x);
                 if (c.getForeignKey() != null) {
                     Column primaryKey = findPrimaryKey(c.getForeignKey());
                     foreignKeys.add(c);
@@ -163,7 +165,7 @@ public class DiagramPanel extends JPanel implements MouseListener, MouseMotionLi
     private Column findColumnTarget(ForeignKey fk) {
         for (Table t : tables) {
             if (t.getName().equalsIgnoreCase(fk.getTable())) {
-                Column c = t.findColumnByName(fk.getColumn());
+                Column c = t.getMetaData().getColumn(fk.getColumn());
                 return c;
             }
         }
@@ -253,7 +255,7 @@ public class DiagramPanel extends JPanel implements MouseListener, MouseMotionLi
     }
 
     private Rectangle getRectangle(Table table) {
-        return new Rectangle(locations.get(tables.indexOf(table)), new Dimension(tableWidth, (table.getColumns().size() + 1) * rowHeight));
+        return new Rectangle(locations.get(tables.indexOf(table)), new Dimension(tableWidth, (table.getMetaData().getColumnCount() + 1) * rowHeight));
     }
 
     private void paintTable(Table table, Graphics g) {
@@ -263,7 +265,7 @@ public class DiagramPanel extends JPanel implements MouseListener, MouseMotionLi
         Point p = locations.get(tables.indexOf(table));
         int x = p.x;
         int y = p.y;
-        int height = rowHeight * (table.getColumns().size() + 1);
+        int height = rowHeight * (table.getMetaData().getColumnCount() + 1);
         g.setColor(TABLE_OUTLINE);
         g.fillRoundRect(x, y, tableWidth, height, 10, 10);
         g.setColor(TABLE_FILL);
@@ -282,8 +284,8 @@ public class DiagramPanel extends JPanel implements MouseListener, MouseMotionLi
 
         /* Paint columns */
         g.setColor(TABLE_TEXT);
-        for (int n = 0; n < table.getColumns().size(); n++) {
-            Column c = table.getColumns().get(n);
+        for (int n = 0; n < table.getMetaData().getColumnCount(); n++) {
+            Column c = table.getMetaData().getColumn(n);
             if (c.isPrimaryKey()) {
                 PKICON.paintIcon(this, g, x + 5, y + 20 + n * rowHeight);
             }

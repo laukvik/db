@@ -8,6 +8,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.laukvik.db.ddl.Column;
 import org.laukvik.db.ddl.ForeignKey;
@@ -80,7 +81,7 @@ public class Analyzer {
             }
         }
         catch (SQLException e) {
-            e.printStackTrace();
+            LOG.warning(e.getMessage());
         }
         return list;
     }
@@ -105,8 +106,13 @@ public class Analyzer {
         for (View v : findViews(schemaName, db)) {
             schema.addView(v);
         }
-        for (Function f : findUserFunctions(schemaName, db)) {
-            schema.addFunction(f);
+        try {
+            for (Function f : findUserFunctions(schemaName, db)) {
+                schema.addFunction(f);
+            }
+        }
+        catch (Exception e) {
+//            e.printStackTrace();
         }
 
         for (Function f : listSystemFunctions(db)) {
@@ -132,7 +138,7 @@ public class Analyzer {
      * @return
      */
     public List<Table> findTables(String schema, DatabaseConnection db) {
-        LOG.fine("Finding tables in " + db);
+        LOG.log(Level.FINE, "Finding tables in {0}", db);
         List<Table> tables = new ArrayList<>();
         //
         try (Connection conn = db.getConnection()) {
@@ -165,7 +171,7 @@ public class Analyzer {
                     Table t = new Table(rs.getString(3));
                     tables.add(t);
                 }
-                LOG.fine("Found " + tables.size() + " tables in " + db);
+                LOG.log(Level.FINE, "Found {0} tables in {1}", new Object[]{tables.size(), db});
             }
             catch (SQLException e) {
                 e.printStackTrace();
@@ -178,10 +184,10 @@ public class Analyzer {
                 try (ResultSet rs = conn.getMetaData().getColumns(null, null, t.getName(), null)) {
                     while (rs.next()) {
                         String columnName = rs.getString(4);
-                        int columnType = rs.getInt(5);
+                        int dataType = rs.getInt(5);
                         int size = rs.getInt(7);
-                        Column c = Column.parse(columnType, columnName);
-                        System.out.println(columnType + "=> " + c);
+                        Column c = Column.parse(dataType, columnName);
+//                        System.out.println(dataType + "=> " + c);
 //                        c.setSize(size);
 //                        c.setComments(rs.getString("REMARKS"));
 //                        try {
@@ -200,7 +206,8 @@ public class Analyzer {
                         c.setAllowNulls(rs.getInt("NULLABLE") == 1);
                         String defValue = rs.getString("COLUMN_DEF");
                         c.setDefaultValue(rs.wasNull() ? null : defValue);
-                        t.addColumn(c);
+
+                        t.getMetaData().addColumn(c);
 
                         //LOG.info("Column: " + rs.getString(1) + " " + rs.getString(2) + " " + rs.getString(3) + " " + rs.getString(4) + " " + rs.getString(5) + " " + rs.getString(6) + " " + rs.getString(7) + " " + rs.getString(8));
                     }
@@ -222,7 +229,8 @@ public class Analyzer {
                 try (ResultSet rs = conn.getMetaData().getImportedKeys(catalogName, schemaName, tableName)) {
                     while (rs.next()) {
                         LOG.finest("Looking for foreign key for table '" + t.getName() + "': " + rs.getString("FKTABLE_NAME") + "." + rs.getString("FKCOLUMN_NAME") + " " + rs.getString("PKTABLE_NAME") + "." + rs.getString("PKCOLUMN_NAME"));
-                        Column c = t.findColumnByName(rs.getString("FKCOLUMN_NAME"));
+
+                        Column c = t.getMetaData().getColumn(rs.getString("FKCOLUMN_NAME"));
                         if (c == null) {
 
                         } else {
@@ -240,7 +248,7 @@ public class Analyzer {
                 try (ResultSet rs = conn.getMetaData().getPrimaryKeys(null, null, t.getName())) {
                     while (rs.next()) {
                         LOG.fine("PrimaryKey: " + rs.getString(3) + " " + rs.getString(4));
-                        Column c = t.findColumnByName(rs.getString(4));
+                        Column c = t.getMetaData().getColumn(rs.getString(4));
                         if (c != null) {
                             c.setPrimaryKey(true);
                         }

@@ -40,7 +40,7 @@ public class TableDefinitionTableModel implements TableModel {
 
     @Override
     public int getRowCount() {
-        return table.getColumns().size();
+        return table.getMetaData().getColumnCount();
     }
 
     @Override
@@ -80,7 +80,7 @@ public class TableDefinitionTableModel implements TableModel {
 
     @Override
     public Object getValueAt(int rowIndex, int columnIndex) {
-        Column c = table.getColumns().get(rowIndex);
+        Column c = table.getMetaData().getColumn(rowIndex);
         switch (columnIndex) {
             case 0:
                 return c.isAllowNulls();

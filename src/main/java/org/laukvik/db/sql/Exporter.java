@@ -12,9 +12,7 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.laukvik.db.csv.CSV;
-import org.laukvik.db.csv.MetaData;
 import org.laukvik.db.csv.io.CsvWriter;
-import org.laukvik.db.ddl.Column;
 import org.laukvik.db.ddl.Schema;
 import org.laukvik.db.ddl.Table;
 
@@ -40,7 +38,7 @@ public class Exporter {
      * @throws DatabaseConnectionNotFoundException
      */
     public void backupCSV(File directory) throws IOException, SQLException, DatabaseConnectionNotFoundException {
-        LOG.log(Level.INFO, "Creating CSV backup to {0}", directory.getAbsolutePath());
+        LOG.log(Level.FINE, "Creating CSV backup to {0}", directory.getAbsolutePath());
         Analyzer a = new Analyzer();
         Schema s = a.findSchema(null, databaseConnection);
         int max = s.getTables().size();
@@ -64,7 +62,7 @@ public class Exporter {
      * @throws FileNotFoundException
      */
     public void exportTableCSV(Table table, File file) throws FileNotFoundException {
-        LOG.info("Exporting table '" + table + "' to file " + file.getAbsolutePath());
+        LOG.fine("Exporting table '" + table + "' to file " + file.getAbsolutePath());
         try (
                 Connection conn = databaseConnection.getConnection();
                 OutputStream out = new FileOutputStream(file);
@@ -74,17 +72,7 @@ public class Exporter {
             LOG.fine("Found " + columnCount + " columns in table " + table.getName());
             System.out.println("Found " + columnCount + " columns in table " + table.getName());
 
-            // 
-            MetaData md = new MetaData();
-            for (int x = 0; x < columnCount; x++) {
-                String column = rs.getMetaData().getColumnName(x + 1);
-                Column c = md.getColumn(x);
-                String header = "\"" + c.getName() + "(" + c.getMeta() + ")" + "\"";
-
-                LOG.fine("Column: " + c);
-                md.addColumn(column);
-            }
-            writer.writeMetaData(md);
+            writer.writeMetaData(table.getMetaData());
 
             int rowCounter = 0;
             while (rs.next()) {

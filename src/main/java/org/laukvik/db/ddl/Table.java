@@ -21,6 +21,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import org.laukvik.db.csv.MetaData;
 import org.laukvik.db.sql.DatabaseConnection;
 
 /**
@@ -30,21 +31,36 @@ import org.laukvik.db.sql.DatabaseConnection;
 public class Table implements Sqlable {
 
     private final String name;
-    private final List<Column> columns;
     private Schema schema;
+    private MetaData metaData;
 
     public Table(String name) {
         if (name == null || name.trim().isEmpty()) {
             throw new IllegalArgumentException("Table name cant be null or empty!");
         }
         this.name = name;
-        columns = new ArrayList<>();
+        this.metaData = new MetaData();
     }
 
-    public List<Column> getColumns() {
-        return columns;
+    public Schema getSchema() {
+        return schema;
     }
 
+    public void setSchema(Schema schema) {
+        this.schema = schema;
+    }
+
+    public MetaData getMetaData() {
+        return metaData;
+    }
+
+    public void setMetaData(MetaData metaData) {
+        this.metaData = metaData;
+    }
+
+//    public List<Column> getColumns() {
+//        return columns;
+//    }
     public void setPrimaryKey(String columnName, boolean isEnabled) {
     }
 
@@ -57,57 +73,56 @@ public class Table implements Sqlable {
         return name;
     }
 
-    public void addColumn(Column c) {
-        c.setTable(this);
-        columns.add(c);
-    }
-
-    public List<Column> findForeignKeys() {
-        List<Column> cols = new ArrayList<>();
-        for (Column c : columns) {
-            if (c.getForeignKey() != null) {
-                cols.add(c);
-            }
-        }
-        return cols;
-    }
-
-    public List<Column> findPrimaryKeys() {
-        List<Column> cols = new ArrayList<>();
-        for (Column c : columns) {
-            if (c.isPrimaryKey()) {
-                cols.add(c);
-            }
-        }
-        return cols;
-    }
-
-    public Column findColumnByName(String name) {
-        for (Column c : columns) {
-            if (c.getName().equalsIgnoreCase(name)) {
-                return c;
-            }
-        }
-        return null;
-    }
-
+//    public void addColumn(Column c) {
+//        c.setTable(this);
+//        columns.add(c);
+//    }
+//    public List<Column> findForeignKeys() {
+//        List<Column> cols = new ArrayList<>();
+//        for (Column c : columns) {
+//            if (c.getForeignKey() != null) {
+//                cols.add(c);
+//            }
+//        }
+//        return cols;
+//    }
+//
+//    public List<Column> findPrimaryKeys() {
+//        List<Column> cols = new ArrayList<>();
+//        for (Column c : columns) {
+//            if (c.isPrimaryKey()) {
+//                cols.add(c);
+//            }
+//        }
+//        return cols;
+//    }
+//    public Column findColumnByName(String name) {
+//        for (Column c : columns) {
+//            if (c.getName().equalsIgnoreCase(name)) {
+//                return c;
+//            }
+//        }
+//        return null;
+//    }
     public String getInsertSQL(ResultSet rs) throws SQLException {
         StringBuilder b = new StringBuilder();
         b.append("INSERT INTO " + name + "(");
         // Names
-        int x = 0;
-        for (Column c : columns) {
+
+        for (int x = 0; x < metaData.getColumnCount(); x++) {
+            Column c = metaData.getColumn(x);
             b.append(x > 0 ? "," : "");
             b.append(c.getName());
-            x++;
         }
+
         b.append(") VALUES (");
         // Values
-        int z = 0;
-        for (Column c : columns) {
-            b.append(z > 0 ? "," : "");
 
-            Object value = rs.getObject(z + 1);
+        for (int x = 0; x < metaData.getColumnCount(); x++) {
+            Column c = metaData.getColumn(x);
+            b.append(x > 0 ? "," : "");
+
+            Object value = rs.getObject(x + 1);
 
             if (rs.wasNull()) {
                 b.append("NULL");
@@ -115,20 +130,20 @@ public class Table implements Sqlable {
             } else {
                 b.append(c.getFormatted(value));
             }
-
-            z++;
         }
+
         b.append(");");
         return b.toString();
     }
 
     public String getSelectTable() {
-        return "SELECT * FROM " + name + " ORDER BY " + getColumns().get(0).getName() + " ASC";
+        return "SELECT * FROM " + name + " ORDER BY " + metaData.getColumn(0).getName() + " ASC";
     }
 
     public List<String> getPostConstraintScript(DatabaseConnection db) {
         List<String> list = new ArrayList<>();
-        for (Column c : columns) {
+        for (int x = 0; x < metaData.getColumnCount(); x++) {
+            Column c = metaData.getColumn(x);
             if (c.getForeignKey() != null) {
                 ForeignKey fk = c.getForeignKey();
                 list.add("ALTER TABLE " + c.getTable().getName() + " ADD FOREIGN KEY (" + c.getName() + ") REFERENCES " + fk.getDDL() + ";");
@@ -163,8 +178,9 @@ public class Table implements Sqlable {
         b.append("CREATE TABLE ");
         b.append(name);
         b.append(" (");
-        int x = 0;
-        for (Column c : columns) {
+
+        for (int x = 0; x < metaData.getColumnCount(); x++) {
+            Column c = metaData.getColumn(x);
             b.append(x > 0 ? "," : "");
             b.append("\n\t");
             b.append(c.getName());
@@ -191,20 +207,16 @@ public class Table implements Sqlable {
 //            }
             x++;
         }
-        x = 0;
 
-        List<Column> primaryKeys = findPrimaryKeys();
-        if (primaryKeys.isEmpty()) {
-
-        } else {
+        List<Column> primaryKeys = getMetaData().findPrimaryKeys();
+        if (!primaryKeys.isEmpty()) {
             b.append(",\n\tPRIMARY KEY(");
-            for (Column c : primaryKeys) {
-                if (x == 0) {
-                } else {
+            for (int x = 0; x < primaryKeys.size(); x++) {
+                Column c = primaryKeys.get(x);
+                if (x > 0) {
                     b.append(",");
                 }
                 b.append(c.getName());
-                x++;
             }
             b.append(")");
         }
@@ -222,7 +234,8 @@ public class Table implements Sqlable {
      */
     public boolean isPostInstallRequired() {
         boolean required = false;
-        for (Column c : columns) {
+        for (int x = 0; x < metaData.getColumnCount(); x++) {
+            Column c = metaData.getColumn(x);
 //            if (c.isAutoIncrement()) {
 //                required = true;
 //            }

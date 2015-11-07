@@ -1,8 +1,5 @@
 package org.laukvik.db.sql;
 
-import org.laukvik.db.sql.DatabaseConnectionNotFoundException;
-import org.laukvik.db.sql.Exporter;
-import org.laukvik.db.sql.Analyzer;
 import java.io.File;
 import java.io.IOException;
 import java.sql.SQLException;
@@ -47,7 +44,7 @@ public class ExporterTest {
             c.setPrimaryKey(true);
 //            c.setAutoIncrement(true);
             c.setAllowNulls(false);
-            t.addColumn(c);
+//            t.addColumn(c);
         }
 
         Exporter exp = new Exporter(null);

@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.logging.Logger;
 import org.laukvik.db.csv.ParseException;
 import org.laukvik.db.csv.Row;
+import org.laukvik.db.csv.io.CsvReader;
 import org.laukvik.db.ddl.BitColumn;
 import org.laukvik.db.ddl.Column;
 import org.laukvik.db.ddl.DateColumn;
@@ -22,7 +23,6 @@ import org.laukvik.db.ddl.DoubleColumn;
 import org.laukvik.db.ddl.FloatColumn;
 import org.laukvik.db.ddl.IntegerColumn;
 import org.laukvik.db.ddl.Table;
-import org.laukvik.db.csv.io.CsvReader;
 import org.laukvik.db.sql.swing.BackupMetaDataFileFilter;
 
 /**
@@ -143,7 +143,7 @@ public class Importer {
                 Connection conn = db.getConnection();
                 Statement st = conn.createStatement();) {
             int results = st.executeUpdate(table.getDDL());
-            LOG.fine("Created table " + table + " with " + table.getColumns().size() + " columns.");
+            LOG.fine("Created table " + table + " with " + table.getMetaData().getColumnCount() + " columns.");
             successful = true;
         }
         catch (Exception e) {
@@ -239,9 +239,9 @@ public class Importer {
                     rs.moveToInsertRow();
 
                     // Fill data
-                    for (int x = 0; x < t.getColumns().size(); x++) {
+                    for (int x = 0; x < t.getMetaData().getColumnCount(); x++) {
                         // Get column definition
-                        Column c = t.getColumns().get(x);
+                        Column c = t.getMetaData().getColumn(x);
                         int columnIndex = x + 1;
 
 //                        //

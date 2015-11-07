@@ -176,7 +176,16 @@ public abstract class Column<T> implements Comparable {
      * @param columnNameWithOptionalMetaData
      * @return
      */
-    public static Column parseName(String columnNameWithOptionalMetaData) {
+    public static Column parseName(String columnWithMeta) {
+
+        String columnNameWithOptionalMetaData = columnWithMeta.trim();
+        if (columnNameWithOptionalMetaData.startsWith("\"")) {
+            columnNameWithOptionalMetaData = columnNameWithOptionalMetaData.substring(1);
+        }
+        if (columnNameWithOptionalMetaData.endsWith("\"")) {
+            columnNameWithOptionalMetaData = columnNameWithOptionalMetaData.substring(0, columnNameWithOptionalMetaData.length() - 1);
+        }
+
         /* Extract extra information about the column*/
         String columnName = null;
         // Variables for meta values

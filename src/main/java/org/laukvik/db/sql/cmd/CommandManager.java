@@ -3,6 +3,7 @@ package org.laukvik.db.sql.cmd;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.laukvik.db.sql.DatabaseConnection;
 import org.laukvik.db.sql.DatabaseConnectionInvalidException;
@@ -43,23 +44,25 @@ public class CommandManager {
         //
         for (String a : args) {
             if (a.startsWith("-")) {
-                //
+                // Found option
                 action = a.substring(1);
                 if (action.contains("=")) {
+                    // Contains sub option with equals sign
                     String[] arr = action.split("=");
                     action = arr[0];
                     parameter = arr[1];
                 }
             } else {
+                // Not option - must be named connection
                 namedConnection = a;
             }
         }
 
-        LOG.fine("Connection=" + namedConnection + " action=" + action + " parameter=" + parameter);
+        LOG.log(Level.FINE, "Connection={0} action={1} parameter={2}", new Object[]{namedConnection, action, parameter});
 
         try {
             Command cmd = getCommandByName(action);
-            LOG.fine("Found named command " + action + ". Option=" + parameter);
+            LOG.log(Level.FINE, "Found named command {0}. Option={1}", new Object[]{action, parameter});
             if (cmd instanceof SqlCommand) {
                 try {
                     DatabaseConnection db = DatabaseConnection.read(namedConnection);
@@ -68,21 +71,23 @@ public class CommandManager {
                     return sqlCommand.run(parameter);
                 }
                 catch (DatabaseConnectionNotFoundException e) {
-                    LOG.fine("Failed to connect to " + namedConnection);
+                    LOG.log(Level.FINE, "Failed to connect to {0}", namedConnection);
+                    return Command.ERROR;
                 }
                 catch (DatabaseConnectionInvalidException e) {
-                    LOG.fine("Failed to read named conneciton " + namedConnection + "!");
+                    LOG.log(Level.FINE, "Failed to read named conneciton {0}!", namedConnection);
+                    return Command.ERROR;
                 }
+
             } else {
                 return cmd.run(parameter);
             }
         }
         catch (Exception e) {
+            e.printStackTrace();
             usage(null);
             return Command.ERROR;
         }
-
-        return Command.SUCCESS;
     }
 
     /**

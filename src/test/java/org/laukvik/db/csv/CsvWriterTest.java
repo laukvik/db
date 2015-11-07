@@ -15,9 +15,6 @@
  */
 package org.laukvik.db.csv;
 
-import org.laukvik.db.csv.CSV;
-import org.laukvik.db.csv.Row;
-import org.laukvik.db.csv.MetaData;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -25,8 +22,8 @@ import org.junit.Assert;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 import org.junit.Test;
-import org.laukvik.db.ddl.VarCharColumn;
 import org.laukvik.db.csv.io.CsvWriter;
+import org.laukvik.db.ddl.VarCharColumn;
 
 /**
  *
@@ -61,6 +58,12 @@ public class CsvWriterTest {
         try {
             CSV csv = new CSV();
             csv.read(f);
+
+//            System.out.println("Found columns");
+            for (int x = 0; x < csv.getMetaData().getColumnCount(); x++) {
+                System.out.println(csv.getMetaData().getColumn(x));
+            }
+
 //            VarCharColumn last = (VarCharColumn) csv.getMetaData().getColumn("Last");
 //                    assertEquals("Correct column count", 2, csv.getMetaData().getColumnCount());
             assertEquals("Correct row count", 2, csv.getRowCount());

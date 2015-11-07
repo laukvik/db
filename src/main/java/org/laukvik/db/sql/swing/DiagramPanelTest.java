@@ -25,11 +25,11 @@ public class DiagramPanelTest {
         Column eID = new IntegerColumn("employeeID");
         eID.setPrimaryKey(true);
         eID.setAllowNulls(true);
-        employee.addColumn(eID);
+        employee.getMetaData().addColumn(eID);
 
-        employee.addColumn(new VarCharColumn("firstName"));
-        employee.addColumn(new VarCharColumn("lastName"));
-        employee.addColumn(new VarCharColumn("email"));
+        employee.getMetaData().addColumn(new VarCharColumn("firstName"));
+        employee.getMetaData().addColumn(new VarCharColumn("lastName"));
+        employee.getMetaData().addColumn(new VarCharColumn("email"));
 
         IntegerColumn employeeCompanyID = new IntegerColumn("companyID");
         employeeCompanyID.setForeignKey(new ForeignKey("Company", "companyID"));
@@ -37,24 +37,24 @@ public class DiagramPanelTest {
         IntegerColumn employeeDepartmentID = new IntegerColumn("departmentID");
         employeeDepartmentID.setForeignKey(new ForeignKey("Department", "departmentID"));
 
-        employee.addColumn(employeeCompanyID);
-        employee.addColumn(employeeDepartmentID);
+        employee.getMetaData().addColumn(employeeCompanyID);
+        employee.getMetaData().addColumn(employeeDepartmentID);
 
         // Company
         Table company = new Table("Company");
         Column cID = new IntegerColumn("companyID");
         cID.setPrimaryKey(true);
-        company.addColumn(cID);
-        company.addColumn(new VarCharColumn("name"));
+        company.getMetaData().addColumn(cID);
+        company.getMetaData().addColumn(new VarCharColumn("name"));
 
         // Department
         Table department = new Table("Department");
         Column dID = new IntegerColumn("departmentID");
         dID.setPrimaryKey(true);
         dID.setAllowNulls(false);
-        department.addColumn(dID);
-        department.addColumn(new VarCharColumn("name"));
-        department.addColumn(new VarCharColumn("contact"));
+        department.getMetaData().addColumn(dID);
+        department.getMetaData().addColumn(new VarCharColumn("name"));
+        department.getMetaData().addColumn(new VarCharColumn("contact"));
 
         IntegerColumn companyID = new IntegerColumn("companyID");
         ForeignKey contactFK = new ForeignKey("Company", "companyID");

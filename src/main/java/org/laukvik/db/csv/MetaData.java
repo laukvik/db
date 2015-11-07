@@ -115,4 +115,24 @@ public class MetaData implements Serializable {
         columns.remove(columnIndex);
     }
 
+    public List<Column> findForeignKeys() {
+        List<Column> cols = new ArrayList<>();
+        for (Column c : columns) {
+            if (c.getForeignKey() != null) {
+                cols.add(c);
+            }
+        }
+        return cols;
+    }
+
+    public List<Column> findPrimaryKeys() {
+        List<Column> cols = new ArrayList<>();
+        for (Column c : columns) {
+            if (c.isPrimaryKey()) {
+                cols.add(c);
+            }
+        }
+        return cols;
+    }
+
 }
