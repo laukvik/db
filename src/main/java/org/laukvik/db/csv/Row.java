@@ -123,6 +123,10 @@ public class Row implements Serializable {
         return map.get(column) == null;
     }
 
+    public Object getValue(Column column) {
+        return map.get(column);
+    }
+
     public String getAsString(Column column) {
         return map.get(column) + "";
     }

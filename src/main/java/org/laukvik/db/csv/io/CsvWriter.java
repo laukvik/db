@@ -38,7 +38,7 @@ public final class CsvWriter implements Writeable {
     private static final Logger LOG = Logger.getLogger(CsvWriter.class.getName());
 
     private final OutputStream out;
-    private final MetaData metaData;
+    private MetaData metaData;
 
     public CsvWriter(OutputStream out, MetaData metaData) throws IOException {
         this.out = out;
@@ -61,8 +61,8 @@ public final class CsvWriter implements Writeable {
         List<String> values = new ArrayList<>();
         for (int x = 0; x < metaData.getColumnCount(); x++) {
             Column c = metaData.getColumn(x);
-            Object o = row.getAsString(c);
-            values.add("" + c.asString(o));
+            Object o = row.getValue(c);
+            values.add("" + o);
         }
         writeValues(values);
     }
@@ -70,6 +70,7 @@ public final class CsvWriter implements Writeable {
     @Override
     public void write(CSV csv) throws IOException {
         writeMetaData(csv.getMetaData());
+        metaData = csv.getMetaData();
         for (int y = 0; y < csv.getRowCount(); y++) {
             writeRow(csv.getRow(y));
         }

@@ -145,6 +145,9 @@ public class DiagramPanel extends JPanel implements MouseListener, MouseMotionLi
 
     private Column findPrimaryKey(ForeignKey fk) {
         TablePosition tp = findTableByName(fk.getTable());
+        if (tp == null) {
+            return null;
+        }
         Table t = tp.getTable();
         for (int x = 0; x < t.getMetaData().getColumnCount(); x++) {
             Column c = t.getMetaData().getColumn(x);
@@ -436,8 +439,8 @@ public class DiagramPanel extends JPanel implements MouseListener, MouseMotionLi
      */
     public void read(File file) throws Exception {
         LOG.log(Level.FINE, "Reading diagram from file {0}", file.getAbsolutePath());
-        DiagramManager.read(positions, file);
         this.file = file;
+        DiagramManager.read(positions, file);
         fireTablesChanged();
     }
 
