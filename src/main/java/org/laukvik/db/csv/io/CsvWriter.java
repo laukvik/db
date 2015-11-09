@@ -21,6 +21,7 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.logging.Logger;
 import org.laukvik.db.csv.CSV;
 import org.laukvik.db.csv.MetaData;
 import org.laukvik.db.csv.Row;
@@ -33,6 +34,8 @@ import org.laukvik.db.ddl.Column;
  * @author Morten Laukvik <morten@laukvik.no>
  */
 public final class CsvWriter implements Writeable {
+
+    private static final Logger LOG = Logger.getLogger(CsvWriter.class.getName());
 
     private final OutputStream out;
     private final MetaData metaData;
@@ -59,11 +62,12 @@ public final class CsvWriter implements Writeable {
         for (int x = 0; x < metaData.getColumnCount(); x++) {
             Column c = metaData.getColumn(x);
             Object o = row.getAsString(c);
-            values.add(c.asString(o));
+            values.add("" + c.asString(o));
         }
         writeValues(values);
     }
 
+    @Override
     public void write(CSV csv) throws IOException {
         writeMetaData(csv.getMetaData());
         for (int y = 0; y < csv.getRowCount(); y++) {
@@ -88,8 +92,8 @@ public final class CsvWriter implements Writeable {
         List<String> items = new ArrayList<>();
         for (int x = 0; x < metaData.getColumnCount(); x++) {
             Column c = metaData.getColumn(x);
-            String header = "\"" + c.getName() + "(" + c.getMetaHeader() + ")" + "\"";
-//            System.out.println(c.getName() + " = " + header + " " + c.getClass().getName());
+//            String header = "\"" + c.getName() + "(" + c.getMetaHeader() + ")" + "\"";
+            String header = c.getName() + "(" + c.getMetaHeader() + ")";
             items.add(header);
         }
         writeValues(items);

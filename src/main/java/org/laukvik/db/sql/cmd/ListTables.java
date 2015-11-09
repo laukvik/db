@@ -15,8 +15,10 @@ public class ListTables extends SqlCommand {
 
     @Override
     public int run(String value) {
+        String catalog = null;
+        String schema = null;
         Analyzer a = new Analyzer();
-        for (Table t : a.findTables(db.getSchema(), db)) {
+        for (Table t : a.findTables(catalog, schema, db)) {
             System.out.println(t.getName());
         }
         return 0;

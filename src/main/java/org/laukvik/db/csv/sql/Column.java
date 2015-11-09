@@ -60,9 +60,9 @@ public class Column {
 
     public static Column parse(String sql) throws ParseException {
         if (sql.contains(".")) {
-            String[] arr = sql.split(".");
+            String[] arr = sql.split("\\.");
             if (arr.length == 2) {
-                return new Column(arr[0], arr[1]);
+                return new Column(arr[1], arr[0]);
             } else {
                 throw new ParseException("Could not parse column");
             }

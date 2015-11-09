@@ -216,11 +216,10 @@ public class CSV implements Serializable {
         return (VarCharColumn) metaData.addColumn(new VarCharColumn(name));
     }
 
-    public String insertColumn(String name, int columnIndex) {
-        metaData.addColumn(name, columnIndex);
-        return name;
-    }
-
+//    public String insertColumn(String name, int columnIndex) {
+//        metaData.addColumn(name, columnIndex);
+//        return name;
+//    }
     /**
      * Removes the column and all its data
      *

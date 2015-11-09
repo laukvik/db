@@ -17,9 +17,6 @@
  */
 package org.laukvik.db.sql;
 
-
-import org.laukvik.db.csv.MetaData;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -39,7 +36,6 @@ import java.util.logging.Logger;
 public class DatabaseConnection {
 
     private final static Logger LOG = Logger.getLogger(DatabaseConnection.class.getName());
-
 
     private String name;
     private String url;
@@ -71,8 +67,8 @@ public class DatabaseConnection {
         this.schema = schema;
     }
 
-    public String getConnectionURL(){
-        return "jdbc:"+ driver +"://"+server +":"+port+"/"+database;
+    public String getConnectionURL() {
+        return "jdbc:" + driver + "://" + server + ":" + port + "/" + database;
     }
 
     public String getPort() {
@@ -140,49 +136,55 @@ public class DatabaseConnection {
     }
 
     public Connection getConnection() throws SQLException, IOException {
-        if (url == null || url.trim().isEmpty()){
+        if (url == null || url.trim().isEmpty()) {
             return DriverManager.getConnection(getConnectionURL(), getUser(), getPassword());
         } else {
             return DriverManager.getConnection(url, getUser(), getPassword());
         }
     }
 
-    public String toString(){
+    public String toString() {
         return "named connection '" + name + "'";
     }
 
-    public boolean canConnect(){
-        try(
-            Connection conn = getConnection();
-        ){
+    public boolean canConnect() {
+        try (
+                Connection conn = getConnection();) {
             conn.getMetaData().getDatabaseProductName();
             return true;
-        } catch(Exception e){
+        }
+        catch (Exception e) {
             return false;
         }
     }
 
-    public boolean isMissingDriver(){
-        try(
-                Connection conn = getConnection();
-        ) {
+    public boolean isMissingDriver() {
+        try (
+                Connection conn = getConnection();) {
             conn.getMetaData().getDatabaseProductName();
             return false;
-        } catch(Exception e){
-            if (e.getMessage().toLowerCase().contains("no suitable driver found")){
-               return true;
+        }
+        catch (Exception e) {
+            if (e.getMessage().toLowerCase().contains("no suitable driver found")) {
+                return true;
             } else {
                 return false;
             }
         }
     }
 
-    public static DatabaseConnection read( String namedConnection ) throws DatabaseConnectionNotFoundException, DatabaseConnectionInvalidException {
-        File f = new File( Analyzer.getConnectionsHome(),  namedConnection + ".properties");
-        return DatabaseConnection.read(f );
+    public static DatabaseConnection read(String namedConnection) throws DatabaseConnectionNotFoundException, DatabaseConnectionInvalidException {
+        File f = new File(Analyzer.getConnectionsHome(), namedConnection + ".properties");
+        if (!f.exists()) {
+            throw new DatabaseConnectionNotFoundException(namedConnection);
+        }
+        return DatabaseConnection.read(f);
     }
 
-    public static DatabaseConnection read( File f  ) throws DatabaseConnectionNotFoundException, DatabaseConnectionInvalidException {
+    public static DatabaseConnection read(File f) throws DatabaseConnectionNotFoundException, DatabaseConnectionInvalidException {
+        if (!f.exists()) {
+            throw new DatabaseConnectionNotFoundException(f);
+        }
         DatabaseConnection db = new DatabaseConnection();
         // Read settings file
         Properties p = new Properties();
@@ -196,23 +198,23 @@ public class DatabaseConnection {
             db.setPort(p.getProperty("port"));
             db.setServer(p.getProperty("server"));
             db.setDatabase(p.getProperty("database"));
-            db.setDriver( p.getProperty("driver"));
+            db.setDriver(p.getProperty("driver"));
             db.setSchema(p.getProperty("schema"));
             String r = p.getProperty("readonly");
-            if (r == null){
+            if (r == null) {
                 db.setReadOnly(true);
 
-            } else if (p.getProperty("readonly").equalsIgnoreCase("true")){
-                db.setReadOnly( true );
+            } else if (p.getProperty("readonly").equalsIgnoreCase("true")) {
+                db.setReadOnly(true);
 
-            } else if (p.getProperty("readonly").equalsIgnoreCase("no")){
-                db.setReadOnly( false );
+            } else if (p.getProperty("readonly").equalsIgnoreCase("no")) {
+                db.setReadOnly(false);
             }
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
+        }
+        catch (FileNotFoundException e) {
             throw new DatabaseConnectionNotFoundException(namedConnection);
-        } catch (IOException e) {
-            e.printStackTrace();
+        }
+        catch (IOException e) {
             throw new DatabaseConnectionInvalidException(namedConnection);
         }
         return db;

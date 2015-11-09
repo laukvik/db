@@ -77,7 +77,7 @@ public class JsonWriter implements Writeable {
                 out.write(SPACE);
                 out.write(SPACE);
                 out.write(DOUBLE_QUOTE);
-                String s = md.getColumnName(x);
+                String s = md.getColumn(x).getName();
                 writeString(s, out);
                 out.write(DOUBLE_QUOTE);
                 out.write(SEMICOLON);

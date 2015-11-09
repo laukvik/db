@@ -36,7 +36,12 @@ public class MetaData implements Serializable {
     }
 
     public Column getColumn(String name) {
-        return columns.get(getColumnIndex(name));
+        for (Column c : columns) {
+            if (c.getName().equalsIgnoreCase(name)) {
+                return c;
+            }
+        }
+        throw new ColumnNotFoundException(name);
     }
 
     public Column getColumn(int columnIndex) {
@@ -81,35 +86,16 @@ public class MetaData implements Serializable {
         return columns.indexOf(column);
     }
 
-    /**
-     * @todo Remove this convenience method
-     * @param column
-     * @return
-     */
-    public String getColumnName(int column) {
-        return columns.get(column).getName();
+    public Column insertColumn(Column column, int index) {
+        column.setMetaData(this);
+        columns.add(index, column);
+        return column;
     }
 
-    public void setColumnName(String name, int column) {
-        columns.get(column).setName(name);
-    }
-
-    public int getColumnIndex(String column) {
-        int x = 0;
-        for (Column c : columns) {
-            if (c.getName().equalsIgnoreCase(column)) {
-                return x;
-            }
-            x++;
-        }
-        throw new ColumnNotFoundException(x);
-    }
-
-    public void addColumn(String name, int columnIndex) {
-//        columns.add(new StringColumn(name), name);
-        throw new IllegalArgumentException("Not implemented yet");
-    }
-
+//    public void addColumn(String name, int columnIndex) {
+////        columns.add(new StringColumn(name), name);
+//        throw new IllegalArgumentException("Not implemented yet");
+//    }
     public void removeColumn(int columnIndex) {
         columns.get(columnIndex).setMetaData(null);
         columns.remove(columnIndex);

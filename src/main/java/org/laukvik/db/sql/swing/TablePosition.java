@@ -13,52 +13,47 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.laukvik.db.ddl;
+package org.laukvik.db.sql.swing;
+
+import java.awt.Point;
+import java.util.Objects;
+import org.laukvik.db.ddl.Table;
 
 /**
  *
  * @author Morten Laukvik <morten@laukvik.no>
  */
-public class IntegerColumn extends Column<Integer> implements AutoIncrementColumn {
+public class TablePosition {
 
-    private boolean autoIncrement;
+    Table table;
+    Point point;
 
-    public IntegerColumn(String name) {
-        super(name);
+    public TablePosition(Table table, Point point) {
+        this.table = table;
+        this.point = point;
     }
 
-    @Override
-    public boolean isAutoIncrement() {
-        return autoIncrement;
+    public Point getPoint() {
+        return point;
     }
 
-    @Override
-    public void setAutoIncrement(boolean autoIncrement) {
-        this.autoIncrement = autoIncrement;
+    public Table getTable() {
+        return table;
     }
 
-    @Override
-    public String asString(Integer value) {
-        return value.toString();
+    public void setTable(Table table) {
+        this.table = table;
     }
 
-    @Override
-    public Integer parse(String value) {
-        return Integer.parseInt(value);
-    }
-
-    public int compare(Integer one, Integer another) {
-        return one.compareTo(another);
-    }
-
-    @Override
-    public String toString() {
-        return name + "(Integer)";
+    public void setPoint(Point point) {
+        this.point = point;
     }
 
     @Override
     public int hashCode() {
         int hash = 7;
+        hash = 79 * hash + Objects.hashCode(this.table);
+        hash = 79 * hash + Objects.hashCode(this.point);
         return hash;
     }
 
@@ -70,7 +65,13 @@ public class IntegerColumn extends Column<Integer> implements AutoIncrementColum
         if (getClass() != obj.getClass()) {
             return false;
         }
-        final IntegerColumn other = (IntegerColumn) obj;
+        final TablePosition other = (TablePosition) obj;
+        if (!Objects.equals(this.table, other.table)) {
+            return false;
+        }
+        if (!Objects.equals(this.point, other.point)) {
+            return false;
+        }
         return true;
     }
 

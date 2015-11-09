@@ -67,8 +67,8 @@ public class CsvWriterTest {
 //            VarCharColumn last = (VarCharColumn) csv.getMetaData().getColumn("Last");
 //                    assertEquals("Correct column count", 2, csv.getMetaData().getColumnCount());
             assertEquals("Correct row count", 2, csv.getRowCount());
-            assertEquals("First", "First", csv.getMetaData().getColumnName(0));
-            assertEquals("Last", "Last", csv.getMetaData().getColumnName(1));
+            assertEquals("First", "First", csv.getMetaData().getColumn(0).getName());
+            assertEquals("Last", "Last", csv.getMetaData().getColumn(1).getName());
             assertEquals("Find by row index and index", "Bill", csv.getRow(0).getString(first));
             assertEquals("Find by row index and column name", "Gates", csv.getRow(0).getString(last));
         }

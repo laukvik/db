@@ -89,7 +89,7 @@ public class SelectReader extends GroupReader {
                     query.table = table;
                 } else {
                     Table left = null;
-                    if (query.getJoins().size() == 0) {
+                    if (query.getJoins().isEmpty()) {
                         left = query.table;
                     } else {
                         left = query.getJoins().get(query.getJoins().size() - 1).left.getTable();

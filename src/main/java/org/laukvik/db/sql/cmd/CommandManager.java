@@ -64,6 +64,10 @@ public class CommandManager {
             Command cmd = getCommandByName(action);
             LOG.log(Level.FINE, "Found named command {0}. Option={1}", new Object[]{action, parameter});
             if (cmd instanceof SqlCommand) {
+                if (namedConnection == null || namedConnection.trim().isEmpty()) {
+                    System.out.println("Please specify connection name");
+                    return Command.ERROR;
+                }
                 try {
                     DatabaseConnection db = DatabaseConnection.read(namedConnection);
                     SqlCommand sqlCommand = (SqlCommand) cmd;
@@ -72,6 +76,7 @@ public class CommandManager {
                 }
                 catch (DatabaseConnectionNotFoundException e) {
                     LOG.log(Level.FINE, "Failed to connect to {0}", namedConnection);
+                    System.out.println("Could not find connection with name '" + namedConnection + "'");
                     return Command.ERROR;
                 }
                 catch (DatabaseConnectionInvalidException e) {
@@ -84,7 +89,6 @@ public class CommandManager {
             }
         }
         catch (Exception e) {
-            e.printStackTrace();
             usage(null);
             return Command.ERROR;
         }

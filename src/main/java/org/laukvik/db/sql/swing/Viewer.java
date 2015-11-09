@@ -27,6 +27,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ResourceBundle;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -124,7 +125,7 @@ public class Viewer extends javax.swing.JFrame implements ConnectionDialogListen
      * @param db
      */
     public void setDatabaseConnection(DatabaseConnection db) {
-        LOG.info("Setting databaseConnection to " + db);
+        LOG.log(Level.FINE, "Setting databaseConnection to {0}", db);
         this.db = db;
         treeModel.setDatabaseConnection(db);
         tree.setCellRenderer(treeModel);
@@ -139,7 +140,7 @@ public class Viewer extends javax.swing.JFrame implements ConnectionDialogListen
                 diagramPanel.read(getDiagramFile());
             }
             catch (Exception e) {
-                e.printStackTrace();
+                LOG.log(Level.WARNING, "Could not read diagram file {0}", getDiagramFile().getAbsolutePath());
             }
         }
         tree.setSelectionPath(new TreePath(treeModel.getRoot()));

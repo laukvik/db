@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.laukvik.db.csv.swing.Unique;
 import org.laukvik.db.ddl.AutoIncrementColumn;
 import org.laukvik.db.ddl.Column;
 import org.laukvik.db.ddl.ForeignKey;
@@ -70,7 +71,7 @@ public class Analyzer {
      * @return
      */
     public List<Schema> findSchemas(DatabaseConnection db) throws IOException {
-        LOG.fine("Finding all schemas in '" + db.getFilename() + "'...");
+        LOG.log(Level.FINE, "Finding all schemas in ''{0}''...", db.getFilename());
         List<Schema> list = new ArrayList<>();
         try {
             DatabaseMetaData dbmd = db.getConnection().getMetaData();
@@ -101,7 +102,7 @@ public class Analyzer {
      */
     public Schema findSchema(String schemaName, DatabaseConnection db) throws IOException {
         Schema schema = new Schema(schemaName);
-        for (Table t : findTables(schemaName, db)) {
+        for (Table t : findTables("", schemaName, db)) {
             schema.addTable(t);
         }
 
@@ -135,74 +136,60 @@ public class Analyzer {
     /**
      * Finds all tables in database
      *
-     * @param schema
+     * @param catalog catalog a catalog name; must match the catalog name as it
+     * is stored in the database; "" retrieves those without a catalog;
+     * <code>null</code> means that the catalog name should not be used to
+     * narrow the search
+     *
+     * @param schemaPattern schemaPattern a schema name pattern; must match the
+     * schema name as it is stored in the database; "" retrieves those without a
+     * schema; <code>null</code> means that the schema name should not be used
+     * to narrow the search
      * @param db
      * @return
      */
-    public List<Table> findTables(String schema, DatabaseConnection db) {
+    public List<Table> findTables(String catalog, String schemaPattern, DatabaseConnection db) {
         LOG.log(Level.FINE, "Finding tables in {0}", db);
         List<Table> tables = new ArrayList<>();
         //
         try (Connection conn = db.getConnection()) {
-            /**
-             * Find tables
-             *
-             *      * @param catalog a catalog name; must match the catalog name as
-             * it is stored in the database; "" retrieves those without a
-             * catalog; <code>null</code> means that the catalog name should not
-             * be used to narrow the search
-             * @param schemaPattern a schema name pattern; must match the schema
-             * name as it is stored in the database; "" retrieves those without
-             * a schema; <code>null</code> means that the schema name should not
-             * be used to narrow the search
-             * @param tableNamePattern a table name pattern; must match the
-             * table name as it is stored in the database
-             * @param types a list of table types, which must be from the list
-             * of table types returned from {@link #getTableTypes},to include;
-             * <code>null</code> returns all types
-             *
-             *
-             *
-             */
-            String catalog = null;
-            String schemaPattern = null;
+            // Find all tables
             String tableNamePattern = "%";
             String[] types = {"TABLE"};
             try (ResultSet rs = conn.getMetaData().getTables(catalog, schemaPattern, tableNamePattern, types);) {
                 while (rs.next()) {
-                    Table t = new Table(rs.getString(3));
+//                    System.out.println(rs.getString("TABLE_NAME") + " Type=" + rs.getString("TABLE_TYPE") + " Catalog=" + rs.getString("TABLE_CAT") + " Schema=" + rs.getString("TABLE_SCHEM") + " TYPE_SCHEM=" + rs.getString("SELF_REFERENCING_COL_NAME"));
+                    Table t = new Table(rs.getString("TABLE_NAME"));
                     tables.add(t);
                 }
                 LOG.log(Level.FINE, "Found {0} tables in {1}", new Object[]{tables.size(), db});
             }
             catch (SQLException e) {
-                LOG.fine(e.getMessage());
+                LOG.log(Level.WARNING, "Could not find tables! Message: {0}", e.getMessage());
             }
             /**
              * Column definitions
              *
              */
             for (Table t : tables) {
-                try (ResultSet rs = conn.getMetaData().getColumns(null, null, t.getName(), null)) {
+                try (ResultSet rs = conn.getMetaData().getColumns(catalog, schemaPattern, t.getName(), null)) {
                     while (rs.next()) {
-                        String columnName = rs.getString(4);
+                        // Find datatype
                         int dataType = rs.getInt(5);
-                        int size = rs.getInt(7);
+                        String columnName = rs.getString(4);
                         Column c = Column.parse(dataType, columnName);
-//                        System.out.println(dataType + "=> " + c);
-
+                        // Size
                         if (c instanceof SizeColumn) {
                             SizeColumn sc = (SizeColumn) c;
-                            sc.setSize(size);
+                            sc.setSize(rs.getInt(7));
                         }
-
-//                        c.setComments(rs.getString("REMARKS"));
-//                        try {
-//                            c.setAutoGenerated(rs.getBoolean("IS_GENERATEDCOLUMN"));
-//                        }
-//                        catch (Exception e) {
-//
-//                        }
+                        //
+                        // Comments
+                        //
+                        c.setComments(rs.getString("REMARKS"));
+                        //
+                        // Auto Increment
+                        //
                         if (c instanceof AutoIncrementColumn) {
                             try {
                                 AutoIncrementColumn ic = (AutoIncrementColumn) c;
@@ -212,16 +199,17 @@ public class Analyzer {
                                 LOG.warning(e.getMessage());
                             }
                         }
-
+                        // Allow nulls
                         c.setAllowNulls(rs.getInt("NULLABLE") == 1);
+                        // Default values
                         String defValue = rs.getString("COLUMN_DEF");
                         c.setDefaultValue(rs.wasNull() ? null : defValue);
-
+                        //
                         t.getMetaData().addColumn(c);
                     }
                 }
                 catch (Exception e) {
-                    LOG.fine(e.getMessage());
+                    LOG.warning(e.getMessage());
                 }
             }
 
@@ -230,32 +218,30 @@ public class Analyzer {
              *
              */
             for (Table t : tables) {
-                String catalogName = null;
-                String schemaName = "hurra2";
-                String tableName = t.getName();
-                //System.out.println("Looking for foreignKey for table " + tableName);
-                try (ResultSet rs = conn.getMetaData().getImportedKeys(catalogName, schemaName, tableName)) {
+                try (ResultSet rs = conn.getMetaData().getImportedKeys(catalog, schemaPattern, t.getName())) {
                     while (rs.next()) {
-                        LOG.finest("Looking for foreign key for table '" + t.getName() + "': " + rs.getString("FKTABLE_NAME") + "." + rs.getString("FKCOLUMN_NAME") + " " + rs.getString("PKTABLE_NAME") + "." + rs.getString("PKCOLUMN_NAME"));
+                        String pkTable = rs.getString("PKTABLE_NAME");
+                        String pkColumn = rs.getString("PKCOLUMN_NAME");
+                        String fkTable = rs.getString("FKTABLE_NAME");
+                        String fkColumn = rs.getString("FKCOLUMN_NAME");
 
-                        Column c = t.getMetaData().getColumn(rs.getString("FKCOLUMN_NAME"));
-                        if (c == null) {
-
-                        } else {
-                            c.setForeignKey(new ForeignKey(rs.getString("PKTABLE_NAME"), rs.getString("PKCOLUMN_NAME")));
+                        LOG.log(Level.FINE, "ForeignKey {0}: {1}.{2} => {3}.{4}", new Object[]{t.getName(), fkTable, fkColumn, pkTable, pkColumn});
+                        Column c = t.getMetaData().getColumn(fkColumn);
+                        if (c != null) {
+                            c.setForeignKey(new ForeignKey(pkTable, pkColumn));
                         }
                     }
                 }
                 catch (Exception e) {
-                    e.printStackTrace();
+                    LOG.log(Level.WARNING, "Could not find foreignKeys for table {0}", t.getName());
                 }
             }
 
             // Primary keys
             for (Table t : tables) {
-                try (ResultSet rs = conn.getMetaData().getPrimaryKeys(null, null, t.getName())) {
+                try (ResultSet rs = conn.getMetaData().getPrimaryKeys(catalog, schemaPattern, t.getName())) {
                     while (rs.next()) {
-                        LOG.fine("PrimaryKey: " + rs.getString(3) + " " + rs.getString(4));
+                        LOG.log(Level.FINE, "PrimaryKey: {0} {1}", new Object[]{rs.getString(3), rs.getString(4)});
                         Column c = t.getMetaData().getColumn(rs.getString(4));
                         if (c != null) {
                             c.setPrimaryKey(true);
@@ -264,7 +250,7 @@ public class Analyzer {
                     }
                 }
                 catch (Exception e) {
-                    e.printStackTrace();
+                    LOG.log(Level.WARNING, "Could not find primaryKeys for table {0}", t.getName());
                 }
             }
         }
@@ -498,4 +484,55 @@ public class Analyzer {
          */
         return function;
     }
+
+    public List<Unique> findUnique(String table, String column, DatabaseConnection db) {
+        List<Unique> list = new ArrayList<>();
+        try (Connection conn = db.getConnection();) {
+            String catalog = null;
+            try (ResultSet rs = conn.createStatement().executeQuery("SELECT " + column + ", count(" + column + ") FROM " + table + " GROUP BY " + column + " ORDER BY " + column + " ASC")) {
+                while (rs.next()) {
+                    Unique u = new Unique(rs.getString(1), rs.getInt(2));
+                    list.add(u);
+                }
+            }
+            catch (SQLException e2) {
+                LOG.log(Level.INFO, "Could not find unique values in column {0} in table {1}. Exception: {2}", new Object[]{column, table, e2.getMessage()});
+            }
+        }
+        catch (Exception e) {
+            LOG.log(Level.INFO, "Could not find unique values in column {0} in table {1}. Exception: {2}", new Object[]{column, table, e.getMessage()});
+        }
+        return list;
+    }
+
+    /**
+     * Returns the table name and its row count for each table in database
+     *
+     * @param db
+     * @return
+     */
+    public List<Unique> findRowCount(DatabaseConnection db) {
+        List<Unique> list = new ArrayList<>();
+        try (Connection conn = db.getConnection();) {
+            String catalog = null;
+            String schema = null;
+            for (Table t : findTables(catalog, schema, db)) {
+                try (ResultSet rs = conn.createStatement().executeQuery("SELECT count(*) FROM " + t.getName())) {
+                    while (rs.next()) {
+                        Unique u = new Unique(t.getName(), rs.getInt(1));
+                        list.add(u);
+                    }
+                }
+                catch (SQLException e2) {
+                    LOG.log(Level.INFO, "Could not find row count in table {0}. Exception: {1}", new Object[]{t.getName(), e2.getMessage()});
+                }
+            }
+
+        }
+        catch (Exception e) {
+            LOG.log(Level.INFO, "Could not find row counts. Exception: {0}", new Object[]{e.getMessage()});
+        }
+        return list;
+    }
+
 }

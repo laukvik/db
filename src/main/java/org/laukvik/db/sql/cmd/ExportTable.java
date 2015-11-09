@@ -17,9 +17,10 @@ public class ExportTable extends SqlCommand {
 
     @Override
     public int run(String tableName) {
-
+        String catalog = "";
+        String schema = "";
         Analyzer a = new Analyzer();
-        List<Table> tables = a.findTables(null, db);
+        List<Table> tables = a.findTables(catalog, schema, db);
         Table table = null;
         for (Table t : tables) {
             if (t.getName().equalsIgnoreCase(tableName)) {

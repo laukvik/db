@@ -42,16 +42,16 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.event.TableModelEvent;
 import org.laukvik.db.csv.Row;
+import org.laukvik.db.csv.io.CsvReader;
+import org.laukvik.db.csv.io.CsvWriter;
+import org.laukvik.db.csv.io.JsonWriter;
+import org.laukvik.db.csv.query.Query;
 import org.laukvik.db.ddl.Column;
 import org.laukvik.db.ddl.DateColumn;
 import org.laukvik.db.ddl.DoubleColumn;
 import org.laukvik.db.ddl.FloatColumn;
 import org.laukvik.db.ddl.IntegerColumn;
 import org.laukvik.db.ddl.VarCharColumn;
-import org.laukvik.db.csv.io.CsvReader;
-import org.laukvik.db.csv.io.CsvWriter;
-import org.laukvik.db.csv.io.JsonWriter;
-import org.laukvik.db.csv.query.Query;
 
 /**
  * Milestone
@@ -791,11 +791,11 @@ public class Viewer extends javax.swing.JFrame implements ListSelectionListener,
                 LOG.fine("Inserting column after last");
                 csv.addColumn(answer);
             } else {
-                LOG.fine("Inserting column at " + rowIndex);
-                csv.insertColumn(answer, rowIndex);
+                LOG.log(Level.FINE, "Inserting column at {0}", rowIndex);
+                csv.getMetaData().insertColumn(new VarCharColumn(answer), rowIndex);
+//                csv.insertColumn(answer, rowIndex);
             }
-            LOG.fine("Columns: " + csv.getMetaData().getColumnCount());
-
+            LOG.log(Level.FINE, "Columns: {0}", csv.getMetaData().getColumnCount());
             table.tableChanged(new TableModelEvent(model, TableModelEvent.HEADER_ROW));
             table.tableChanged(new TableModelEvent(model));
         }
@@ -877,7 +877,7 @@ public class Viewer extends javax.swing.JFrame implements ListSelectionListener,
     /**
      * @param args the command line arguments
      */
-    public static void main(String args[]) {
+    public static void main(final String args[]) {
         try {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
         }

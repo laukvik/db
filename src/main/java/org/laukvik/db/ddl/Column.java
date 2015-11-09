@@ -34,6 +34,7 @@ public abstract class Column<T> implements Comparable {
     private String defaultValue;
     private Table table;
     String name;
+    private String comments;
 
     public Column(String name) {
         setName(name);
@@ -83,6 +84,14 @@ public abstract class Column<T> implements Comparable {
                 return new OtherColumn(name);
         }
         throw new IllegalArgumentException("ColumnType: " + columnType);
+    }
+
+    public String getComments() {
+        return comments;
+    }
+
+    public void setComments(String comments) {
+        this.comments = comments;
     }
 
     public final String getName() {
@@ -273,7 +282,7 @@ public abstract class Column<T> implements Comparable {
 
         // Find all key pairs
         String s = dataType.toUpperCase();
-        if (s.equalsIgnoreCase("INT")) {
+        if (s.equalsIgnoreCase("INTEGER")) {
             IntegerColumn c = new IntegerColumn(columnName);
             c.setPrimaryKey(primaryKey);
             c.setAllowNulls(allowsNull);
@@ -294,7 +303,7 @@ public abstract class Column<T> implements Comparable {
             c.setDefaultValue(defaultValue);
             c.setForeignKey(foreignKey);
             return c;
-        } else if (s.equalsIgnoreCase("BOOLEAN")) {
+        } else if (s.equalsIgnoreCase("BIT")) {
             BitColumn c = new BitColumn(columnName);
             c.setPrimaryKey(primaryKey);
             c.setAllowNulls(allowsNull);

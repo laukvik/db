@@ -36,9 +36,13 @@ import org.laukvik.db.sql.cmd.ListUserFunctions;
 import org.laukvik.db.sql.cmd.ListViews;
 import org.laukvik.db.sql.cmd.Query;
 import org.laukvik.db.sql.cmd.Restore;
+import org.laukvik.db.sql.cmd.TableRowCount;
+import org.laukvik.db.sql.cmd.UniqueValues;
+import org.laukvik.db.sql.cmd.Wizard;
 
 /**
- *
+ * list unique values in a column list rowcount for each table connection wizard
+ * in console html export
  */
 public class SQL {
 
@@ -63,6 +67,9 @@ public class SQL {
         mgr.add(new ListSystemFunctions());
         mgr.add(new ExportTableDDL());
         mgr.add(new ExportTable());
+        mgr.add(new TableRowCount());
+        mgr.add(new Wizard());
+        mgr.add(new UniqueValues());
         int status = mgr.run(args);
     }
 

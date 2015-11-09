@@ -1,5 +1,6 @@
 package org.laukvik.db.sql.swing;
 
+
 import java.awt.BorderLayout;
 import java.awt.Point;
 import javax.swing.JFrame;
@@ -7,8 +8,9 @@ import javax.swing.JScrollPane;
 import org.laukvik.db.ddl.Column;
 import org.laukvik.db.ddl.ForeignKey;
 import org.laukvik.db.ddl.IntegerColumn;
-import org.laukvik.db.ddl.VarCharColumn;
 import org.laukvik.db.ddl.Table;
+import org.laukvik.db.ddl.VarCharColumn;
+import org.laukvik.db.sql.swing.DiagramPanel;
 
 /**
  * Created by morten on 25.10.2015.

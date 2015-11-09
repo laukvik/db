@@ -15,12 +15,6 @@
  */
 package org.laukvik.db.ddl;
 
-import org.laukvik.db.ddl.Column;
-import org.laukvik.db.ddl.DateColumn;
-import org.laukvik.db.ddl.IntegerColumn;
-import org.laukvik.db.ddl.VarCharColumn;
-import org.laukvik.db.ddl.IllegalColumnDefinitionException;
-import org.laukvik.db.ddl.ForeignKey;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -32,13 +26,13 @@ public class ColumnTest {
 
     @Test
     public void defaultValues() {
-        IntegerColumn c = (IntegerColumn) Column.parseName("Presidency(type=int,default=1)");
+        IntegerColumn c = (IntegerColumn) Column.parseName("Presidency(type=integer,default=1)");
         Assert.assertEquals("defaultValue", "1", c.getDefaultValue());
     }
 
     @Test
     public void foreignKey() {
-        IntegerColumn c = (IntegerColumn) Column.parseName("Presidency(type=int,foreignKey=Employee[id])");
+        IntegerColumn c = (IntegerColumn) Column.parseName("Presidency(type=integer,foreignKey=Employee[id])");
 
         ForeignKey fk1 = new ForeignKey("Employee", "id");
         ForeignKey fk2 = c.getForeignKey();
@@ -51,7 +45,7 @@ public class ColumnTest {
 
     @Test
     public void parseInteger() {
-        IntegerColumn c = (IntegerColumn) Column.parseName("Presidency(type=INT,primaryKey=true,increment=true,foreignKey=Employee[id])");
+        IntegerColumn c = (IntegerColumn) Column.parseName("Presidency(type=INTEGER,primaryKey=true,increment=true,foreignKey=Employee[id])");
         Assert.assertEquals("Presidency", c.getName());
         Assert.assertEquals("primaryKey", true, c.isPrimaryKey());
     }
