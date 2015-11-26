@@ -15,6 +15,10 @@
  */
 package org.laukvik.db.ddl;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import org.laukvik.db.csv.Row;
+
 /**
  *
  * @author Morten Laukvik <morten@laukvik.no>
@@ -70,6 +74,12 @@ public class CharColumn extends Column<String> {
             return false;
         }
         return true;
+    }
+
+    @Override
+    public void updateResultSet(int columnIndex, Row row, ResultSet rs) throws SQLException {
+        Character value = row.getCharacter(this);
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
 }

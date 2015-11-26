@@ -19,8 +19,6 @@ import java.awt.Dimension;
 import java.awt.Toolkit;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 import javafx.application.Application;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
@@ -35,13 +33,9 @@ import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.SplitPane;
-import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableColumn.CellDataFeatures;
 import javafx.scene.control.TableView;
-import javafx.scene.control.TitledPane;
-import javafx.scene.control.cell.CheckBoxTableCell;
-import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.layout.BorderPane;
@@ -50,7 +44,6 @@ import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.util.Callback;
 import org.laukvik.db.csv.CSV;
-import org.laukvik.db.csv.DistinctColumnValues;
 import org.laukvik.db.csv.Row;
 import org.laukvik.db.ddl.Column;
 
@@ -125,13 +118,14 @@ public class App extends Application {
         accordion = new Accordion();
         //
         tableView = new TableView<>();
+        tableView.setPlaceholder(new Label("Not loaded yet"));
         scrollTable = new ScrollPane(tableView);
         scrollTable.setFitToHeight(true);
         scrollTable.setFitToWidth(true);
         //
         split = new SplitPane();
         split.getItems().addAll(accordion, scrollTable);
-        split.setDividerPositions(0.2);
+        split.setDividerPositions(0.25);
 
         //
         topContainer = new VBox();
@@ -176,6 +170,7 @@ public class App extends Application {
         accordion.getPanes().clear();
         tableView.setItems(null);
         tableView.getColumns().clear();
+
         data.clear();
 
         for (int x = 0; x < csv.getMetaData().getColumnCount(); x++) {
@@ -195,56 +190,60 @@ public class App extends Application {
             tableView.getColumns().add(tc);
             tableView.setColumnResizePolicy(TableView.UNCONSTRAINED_RESIZE_POLICY);
 
+            // Create new pane for each column
+            accordion.getPanes().add(new UniquePane(x, csv));
+
             // Accordion stuff
-            TitledPane pane = new TitledPane();
-            pane.setText(c.getName());
-
-            // Find all unique
-            DistinctColumnValues dcv = csv.getDistinctColumnValues(x);
-
-            //
-            List<UniqueRow> list = new ArrayList<>();
-            for (String key : dcv.getKeys()) {
-                list.add(new UniqueRow(key, dcv.getCount(key)));
+//            TitledPane pane = new TitledPane();
+//            pane.setText(c.getName());
+//
+//            // Find all unique
+//            DistinctColumnValues dcv = csv.getDistinctColumnValues(x);
+//
+//            //
+//            List<UniqueRow> list = new ArrayList<>();
+//            for (String key : dcv.getKeys()) {
+//                list.add(new UniqueRow(key, dcv.getCount(key)));
+//            }
+//
+//            final ObservableList<UniqueRow> data2 = FXCollections.observableArrayList(list);
+//            // Build table
+//            TableView<UniqueRow> tv = new TableView(data2);
+//            tv.setPlaceholder(new Label("Placeholder"));
+//            tv.setEditable(true);
+//            tv.setFixedCellSize(Region.USE_COMPUTED_SIZE);
+//
+//            TableColumn selectColumn = new TableColumn("");
+//            selectColumn.setMinWidth(32);
+//            selectColumn.setMaxWidth(32);
+//            selectColumn.setCellValueFactory(new PropertyValueFactory<>("selected"));
+//            selectColumn.setCellFactory(new Callback<TableColumn<UniqueRow, Boolean>, TableCell<UniqueRow, Boolean>>() {
+//                public TableCell<UniqueRow, Boolean> call(TableColumn<UniqueRow, Boolean> p) {
+//                    return new CheckBoxTableCell<>();
+//                }
+//            });
+//
+//            TableColumn titleColumn = new TableColumn("Value");
+//            titleColumn.setCellValueFactory(new PropertyValueFactory<>("title"));
+//
+//            TableColumn countColumn = new TableColumn("Count");
+//            countColumn.setCellValueFactory(new PropertyValueFactory<>("count"));
+//            countColumn.setPrefWidth(32);
+//
+//            tv.getColumns().addAll(selectColumn, titleColumn, countColumn);
+//            tv.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+//
+//            pane.setContent(tv);
+//            accordion.getPanes().add(pane);
+//        }
+            for (int y = 0; y < csv.getRowCount(); y++) {
+                Row r = csv.getRow(y);
+                data.add(new ObservableRow(r));
             }
-
-            final ObservableList<UniqueRow> data2 = FXCollections.observableArrayList(list);
-            // Build table
-            TableView<UniqueRow> tv = new TableView(data2);
-            tv.setPlaceholder(new Label("Placeholder"));
-            tv.setEditable(true);
-
-            TableColumn selectColumn = new TableColumn("");
-            selectColumn.setMinWidth(32);
-            selectColumn.setMaxWidth(32);
-            selectColumn.setCellValueFactory(new PropertyValueFactory<UniqueRow, Boolean>("selected"));
-            selectColumn.setCellFactory(new Callback<TableColumn<UniqueRow, Boolean>, TableCell<UniqueRow, Boolean>>() {
-                public TableCell<UniqueRow, Boolean> call(TableColumn<UniqueRow, Boolean> p) {
-                    return new CheckBoxTableCell<UniqueRow, Boolean>();
-                }
-            });
-
-            TableColumn titleColumn = new TableColumn("Value");
-            titleColumn.setMinWidth(100);
-            titleColumn.setCellValueFactory(new PropertyValueFactory<UniqueRow, String>("title"));
-
-            TableColumn countColumn = new TableColumn("Count");
-            countColumn.setMinWidth(64);
-            countColumn.setCellValueFactory(new PropertyValueFactory<UniqueRow, Integer>("count"));
-
-            tv.getColumns().addAll(selectColumn, titleColumn, countColumn);
-            tv.setColumnResizePolicy(TableView.UNCONSTRAINED_RESIZE_POLICY);
-
-            pane.setContent(tv);
-            accordion.getPanes().add(pane);
+            tableView.setItems(data);
+            tableView.setEditable(true);
+            tableView.setManaged(true);
         }
-        for (int y = 0; y < csv.getRowCount(); y++) {
-            Row r = csv.getRow(y);
-            data.add(new ObservableRow(r));
-        }
-        tableView.setItems(data);
-        tableView.setEditable(true);
-        tableView.setManaged(true);
     }
 
     public static void main(String[] args) {

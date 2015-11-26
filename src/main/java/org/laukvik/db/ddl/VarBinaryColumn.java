@@ -15,7 +15,10 @@
  */
 package org.laukvik.db.ddl;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.Arrays;
+import org.laukvik.db.csv.Row;
 
 /**
  *
@@ -72,6 +75,14 @@ public class VarBinaryColumn extends Column<byte[]> {
     @Override
     public String toString() {
         return name + "(Byte)";
+    }
+
+    @Override
+    public void updateResultSet(int columnIndex, Row row, ResultSet rs) throws SQLException {
+        byte[] value = row.getBytes(this);
+        if (value != null) {
+            rs.updateBytes(columnIndex, value);
+        }
     }
 
 }

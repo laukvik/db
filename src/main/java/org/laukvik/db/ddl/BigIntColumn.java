@@ -15,6 +15,10 @@
  */
 package org.laukvik.db.ddl;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import org.laukvik.db.csv.Row;
+
 /**
  *
  * @author Morten Laukvik <morten@laukvik.no>
@@ -59,12 +63,22 @@ public class BigIntColumn extends Column<Long> implements AutoIncrementColumn {
         return true;
     }
 
+    @Override
     public boolean isAutoIncrement() {
         return autoIncrement;
     }
 
+    @Override
     public void setAutoIncrement(boolean autoIncrement) {
         this.autoIncrement = autoIncrement;
+    }
+
+    @Override
+    public void updateResultSet(int columnIndex, Row row, ResultSet rs) throws SQLException {
+        Long value = row.getLong(this);
+        if (value != null) {
+            rs.updateLong(columnIndex, value);
+        }
     }
 
 }

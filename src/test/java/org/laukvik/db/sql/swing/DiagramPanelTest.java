@@ -1,6 +1,5 @@
 package org.laukvik.db.sql.swing;
 
-
 import java.awt.BorderLayout;
 import java.awt.Point;
 import javax.swing.JFrame;
@@ -10,7 +9,6 @@ import org.laukvik.db.ddl.ForeignKey;
 import org.laukvik.db.ddl.IntegerColumn;
 import org.laukvik.db.ddl.Table;
 import org.laukvik.db.ddl.VarCharColumn;
-import org.laukvik.db.sql.swing.DiagramPanel;
 
 /**
  * Created by morten on 25.10.2015.
@@ -29,9 +27,9 @@ public class DiagramPanelTest {
         eID.setAllowNulls(true);
         employee.getMetaData().addColumn(eID);
 
-        employee.getMetaData().addColumn(new VarCharColumn("firstName"));
-        employee.getMetaData().addColumn(new VarCharColumn("lastName"));
-        employee.getMetaData().addColumn(new VarCharColumn("email"));
+        employee.addColumn(new VarCharColumn("firstName"));
+        employee.addColumn(new VarCharColumn("lastName"));
+        employee.addColumn(new VarCharColumn("email"));
 
         IntegerColumn employeeCompanyID = new IntegerColumn("companyID");
         employeeCompanyID.setForeignKey(new ForeignKey("Company", "companyID"));
@@ -39,24 +37,25 @@ public class DiagramPanelTest {
         IntegerColumn employeeDepartmentID = new IntegerColumn("departmentID");
         employeeDepartmentID.setForeignKey(new ForeignKey("Department", "departmentID"));
 
-        employee.getMetaData().addColumn(employeeCompanyID);
-        employee.getMetaData().addColumn(employeeDepartmentID);
+        employee.addColumn(employeeCompanyID);
+        employee.addColumn(employeeDepartmentID);
 
         // Company
         Table company = new Table("Company");
         Column cID = new IntegerColumn("companyID");
         cID.setPrimaryKey(true);
-        company.getMetaData().addColumn(cID);
-        company.getMetaData().addColumn(new VarCharColumn("name"));
+
+        company.addColumn(cID);
+        company.addColumn(new VarCharColumn("name"));
 
         // Department
         Table department = new Table("Department");
         Column dID = new IntegerColumn("departmentID");
         dID.setPrimaryKey(true);
         dID.setAllowNulls(false);
-        department.getMetaData().addColumn(dID);
-        department.getMetaData().addColumn(new VarCharColumn("name"));
-        department.getMetaData().addColumn(new VarCharColumn("contact"));
+        department.addColumn(dID);
+        department.addColumn(new VarCharColumn("name"));
+        department.addColumn(new VarCharColumn("contact"));
 
         IntegerColumn companyID = new IntegerColumn("companyID");
         ForeignKey contactFK = new ForeignKey("Company", "companyID");

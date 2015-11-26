@@ -29,18 +29,28 @@ public class Function implements Sqlable {
     private final String name;
     private String comments;
     private List<FunctionParameter> parameters;
+    private boolean userFunction;
 
     public Function(String name) {
         this.name = name;
         this.parameters = new ArrayList<>();
+        this.userFunction = false;
     }
 
-    public String getFunctionSummary(){
+    public boolean isUserFunction() {
+        return userFunction;
+    }
+
+    public void setUserFunction(boolean userFunction) {
+        this.userFunction = userFunction;
+    }
+
+    public String getFunctionSummary() {
         StringBuilder b = new StringBuilder();
-        b.append("function: " + name  + "\n");
+        b.append("function: ").append(name).append("\n");
         b.append("parameters: ");
-        b.append(parameters.isEmpty() ? "none":"\n");
-        for (FunctionParameter fp : parameters){
+        b.append(parameters.isEmpty() ? "none" : "\n");
+        for (FunctionParameter fp : parameters) {
             b.append("\t");
             b.append(fp.getName());
             b.append("\t");
@@ -50,13 +60,12 @@ public class Function implements Sqlable {
         return b.toString();
     }
 
-    public void removeParameters(){
+    public void removeParameters() {
         parameters.clear();
     }
 
-
-    public void addParameter(FunctionParameter parameter ){
-        this.parameters.add( parameter );
+    public void addParameter(FunctionParameter parameter) {
+        this.parameters.add(parameter);
     }
 
     public List<FunctionParameter> getParameters() {

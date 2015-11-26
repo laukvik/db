@@ -15,6 +15,10 @@
  */
 package org.laukvik.db.ddl;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import org.laukvik.db.csv.Row;
+
 /**
  *
  * @author Morten Laukvik <morten@laukvik.no>
@@ -47,13 +51,14 @@ public class IntegerColumn extends Column<Integer> implements AutoIncrementColum
         return Integer.parseInt(value);
     }
 
+    @Override
     public int compare(Integer one, Integer another) {
         return one.compareTo(another);
     }
 
     @Override
     public String toString() {
-        return name + "(Integer)";
+        return getTable() + "(" + name + ")";
     }
 
     @Override
@@ -72,6 +77,14 @@ public class IntegerColumn extends Column<Integer> implements AutoIncrementColum
         }
         final IntegerColumn other = (IntegerColumn) obj;
         return true;
+    }
+
+    @Override
+    public void updateResultSet(int columnIndex, Row row, ResultSet rs) throws SQLException {
+        Integer value = row.getInteger(this);
+        if (value != null) {
+            rs.updateInt(columnIndex, value);
+        }
     }
 
 }

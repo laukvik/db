@@ -16,6 +16,9 @@
 package org.laukvik.db.ddl;
 
 import java.math.BigDecimal;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import org.laukvik.db.csv.Row;
 
 /**
  *
@@ -72,6 +75,14 @@ public class NumericColumn extends Column<BigDecimal> implements AutoIncrementCo
         }
         final NumericColumn other = (NumericColumn) obj;
         return true;
+    }
+
+    @Override
+    public void updateResultSet(int columnIndex, Row row, ResultSet rs) throws SQLException {
+        BigDecimal value = row.getBigDecimal(this);
+        if (value != null) {
+            rs.updateBigDecimal(columnIndex, value);
+        }
     }
 
 }

@@ -20,7 +20,9 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.Icon;
+import javax.swing.JFrame;
 import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
 import org.laukvik.db.ddl.Column;
 import org.laukvik.db.ddl.ForeignKey;
 import org.laukvik.db.ddl.Table;
@@ -32,6 +34,7 @@ public class DiagramPanel extends JPanel implements MouseListener, MouseMotionLi
 
     private Color BACKGROUND = new Color(242, 242, 242);
     private Color TABLE_OUTLINE = new Color(160, 160, 160);
+    private Color SELECTED_HEADER_BACKGROUND = Color.BLUE;
     private Color TABLE_HEADER_BACKGROUND = new Color(240, 156, 49);
     private Color TABLE_HEADER_FOREGROUND = new Color(255, 255, 255);
     private Color TABLE_TEXT = new Color(0, 0, 0);
@@ -47,17 +50,21 @@ public class DiagramPanel extends JPanel implements MouseListener, MouseMotionLi
     private List<Column> foreignKeys;
     private File file;
 
+    // List of table positions
     private List<TablePosition> positions;
+
+    private int deltaX, deltaY;
+    private TablePosition tablePosition;
 
     public DiagramPanel() {
         super();
-        this.file = null;
-        setAutoscrolls(true);
-        setBackground(BACKGROUND);
         positions = new ArrayList<>();
         foreignKeys = new ArrayList<>();
+        this.file = null;
         addMouseListener(this);
         addMouseMotionListener(this);
+        setAutoscrolls(true);
+        setBackground(BACKGROUND);
     }
 
     public void removeTables() {
@@ -90,12 +97,13 @@ public class DiagramPanel extends JPanel implements MouseListener, MouseMotionLi
             int tablesPrRow = panelWidth / blockWidth;
             tp.setPoint(new Point((index % tablesPrRow) * blockWidth, (index / tablesPrRow) * blockHeight));
         }
-        setSize(calculateSize());
+//        setSize(calculateSize());
+
     }
 
     private TablePosition findTable(Table table) {
         for (TablePosition tp : positions) {
-            if (tp.getTable() == table) {
+            if (tp.getTable().equals(table)) {
                 return tp;
             }
         }
@@ -117,9 +125,11 @@ public class DiagramPanel extends JPanel implements MouseListener, MouseMotionLi
         fireTablesChanged();
     }
 
-    public void fireTablesChanged() {
-        setPreferredSize(calculateSize());
-        setSize(calculateSize());
+    private void fireTablesChanged() {
+        Dimension size = calculateSize();
+//        setPreferredSize(size);
+//        setMinimumSize(size);
+//        setSize(size);
         findForeignKeys();
     }
 
@@ -133,13 +143,6 @@ public class DiagramPanel extends JPanel implements MouseListener, MouseMotionLi
         LOG.log(Level.FINE, "Setting location for table {0} to {1}", new Object[]{table, point});
         TablePosition tp = findTable(table);
         tp.setPoint(point);
-//        int index = tables.indexOf(table);
-//        if (index == -1) {
-//            LOG.log(Level.FINEST, "Table {0} was not found!", table.getName());
-//        } else {
-//            locations.get(index).x = point.x;
-//            locations.get(index).y = point.y;
-//        }
         fireTablesChanged();
     }
 
@@ -172,7 +175,7 @@ public class DiagramPanel extends JPanel implements MouseListener, MouseMotionLi
         }
     }
 
-    public int getIndex(Table table) {
+    private int getIndex(Table table) {
         TablePosition tp = findTable(table);
         return positions.indexOf(tp);
     }
@@ -190,31 +193,37 @@ public class DiagramPanel extends JPanel implements MouseListener, MouseMotionLi
      * @param g
      */
     private void paintForeignKey(Column column, Graphics g) {
-        int tableIndex = getIndex(column.getTable());
-        if (tableIndex == -1) {
+        // Get start table
+        TablePosition tpStart = findTable(column.getTable());
+//        int tableIndex = getIndex(column.getTable());
+        if (tpStart == null) {
+            LOG.fine("Cant paint foreignKey " + column + " because table target isnt found!");
             return;
         }
         if (column.getForeignKey() == null) {
             // No foreign key
+            LOG.fine("Cant paint foreignKey " + column + " because target isnt specified!");
         } else {
             Column pk = findColumnTarget(column.getForeignKey());
-
             if (pk == null) {
                 // Should never happen
+                LOG.fine("Cant paint foreignKey " + column + " because target is null!");
             } else {
-                int endTableIndex = getIndex(pk.getTable());
+                TablePosition tpEnd = findTable(pk.getTable());
+                if (tpEnd == null) {
+                    LOG.fine("Cant paint foreignKey " + column + " because target cant be found!");
+                } else {
+                    LOG.fine("Painting fk: " + column + " to " + column.getForeignKey());
+                    Point start = tpStart.getPoint();
+                    start.y += column.indexOf() * rowHeight + headerHeight + (rowHeight / 2);
+                    start.x += tableWidth;
 
-                TablePosition tpStart = positions.get(tableIndex);
-                TablePosition tpEnd = positions.get(endTableIndex);
+                    Point end = tpEnd.getPoint();
+                    end.y += pk.indexOf() * rowHeight + headerHeight + (rowHeight / 2);
 
-                Point start = tpStart.getPoint();
-                start.y += column.indexOf() * rowHeight + headerHeight + (rowHeight / 2);
-                start.x += tableWidth;
+                    paintForeignKeyLine(g, start, end);
+                }
 
-                Point end = tpEnd.getPoint();
-                end.y += pk.indexOf() * rowHeight + headerHeight + (rowHeight / 2);
-
-                paintForeignKeyLine(g, start, end);
             }
         }
     }
@@ -235,13 +244,12 @@ public class DiagramPanel extends JPanel implements MouseListener, MouseMotionLi
      * Paints the whole component both tables, icons and foreign key connectors
      *
      */
+    @Override
     public void paint(Graphics g) {
         /* Turn anti-aliasing on to smooth corners and lines */
         super.paint(g);
         Graphics2D g2 = (Graphics2D) g;
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-        //g2.setBackground(BACKGROUND);
-        //g2.clearRect(0,0,getWidth(),getHeight());
 
         /* Paint the foreign key lines */
         for (Column fk : foreignKeys) {
@@ -254,7 +262,7 @@ public class DiagramPanel extends JPanel implements MouseListener, MouseMotionLi
         }
     }
 
-    public Dimension calculateSize() {
+    private Dimension calculateSize() {
         int rightMost = 0;
         int bottomMost = 0;
         int x = 0;
@@ -292,7 +300,7 @@ public class DiagramPanel extends JPanel implements MouseListener, MouseMotionLi
         int textWidth = getFontMetrics(getFont()).stringWidth(table.getTable().getName());
         int textHeight = getFontMetrics(getFont()).getHeight();
 
-        g.setColor(TABLE_HEADER_BACKGROUND);
+        g.setColor(table.isSelected() ? SELECTED_HEADER_BACKGROUND : TABLE_HEADER_BACKGROUND);
         g.fillRoundRect(x + 1, y + 1, tableWidth - 2, 20, 10, 10);
         g.fillRect(x + 1, y + 12, tableWidth - 2, 10);
 
@@ -314,66 +322,91 @@ public class DiagramPanel extends JPanel implements MouseListener, MouseMotionLi
         }
     }
 
-    /**
-     * DRAG N DROP STUFF *
-     */
-    Point startPoint, endPoint;
-    boolean isDragging = false;
-    Table tableDrag;
-    int minusX, minusY;
-
     public void mouseClicked(MouseEvent evt) {
-        if (evt.getClickCount() == 2) {
-            try {
-                write(file);
-            }
-            catch (IOException e) {
-                e.printStackTrace();
-            }
-            catch (Exception ex) {
-                Logger.getLogger(DiagramPanel.class.getName()).log(Level.SEVERE, null, ex);
-            }
-        }
     }
 
+    @Override
     public void mouseEntered(MouseEvent e) {
     }
 
+    @Override
     public void mouseExited(MouseEvent e) {
     }
 
+    @Override
     public void mousePressed(MouseEvent e) {
     }
 
-    public void mouseReleased(MouseEvent e) {
-        LOG.log(Level.FINEST, "mouseReleased: {0},{1}", new Object[]{e.getX(), e.getY()});
-        if (isDragging) {
-            endPoint = e.getPoint();
-            try {
-                write(file);
-            }
-            catch (IOException e1) {
-                e1.printStackTrace();
-            }
-            catch (Exception ex) {
-                Logger.getLogger(DiagramPanel.class.getName()).log(Level.SEVERE, null, ex);
-            }
-        }
-        isDragging = false;
-        setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+    public boolean isDragging() {
+        return tablePosition != null;
     }
 
-    public void mouseDragged(MouseEvent e) {
-        LOG.log(Level.FINEST, "mouseDragged: {0},{1}", new Object[]{e.getX(), e.getY()});
-        if (tableDrag != null) {
-            isDragging = true;
-            Point p = new Point(e.getPoint());
-            p.x -= minusX;
-            p.y -= minusY;
-            setTableLocation(p, tableDrag);
-            setPreferredSize(calculateSize());
-            repaint();
+    public void clearDragging() {
+        LOG.info("Clearing dragging");
+        tablePosition.setSelected(false);
+        tablePosition = null;
+    }
+
+    public void startDrag(TablePosition table) {
+        LOG.log(Level.INFO, "Starting dragging {0}", new Object[]{table});
+        tablePosition = table;
+        tablePosition.setSelected(true);
+        repaint();
+    }
+
+    public void setDragPosition(Point point) {
+//        LOG.log(Level.INFO, "Setting drag position {0}x{1}", new Object[]{point.x, point.y});
+        Point p = new Point(point.x, point.y);
+        tablePosition.setPoint(p);
+        fireTablesChanged();
+    }
+
+    public void stopDragging(Point point) {
+        LOG.log(Level.INFO, "Stopped dragging at {0}x{1}", new Object[]{point.x, point.y});
+        try {
+            write(file);
         }
+        catch (Exception e1) {
+            LOG.log(Level.WARNING, "Could not write diagram to file {0}", file.getAbsolutePath());
+        }
+        clearDragging();
+    }
+
+    @Override
+    public void mouseReleased(MouseEvent e) {
+        LOG.log(Level.FINEST, "mouseReleased: {0},{1}", new Object[]{e.getX(), e.getY()});
+        if (isDragging()) {
+            stopDragging(e.getPoint());
+        }
+    }
+
+    @Override
+    public void mouseDragged(MouseEvent e) {
+//        LOG.log(Level.INFO, "mouseDragged: {0},{1}", new Object[]{e.getX(), e.getY()});
+        Point p = e.getPoint();
+        if (!isDragging()) {
+            TablePosition tp = findTablePositionByPoint(p);
+            if (tp != null) {
+                deltaX = e.getX() - tp.getPoint().x;
+                deltaY = e.getY() - tp.getPoint().y;
+//                LOG.log(Level.INFO, "{0} x {1}", new Object[]{minusX, minusY});
+                startDrag(tp);
+            }
+        } else {
+            setDragPosition(p);
+        }
+    }
+
+    private TablePosition findTablePositionByPoint(Point point) {
+        for (TablePosition tp : positions) {
+            Point p = tp.getPoint();
+            Table t = tp.getTable();
+            Rectangle r = new Rectangle(p.x, p.y, tableWidth, rowHeight);
+            if (r.contains(point)) {
+                return tp;
+            }
+        }
+        return null;
     }
 
     /**
@@ -381,42 +414,26 @@ public class DiagramPanel extends JPanel implements MouseListener, MouseMotionLi
      *
      * @param e
      */
+    @Override
     public void mouseMoved(MouseEvent e) {
-        LOG.log(Level.FINEST, "mouseMoved: {0},{1}", new Object[]{e.getX(), e.getY()});
-        for (TablePosition tp : positions) {
-            Point p = tp.getPoint();
-            Table t = tp.getTable();
-            Rectangle r = new Rectangle(p.x, p.y, tableWidth, rowHeight);
-            if (r.contains(e.getPoint())) {
-                tableDrag = t;
-                startPoint = e.getPoint();
-                minusX = startPoint.x - p.x;
-                minusY = startPoint.y - p.y;
-                setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-                LOG.log(Level.FINEST, "mouseOver: {0}", t.getName());
-                return;
-            }
+//        LOG.log(Level.FINE, "mouseMoved: {0},{1}", new Object[]{e.getX(), e.getY()});
+        TablePosition tp = findTablePositionByPoint(e.getPoint());
+        if (tp == null) {
+            setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+        } else {
+            setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         }
+    }
 
-//        for (int x = 0; x < locations.size(); x++) {
-//            Point p = locations.get(x);
-//            Table t = tables.get(x);
-//            Rectangle r = new Rectangle(p.x, p.y, tableWidth, rowHeight);
-//            if (r.contains(e.getPoint())) {
-//                tableDrag = t;
-//                startPoint = e.getPoint();
-//                minusX = startPoint.x - p.x;
-//                minusY = startPoint.y - p.y;
-//                setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-//                LOG.log(Level.FINEST, "mouseOver: {0}", t.getName());
-//                return;
-//            }
+    private void updateDetails() {
+        JFrame frame = (JFrame) SwingUtilities.getRoot(this);
+//        if (startPoint != null) {
+//            String title = startPoint.getX() + "x" + startPoint.getY();
+//            frame.setTitle(title);
+//        } else {
+//            frame.setTitle("");
 //        }
-        tableDrag = null;
-        startPoint = null;
-        endPoint = null;
 
-        setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
     }
 
     /**
@@ -426,8 +443,12 @@ public class DiagramPanel extends JPanel implements MouseListener, MouseMotionLi
      * @throws IOException
      */
     public void write(File file) throws IOException, Exception {
-        LOG.log(Level.FINE, "Writing diagram to file {0}", file.getAbsolutePath());
-        DiagramManager.write(positions, file);
+        if (file == null) {
+            LOG.log(Level.FINE, "File not specified. Saving is disabled.");
+        } else {
+            LOG.log(Level.FINE, "Writing diagram to file {0}", file.getAbsolutePath());
+            DiagramManager.write(positions, file);
+        }
     }
 
     /**

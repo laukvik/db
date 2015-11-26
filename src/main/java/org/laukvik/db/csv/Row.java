@@ -16,17 +16,29 @@
 package org.laukvik.db.csv;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.util.Date;
 import java.util.Map;
 import java.util.Objects;
 import java.util.TreeMap;
+import org.laukvik.db.ddl.BigIntColumn;
 import org.laukvik.db.ddl.BinaryColumn;
 import org.laukvik.db.ddl.BitColumn;
+import org.laukvik.db.ddl.CharColumn;
 import org.laukvik.db.ddl.Column;
 import org.laukvik.db.ddl.DateColumn;
-import org.laukvik.db.ddl.DoubleColumn;
+import org.laukvik.db.ddl.DecimalColumn;
+import org.laukvik.db.ddl.DoublePrecisionColumn;
 import org.laukvik.db.ddl.FloatColumn;
 import org.laukvik.db.ddl.IntegerColumn;
+import org.laukvik.db.ddl.LongVarBinaryColumn;
+import org.laukvik.db.ddl.LongVarCharColumn;
+import org.laukvik.db.ddl.NumericColumn;
+import org.laukvik.db.ddl.RealColumn;
+import org.laukvik.db.ddl.TimeColumn;
+import org.laukvik.db.ddl.TimestampColumn;
+import org.laukvik.db.ddl.TinyIntColumn;
+import org.laukvik.db.ddl.VarBinaryColumn;
 import org.laukvik.db.ddl.VarCharColumn;
 
 /**
@@ -89,7 +101,17 @@ public class Row implements Serializable {
         return this;
     }
 
+    public Row update(TinyIntColumn column, Byte value) {
+        map.put(column, value);
+        return this;
+    }
+
     public Row update(IntegerColumn column, Integer value) {
+        map.put(column, value);
+        return this;
+    }
+
+    public Row update(BigIntColumn column, Long value) {
         map.put(column, value);
         return this;
     }
@@ -99,7 +121,7 @@ public class Row implements Serializable {
         return this;
     }
 
-    public Row update(DoubleColumn column, Double value) {
+    public Row update(DoublePrecisionColumn column, Double value) {
         map.put(column, value);
         return this;
     }
@@ -109,12 +131,62 @@ public class Row implements Serializable {
         return this;
     }
 
+    public Row update(CharColumn column, Character value) {
+        map.put(column, value);
+        return this;
+    }
+
     public Row update(VarCharColumn column, String value) {
         map.put(column, value);
         return this;
     }
 
+    public Row update(LongVarCharColumn column, String value) {
+        map.put(column, value);
+        return this;
+    }
+
     public Row update(DateColumn column, Date value) {
+        map.put(column, value);
+        return this;
+    }
+
+    public Row update(TimeColumn column, Date value) {
+        map.put(column, value);
+        return this;
+    }
+
+    public Row update(TimestampColumn column, Date value) {
+        map.put(column, value);
+        return this;
+    }
+
+    public Row update(BinaryColumn column, byte[] value) {
+        map.put(column, value);
+        return this;
+    }
+
+    public Row update(VarBinaryColumn column, byte[] value) {
+        map.put(column, value);
+        return this;
+    }
+
+    public Row update(LongVarBinaryColumn column, byte[] value) {
+        map.put(column, value);
+        return this;
+    }
+
+    public Row update(DecimalColumn column, BigDecimal value) {
+        map.put(column, value);
+        return this;
+    }
+
+    public Row update(RealColumn column, Float value) {
+        map.put(column, value);
+        return this;
+    }
+
+    public Row update(NumericColumn column, BigDecimal value) {
         map.put(column, value);
         return this;
     }
@@ -135,7 +207,19 @@ public class Row implements Serializable {
         return (String) map.get(column);
     }
 
+    public String getString(LongVarCharColumn column) {
+        return (String) map.get(column);
+    }
+
+    public Date getDate(TimeColumn column) {
+        return (Date) map.get(column);
+    }
+
     public Date getDate(DateColumn column) {
+        return (Date) map.get(column);
+    }
+
+    public Date getDate(TimestampColumn column) {
         return (Date) map.get(column);
     }
 
@@ -147,12 +231,52 @@ public class Row implements Serializable {
         return (Integer) map.get(column);
     }
 
+    public Long getLong(BigIntColumn column) {
+        return (Long) map.get(column);
+    }
+
+    public char getChar(CharColumn column) {
+        return (char) map.get(column);
+    }
+
     public Boolean getBoolean(BitColumn column) {
         return (Boolean) map.get(column);
     }
 
-    public Double getDouble(DoubleColumn column) {
+    public Character getCharacter(CharColumn column) {
+        return (Character) map.get(column);
+    }
+
+    public Double getDouble(DoublePrecisionColumn column) {
         return (Double) map.get(column);
+    }
+
+    public BigDecimal getBigDecimal(DecimalColumn column) {
+        return (BigDecimal) map.get(column);
+    }
+
+    public byte[] getBytes(LongVarBinaryColumn column) {
+        return (byte[]) map.get(column);
+    }
+
+    public byte[] getBytes(VarBinaryColumn column) {
+        return (byte[]) map.get(column);
+    }
+
+    public byte[] getBytes(BinaryColumn column) {
+        return (byte[]) map.get(column);
+    }
+
+    public BigDecimal getBigDecimal(NumericColumn column) {
+        return (BigDecimal) map.get(column);
+    }
+
+    public Float getFloat(RealColumn column) {
+        return (Float) map.get(column);
+    }
+
+    public Byte getByte(TinyIntColumn column) {
+        return (Byte) map.get(column);
     }
 
     @Override

@@ -15,7 +15,10 @@
  */
 package org.laukvik.db.ddl;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.Objects;
+import org.laukvik.db.csv.Row;
 
 /**
  *
@@ -76,6 +79,12 @@ public class VarCharColumn extends Column<String> implements SizeColumn {
             return false;
         }
         return true;
+    }
+
+    @Override
+    public void updateResultSet(int columnIndex, Row row, ResultSet rs) throws SQLException {
+        String value = row.getString(this);
+        rs.updateString(columnIndex, value);
     }
 
 }

@@ -16,8 +16,6 @@
 package org.laukvik.db.ddl;
 
 import org.junit.Test;
-import org.laukvik.db.ddl.ForeignKey;
-import org.laukvik.db.ddl.IllegalForeignKeyException;
 
 /**
  *
@@ -27,12 +25,12 @@ public class ForeignKeyTest {
 
     @Test
     public void validParseFormat() {
-        ForeignKey.parse("table[column]");
+        ForeignKey.parse("table(column)");
     }
 
     @Test(expected = IllegalForeignKeyException.class)
     public void missingStartParantheses() {
-        ForeignKey.parse("table column]");
+        ForeignKey.parse("table column)");
     }
 
     @Test(expected = IllegalForeignKeyException.class)
@@ -42,17 +40,17 @@ public class ForeignKeyTest {
 
     @Test(expected = IllegalForeignKeyException.class)
     public void missingTable() {
-        ForeignKey.parse("[column]");
+        ForeignKey.parse("(column)");
     }
 
     @Test(expected = IllegalForeignKeyException.class)
     public void missingTableAndColumn() {
-        ForeignKey.parse("[]");
+        ForeignKey.parse("()");
     }
 
     @Test(expected = IllegalForeignKeyException.class)
     public void emptyColumn() {
-        ForeignKey.parse("table[]");
+        ForeignKey.parse("table()");
     }
 
     @Test(expected = IllegalForeignKeyException.class)

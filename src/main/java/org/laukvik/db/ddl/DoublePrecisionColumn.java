@@ -15,16 +15,25 @@
  */
 package org.laukvik.db.ddl;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import org.laukvik.db.csv.Row;
+
 /**
  *
  * @author Morten Laukvik <morten@laukvik.no>
  */
-public class DoubleColumn extends Column<Double> implements AutoIncrementColumn {
+public class DoublePrecisionColumn extends Column<Double> implements AutoIncrementColumn {
 
     private boolean autoIncrement;
 
-    public DoubleColumn(String name) {
+    public DoublePrecisionColumn(String name) {
         super(name);
+    }
+
+    @Override
+    public String getColumnName() {
+        return "DOUBLE PRECISION";
     }
 
     public boolean isAutoIncrement() {
@@ -51,7 +60,7 @@ public class DoubleColumn extends Column<Double> implements AutoIncrementColumn 
 
     @Override
     public String toString() {
-        return name + "(Double)";
+        return name + "(Double Precision)";
     }
 
     @Override
@@ -68,8 +77,16 @@ public class DoubleColumn extends Column<Double> implements AutoIncrementColumn 
         if (getClass() != obj.getClass()) {
             return false;
         }
-        final DoubleColumn other = (DoubleColumn) obj;
+        final DoublePrecisionColumn other = (DoublePrecisionColumn) obj;
         return true;
+    }
+
+    @Override
+    public void updateResultSet(int columnIndex, Row row, ResultSet rs) throws SQLException {
+        Double value = row.getDouble(this);
+        if (value != null) {
+            rs.updateDouble(columnIndex, value);
+        }
     }
 
 }

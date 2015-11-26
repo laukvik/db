@@ -15,6 +15,10 @@
  */
 package org.laukvik.db.ddl;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import org.laukvik.db.csv.Row;
+
 /**
  *
  * @author Morten Laukvik <morten@laukvik.no>
@@ -43,6 +47,39 @@ public class BitColumn extends Column<Boolean> {
 
     @Override
     public String toString() {
-        return name + "(Boolean)";
+        return name + "(Bit)";
+    }
+
+    public String getColumnName() {
+        if (isPostgreSQL()) {
+            return "Boolean";
+        } else {
+            return "Bit";
+        }
+    }
+
+    @Override
+    public void updateResultSet(int columnIndex, Row row, ResultSet rs) throws SQLException {
+        Boolean value = row.getBoolean(this);
+        if (value != null) {
+//            Short on = 1;
+//            Short off = 0;
+//            rs.updateShort(columnIndex, value ? on : off);
+//            rs.updateInt(columnIndex, value ? 1 : 0);
+            rs.updateBoolean(columnIndex, value);
+//            rs.updateString(columnIndex, "1");
+//            rs.updateObject(columnIndex, value, Types.BIT);
+//            rs.updateObject(columnIndex, '1', Types.BIT);
+//            rs.updateObject(columnIndex, (short) 1, Types.BIT);
+//            rs.updateByte(columnIndex, (byte) 1);
+
+//            byte[] bytes = {1};
+//            rs.updateBytes(columnIndex, bytes);
+//            byte b = 1;
+//            rs.updateObject(columnIndex, b, Types.BIT);
+//            rs.updateObject(columnIndex, "1", Types.BIT);
+//            rs.updateObject(columnIndex, "B00000001", java.sql.Types.BIT);
+        }
+
     }
 }

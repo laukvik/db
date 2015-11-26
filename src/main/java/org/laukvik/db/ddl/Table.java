@@ -21,6 +21,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import org.laukvik.db.DatabaseType;
 import org.laukvik.db.csv.MetaData;
 import org.laukvik.db.sql.DatabaseConnection;
 
@@ -42,6 +43,11 @@ public class Table implements Sqlable {
         this.metaData = new MetaData();
     }
 
+    public void addColumn(Column column) {
+        column.setTable(this);
+        metaData.addColumn(column);
+    }
+
     public Schema getSchema() {
         return schema;
     }
@@ -58,12 +64,6 @@ public class Table implements Sqlable {
         this.metaData = metaData;
     }
 
-//    public List<Column> getColumns() {
-//        return columns;
-//    }
-    public void setPrimaryKey(String columnName, boolean isEnabled) {
-    }
-
     public String getName() {
         return name;
     }
@@ -73,37 +73,6 @@ public class Table implements Sqlable {
         return name;
     }
 
-//    public void addColumn(Column c) {
-//        c.setTable(this);
-//        columns.add(c);
-//    }
-//    public List<Column> findForeignKeys() {
-//        List<Column> cols = new ArrayList<>();
-//        for (Column c : columns) {
-//            if (c.getForeignKey() != null) {
-//                cols.add(c);
-//            }
-//        }
-//        return cols;
-//    }
-//
-//    public List<Column> findPrimaryKeys() {
-//        List<Column> cols = new ArrayList<>();
-//        for (Column c : columns) {
-//            if (c.isPrimaryKey()) {
-//                cols.add(c);
-//            }
-//        }
-//        return cols;
-//    }
-//    public Column findColumnByName(String name) {
-//        for (Column c : columns) {
-//            if (c.getName().equalsIgnoreCase(name)) {
-//                return c;
-//            }
-//        }
-//        return null;
-//    }
     public String getInsertSQL(ResultSet rs) throws SQLException {
         StringBuilder b = new StringBuilder();
         b.append("INSERT INTO " + name + "(");
@@ -154,22 +123,24 @@ public class Table implements Sqlable {
 
     public List<String> getPostAutoNumberScript(DatabaseConnection db) {
         List<String> list = new ArrayList<>();
-//        for (Column c : columns) {
-//            if (c.isAutoIncrement()) {
-//
-//                if (db.getDriver() == null) {
-//                    // Do nothing
-//                } else if (db.getDriver().equalsIgnoreCase("postgres")) {
-//                    //b.append("ALTER TABLE " + name + " ALTER COLUMN "+ c.getName() +" TYPE SERIAL;");
-//
-//                } else if (db.getDriver().equalsIgnoreCase("mysql")) {
-//                    //b.append( "ALTER TABLE " + name + " MODIFY COLUMN " + c.getName() + " " + c.getColumnName() + " auto_increment;" );
-//                    list.add("ALTER TABLE " + name + " MODIFY COLUMN " + c.getName() + " " + c.getColumnName() + " auto_increment;");
-//                } else {
-//
-//                }
-//            }
-//        }
+        DatabaseType dbType = db.getDatabaseType();
+        for (int x = 0; x < metaData.getColumnCount(); x++) {
+            Column c = metaData.getColumn(x);
+            if (c instanceof AutoIncrementColumn) {
+
+                if (db.getDriver() == null) {
+                    // Do nothing
+                } else if (db.getDriver().equalsIgnoreCase("postgres")) {
+                    //b.append("ALTER TABLE " + name + " ALTER COLUMN "+ c.getName() +" TYPE SERIAL;");
+
+                } else if (db.getDriver().equalsIgnoreCase("mysql")) {
+                    //b.append( "ALTER TABLE " + name + " MODIFY COLUMN " + c.getName() + " " + c.getColumnName() + " auto_increment;" );
+                    list.add("ALTER TABLE " + name + " MODIFY COLUMN " + c.getName() + " " + c.getColumnName() + " auto_increment;");
+                } else {
+
+                }
+            }
+        }
         return list;
     }
 

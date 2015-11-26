@@ -35,11 +35,11 @@ public class ForeignKey {
     }
 
     public static ForeignKey parse(String fkValue) {
-        int first = fkValue.indexOf("[");
+        int first = fkValue.indexOf("(");
         if (first == -1) {
             throw new IllegalForeignKeyException("Missing column. Illegal foreignKey value " + fkValue);
         } else {
-            int last = fkValue.indexOf("]");
+            int last = fkValue.indexOf(")");
             if (last == -1) {
                 throw new IllegalForeignKeyException("Illegal foreignKey value " + fkValue);
             }
@@ -99,6 +99,11 @@ public class ForeignKey {
             return false;
         }
         return true;
+    }
+
+    @Override
+    public String toString() {
+        return table + "(" + column + ")";
     }
 
 }

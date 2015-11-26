@@ -18,6 +18,7 @@
 package org.laukvik.db;
 
 import java.util.logging.Logger;
+import javax.swing.UIManager;
 import org.laukvik.db.sql.cmd.App;
 import org.laukvik.db.sql.cmd.Backup;
 import org.laukvik.db.sql.cmd.CommandManager;
@@ -49,6 +50,14 @@ public class SQL {
     private static final Logger LOG = Logger.getLogger(SQL.class.getName());
 
     public static void main(String[] args) {
+
+        try {
+            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+        }
+        catch (Exception e) {
+        }
+        System.setProperty("apple.laf.useScreenMenuBar", "true");
+
         CommandManager mgr = new CommandManager("sql");
         mgr.add(new ListConnections());
         mgr.add(new App());

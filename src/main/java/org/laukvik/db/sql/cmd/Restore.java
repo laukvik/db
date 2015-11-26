@@ -28,6 +28,8 @@ public class Restore extends SqlCommand {
             catch (DatabaseReadOnlyException e) {
                 System.out.println("Connection is read only!");
             }
+        } else {
+            System.out.println("Directory not found!");
         }
         return EXCEPTION;
     }

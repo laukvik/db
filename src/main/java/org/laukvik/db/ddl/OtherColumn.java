@@ -15,7 +15,10 @@
  */
 package org.laukvik.db.ddl;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.Objects;
+import org.laukvik.db.csv.Row;
 
 /**
  *
@@ -61,6 +64,11 @@ public class OtherColumn extends Column<String> {
             return false;
         }
         return true;
+    }
+
+    @Override
+    public void updateResultSet(int columnIndex, Row row, ResultSet rs) throws SQLException {
+
     }
 
 }

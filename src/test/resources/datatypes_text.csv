@@ -1,0 +1,2 @@
+"Char(type=char)","VarChar(type=varChar,size=10)","LongVarchar(type=longVarChar)"
+B,"abcdefghij","The red fox jumps over the lazy dog"

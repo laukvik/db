@@ -27,6 +27,7 @@ public class TablePosition {
 
     Table table;
     Point point;
+    boolean selected;
 
     public TablePosition(Table table, Point point) {
         this.table = table;
@@ -35,6 +36,14 @@ public class TablePosition {
 
     public Point getPoint() {
         return point;
+    }
+
+    public boolean isSelected() {
+        return selected;
+    }
+
+    public void setSelected(boolean selected) {
+        this.selected = selected;
     }
 
     public Table getTable() {

@@ -15,10 +15,13 @@
  */
 package org.laukvik.db.ddl;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 import org.laukvik.db.csv.MetaData;
+import org.laukvik.db.csv.Row;
 
 /**
  *
@@ -44,42 +47,47 @@ public abstract class Column<T> implements Comparable {
         switch (columnType) {
             case java.sql.Types.BIT:
                 return new BitColumn(name);
+
             case java.sql.Types.TINYINT:
                 return new TinyIntColumn(name);
+            case java.sql.Types.INTEGER:
+                return new IntegerColumn(name);
             case java.sql.Types.BIGINT:
                 return new BigIntColumn(name);
-            case java.sql.Types.LONGVARBINARY:
-                return new LongVarBinaryColumn(name);
-            case java.sql.Types.VARBINARY:
-                return new VarBinaryColumn(name);
+
             case java.sql.Types.BINARY:
                 return new BinaryColumn(name);
-            case java.sql.Types.LONGVARCHAR:
-                return new LongVarCharColumn(name);
+            case java.sql.Types.VARBINARY:
+                return new VarBinaryColumn(name);
+            case java.sql.Types.LONGVARBINARY:
+                return new LongVarBinaryColumn(name);
+
             case java.sql.Types.CHAR:
                 return new CharColumn(name);
+            case java.sql.Types.VARCHAR:
+                return new VarCharColumn(name);
+            case java.sql.Types.LONGVARCHAR:
+                return new LongVarCharColumn(name);
+
             case java.sql.Types.NUMERIC:
                 return new NumericColumn(name);
             case java.sql.Types.DECIMAL:
                 return new DecimalColumn(name);
-            case java.sql.Types.INTEGER:
-                return new IntegerColumn(name);
-            case java.sql.Types.SMALLINT:
-                return new SmallIntColumn(name);
+
             case java.sql.Types.FLOAT:
                 return new FloatColumn(name);
             case java.sql.Types.REAL:
                 return new RealColumn(name);
             case java.sql.Types.DOUBLE:
-                return new DoubleColumn(name);
-            case java.sql.Types.VARCHAR:
-                return new VarCharColumn(name);
+                return new DoublePrecisionColumn(name);
+
             case java.sql.Types.DATE:
                 return new DateColumn(name);
             case java.sql.Types.TIME:
                 return new TimeColumn(name);
             case java.sql.Types.TIMESTAMP:
                 return new TimestampColumn(name);
+
             case java.sql.Types.OTHER:
                 return new OtherColumn(name);
         }
@@ -178,7 +186,7 @@ public abstract class Column<T> implements Comparable {
      * @param columnWithMeta
      * @return
      */
-    public static Column parseName(String columnWithMeta) {
+    public static Column parseColumn(String columnWithMeta) {
 
         String columnNameWithOptionalMetaData = columnWithMeta.trim();
         if (columnNameWithOptionalMetaData.startsWith("\"")) {
@@ -200,7 +208,7 @@ public abstract class Column<T> implements Comparable {
             columnName = columnNameWithOptionalMetaData;
         } else {
             // Found extra information
-            int lastIndex = columnNameWithOptionalMetaData.indexOf(")", firstIndex);
+            int lastIndex = columnNameWithOptionalMetaData.lastIndexOf(")");
             columnName = columnNameWithOptionalMetaData.substring(0, firstIndex);
             if (lastIndex == -1) {
             } else {
@@ -218,9 +226,14 @@ public abstract class Column<T> implements Comparable {
                     if (keyValue.contains("=")) {
                         String[] arr = keyValue.split("=");
                         String key = arr[0];
-                        String value = arr[1];
                         keys.add(key.trim());
-                        values.add(value.trim());
+
+                        if (arr.length < 2) {
+                            values.add("");
+                        } else {
+                            values.add(arr[1].trim());
+                        }
+
                     } else {
                         keys.add(keyValue.trim());
                         values.add("");
@@ -231,13 +244,9 @@ public abstract class Column<T> implements Comparable {
         }
 
         // Find dataType before continuing
-        String dataType = "VARCHAR";
-        for (int x = 0; x < keys.size(); x++) {
-            String key = keys.get(x);
-            String val = values.get(x);
-            if (key.equalsIgnoreCase("type")) {
-                dataType = val;
-            }
+        String dataType = getValue("type", keys, values);
+        if (dataType == null) {
+            dataType = "VARCHAR";
         }
 
         boolean allowsNull = true;
@@ -279,6 +288,19 @@ public abstract class Column<T> implements Comparable {
         }
 
         String defaultValue = getValue("default", keys, values);
+        String autoIncremented = getValue("autoIncrement", keys, values);
+        boolean autoIncrement = false;
+        if (autoIncremented == null || autoIncremented.trim().isEmpty()) {
+            // Empty
+        } else {
+            if (autoIncremented.equalsIgnoreCase("true")) {
+                autoIncrement = true;
+            } else if (autoIncremented.equalsIgnoreCase("false")) {
+                autoIncrement = false;
+            } else {
+                throw new IllegalColumnDefinitionException("AutoNumber cant be '" + autoIncremented + "'");
+            }
+        }
 
         // Find all key pairs
         String s = dataType.toUpperCase();
@@ -288,6 +310,23 @@ public abstract class Column<T> implements Comparable {
             c.setAllowNulls(allowsNull);
             c.setDefaultValue(defaultValue);
             c.setForeignKey(foreignKey);
+            c.setAutoIncrement(autoIncrement);
+            return c;
+        } else if (s.equalsIgnoreCase("TINYINT")) {
+            TinyIntColumn c = new TinyIntColumn(columnName);
+            c.setPrimaryKey(primaryKey);
+            c.setAllowNulls(allowsNull);
+            c.setDefaultValue(defaultValue);
+            c.setForeignKey(foreignKey);
+            c.setAutoIncrement(autoIncrement);
+            return c;
+        } else if (s.equalsIgnoreCase("BIGINT")) {
+            BigIntColumn c = new BigIntColumn(columnName);
+            c.setPrimaryKey(primaryKey);
+            c.setAllowNulls(allowsNull);
+            c.setDefaultValue(defaultValue);
+            c.setForeignKey(foreignKey);
+            c.setAutoIncrement(autoIncrement);
             return c;
         } else if (s.equalsIgnoreCase("FLOAT")) {
             FloatColumn c = new FloatColumn(columnName);
@@ -296,8 +335,8 @@ public abstract class Column<T> implements Comparable {
             c.setDefaultValue(defaultValue);
             c.setForeignKey(foreignKey);
             return c;
-        } else if (s.equalsIgnoreCase("DOUBLE")) {
-            DoubleColumn c = new DoubleColumn(columnName);
+        } else if (s.equalsIgnoreCase("DOUBLE") || s.equalsIgnoreCase("DOUBLE PRECISION")) {
+            DoublePrecisionColumn c = new DoublePrecisionColumn(columnName);
             c.setPrimaryKey(primaryKey);
             c.setAllowNulls(allowsNull);
             c.setDefaultValue(defaultValue);
@@ -327,6 +366,43 @@ public abstract class Column<T> implements Comparable {
             c.setDefaultValue(defaultValue);
             c.setForeignKey(foreignKey);
             return c;
+
+        } else if (s.equalsIgnoreCase("TIME")) {
+            String format = getValue("format", keys, values);
+            if (format == null || format.trim().isEmpty()) {
+                throw new IllegalColumnDefinitionException("Format cant be empty!");
+            }
+            try {
+                SimpleDateFormat f = new SimpleDateFormat(format);
+            }
+            catch (Exception e) {
+                throw new IllegalColumnDefinitionException("Format cant be " + format + "!");
+            }
+            TimeColumn c = new TimeColumn(columnName, format);
+            c.setPrimaryKey(primaryKey);
+            c.setAllowNulls(allowsNull);
+            c.setDefaultValue(defaultValue);
+            c.setForeignKey(foreignKey);
+            return c;
+
+        } else if (s.equalsIgnoreCase("TIMESTAMP")) {
+            String format = getValue("format", keys, values);
+            if (format == null || format.trim().isEmpty()) {
+                throw new IllegalColumnDefinitionException("Format cant be empty!");
+            }
+            try {
+                SimpleDateFormat f = new SimpleDateFormat(format);
+            }
+            catch (Exception e) {
+                throw new IllegalColumnDefinitionException("Format cant be " + format + "!");
+            }
+            TimestampColumn c = new TimestampColumn(columnName, format);
+            c.setPrimaryKey(primaryKey);
+            c.setAllowNulls(allowsNull);
+            c.setDefaultValue(defaultValue);
+            c.setForeignKey(foreignKey);
+            return c;
+
         } else if (s.equalsIgnoreCase("BIGDECIMAL")) {
             NumericColumn c = new NumericColumn(columnName);
             c.setPrimaryKey(primaryKey);
@@ -334,16 +410,25 @@ public abstract class Column<T> implements Comparable {
             c.setDefaultValue(defaultValue);
             c.setForeignKey(foreignKey);
             return c;
+
+        } else if (s.equalsIgnoreCase("Real")) {
+            RealColumn c = new RealColumn(columnName);
+            c.setPrimaryKey(primaryKey);
+            c.setAllowNulls(allowsNull);
+            c.setDefaultValue(defaultValue);
+            c.setForeignKey(foreignKey);
+            return c;
+
         } else if (s.startsWith("VARCHAR")) {
             VarCharColumn c = new VarCharColumn(columnName);
             c.setAllowNulls(allowsNull);
             c.setPrimaryKey(primaryKey);
             c.setDefaultValue(defaultValue);
             c.setForeignKey(foreignKey);
-            int first = s.indexOf("[");
-            if (first != -1) {
-                int last = s.lastIndexOf("]");
-                String size = s.substring(first + 1, last).trim();
+
+            String size = getValue("size", keys, values);
+            if (size == null || size.trim().isEmpty()) {
+            } else {
                 try {
                     Integer i = Integer.parseInt(size);
                     c.setSize(i);
@@ -352,8 +437,73 @@ public abstract class Column<T> implements Comparable {
                     throw new IllegalColumnDefinitionException("Column " + columnName + " has invalid size '" + size + "'");
                 }
             }
+
+            return c;
+        } else if (s.equalsIgnoreCase("Binary")) {
+            BinaryColumn c = new BinaryColumn(columnName);
+            c.setPrimaryKey(primaryKey);
+            c.setAllowNulls(allowsNull);
+            c.setDefaultValue(defaultValue);
+            c.setForeignKey(foreignKey);
+            return c;
+        } else if (s.equalsIgnoreCase("VarBinary")) {
+            VarBinaryColumn c = new VarBinaryColumn(columnName);
+            c.setPrimaryKey(primaryKey);
+            c.setAllowNulls(allowsNull);
+            c.setDefaultValue(defaultValue);
+            c.setForeignKey(foreignKey);
+            return c;
+        } else if (s.equalsIgnoreCase("LongVarBinary")) {
+            LongVarBinaryColumn c = new LongVarBinaryColumn(columnName);
+            c.setPrimaryKey(primaryKey);
+            c.setAllowNulls(allowsNull);
+            c.setDefaultValue(defaultValue);
+            c.setForeignKey(foreignKey);
+            return c;
+        } else if (s.equalsIgnoreCase("LongVarChar")) {
+            LongVarCharColumn c = new LongVarCharColumn(columnName);
+            c.setPrimaryKey(primaryKey);
+            c.setAllowNulls(allowsNull);
+            c.setDefaultValue(defaultValue);
+            c.setForeignKey(foreignKey);
+            return c;
+        } else if (s.equalsIgnoreCase("VarChar")) {
+            VarCharColumn c = new VarCharColumn(columnName);
+            c.setPrimaryKey(primaryKey);
+            c.setAllowNulls(allowsNull);
+            c.setDefaultValue(defaultValue);
+            c.setForeignKey(foreignKey);
+            return c;
+        } else if (s.equalsIgnoreCase("Char")) {
+            CharColumn c = new CharColumn(columnName);
+            c.setPrimaryKey(primaryKey);
+            c.setAllowNulls(allowsNull);
+            c.setDefaultValue(defaultValue);
+            c.setForeignKey(foreignKey);
+            return c;
+        } else if (s.equalsIgnoreCase("Decimal")) {
+            DecimalColumn c = new DecimalColumn(columnName);
+            c.setPrimaryKey(primaryKey);
+            c.setAllowNulls(allowsNull);
+            c.setDefaultValue(defaultValue);
+            c.setForeignKey(foreignKey);
+            return c;
+        } else if (s.equalsIgnoreCase("Numeric")) {
+            NumericColumn c = new NumericColumn(columnName);
+            c.setPrimaryKey(primaryKey);
+            c.setAllowNulls(allowsNull);
+            c.setDefaultValue(defaultValue);
+            c.setForeignKey(foreignKey);
+            return c;
+        } else if (s.equalsIgnoreCase("Other")) {
+            OtherColumn c = new OtherColumn(columnName);
+            c.setPrimaryKey(primaryKey);
+            c.setAllowNulls(allowsNull);
+            c.setDefaultValue(defaultValue);
+            c.setForeignKey(foreignKey);
             return c;
         }
+
         return new VarCharColumn(columnName);
     }
 
@@ -423,5 +573,15 @@ public abstract class Column<T> implements Comparable {
         }
         return b.toString();
     }
+
+    public boolean isMySQL() {
+        return !isPostgreSQL();
+    }
+
+    public boolean isPostgreSQL() {
+        return true;
+    }
+
+    public abstract void updateResultSet(int columnIndex, Row row, ResultSet rs) throws SQLException;
 
 }

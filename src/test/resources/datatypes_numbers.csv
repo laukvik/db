@@ -1,0 +1,2 @@
+"Decimal(type=decimal)","DoublePrecision(type=double)","Integer(type=integer)","Numeric(type=numeric)","Real(type=real)","SmallInt(type=smallint)","TinyInt(type=tinyint)","Bit(type=bit)"
+12.34,1234.5678,123,123456789,123.456789,12,3,0

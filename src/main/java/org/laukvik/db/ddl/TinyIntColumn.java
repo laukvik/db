@@ -15,6 +15,10 @@
  */
 package org.laukvik.db.ddl;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import org.laukvik.db.csv.Row;
+
 /**
  *
  * @author Morten Laukvik <morten@laukvik.no>
@@ -60,6 +64,14 @@ public class TinyIntColumn extends Column<Byte> implements AutoIncrementColumn {
         return hash;
     }
 
+    public String getColumnName() {
+        if (isPostgreSQL()) {
+            return "Smallint";
+        } else {
+            return "TinyInt";
+        }
+    }
+
     @Override
     public boolean equals(Object obj) {
         if (obj == null) {
@@ -70,6 +82,14 @@ public class TinyIntColumn extends Column<Byte> implements AutoIncrementColumn {
         }
         final TinyIntColumn other = (TinyIntColumn) obj;
         return true;
+    }
+
+    @Override
+    public void updateResultSet(int columnIndex, Row row, ResultSet rs) throws SQLException {
+        Byte value = row.getByte(this);
+        if (value != null) {
+            rs.updateByte(columnIndex, value);
+        }
     }
 
 }

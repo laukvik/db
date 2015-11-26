@@ -25,8 +25,10 @@ public class Backup extends SqlCommand {
                 dir.mkdirs();
             }
             if (dir.isDirectory()) {
-                System.out.println("Backup to: " + directory);
-                exporter.backupCSV(dir);
+                if (!exporter.backupCSV(dir)) {
+                    System.out.println("No tables found!");
+                    return EXCEPTION;
+                }
                 return SUCCESS;
             } else {
                 System.out.println("Not a directory: " + directory);

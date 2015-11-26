@@ -90,7 +90,7 @@ public class Analyzer {
     }
 
     public Schema findDefaultSchema(DatabaseConnection db) throws IOException {
-        return findSchema(null, db);
+        return findSchema(db.getSchema(), db);
     }
 
     /**
@@ -156,6 +156,8 @@ public class Analyzer {
             // Find all tables
             String tableNamePattern = "%";
             String[] types = {"TABLE"};
+            schemaPattern = null;
+            catalog = null;
             try (ResultSet rs = conn.getMetaData().getTables(catalog, schemaPattern, tableNamePattern, types);) {
                 while (rs.next()) {
 //                    System.out.println(rs.getString("TABLE_NAME") + " Type=" + rs.getString("TABLE_TYPE") + " Catalog=" + rs.getString("TABLE_CAT") + " Schema=" + rs.getString("TABLE_SCHEM") + " TYPE_SCHEM=" + rs.getString("SELF_REFERENCING_COL_NAME"));
@@ -193,10 +195,11 @@ public class Analyzer {
                         if (c instanceof AutoIncrementColumn) {
                             try {
                                 AutoIncrementColumn ic = (AutoIncrementColumn) c;
-                                ic.setAutoIncrement(rs.getBoolean("IS_AUTOINCREMENT"));
+                                String auto = rs.getString("IS_AUTOINCREMENT");
+                                ic.setAutoIncrement(auto.toLowerCase().equalsIgnoreCase("y"));
                             }
                             catch (Exception e) {
-                                LOG.warning(e.getMessage());
+                                LOG.log(Level.WARNING, "Failed to get autoincrement! Error: {0}", e.getMessage());
                             }
                         }
                         // Allow nulls
@@ -277,11 +280,13 @@ public class Analyzer {
             String catalog = null;
             try (ResultSet rs = dbmd.getFunctions(catalog, schema, "%");) {
                 while (rs.next()) {
-                    list.add(new Function(rs.getString(1)));
+                    Function f = new Function(rs.getString(1));
+                    f.setUserFunction(true);
+                    list.add(f);
                 }
             }
             catch (SQLException e2) {
-                LOG.warning("Could not find user functions: " + e2.getMessage());
+                LOG.log(Level.WARNING, "Could not find user functions: {0}", e2.getMessage());
             }
 
         }
@@ -432,6 +437,9 @@ public class Analyzer {
      * @throws SQLException
      */
     public Function findFunctionDetails(Function function, DatabaseConnection db) throws SQLException, IOException {
+        if (!function.isUserFunction()) {
+            return function;
+        }
         //LOG.info("Getting function details for " + function.getName() );
         try (
                 Connection conn = db.getConnection();
@@ -450,14 +458,19 @@ public class Analyzer {
             /* Iterate all columns */
             while (rs.next()) {
                 //LOG.info("Function: " + function.getName() + " Parameter: " + rs.getString("REMARKS"));
-                FunctionParameter p = new FunctionParameter(rs.getString("COLUMN_NAME"));
-                p.setComments(rs.getString("REMARKS"));
-                function.addParameter(p);
+                try {
+                    FunctionParameter p = new FunctionParameter(rs.getString("COLUMN_NAME"));
+                    p.setComments(rs.getString("REMARKS"));
+                    function.addParameter(p);
+                }
+                catch (Exception e) {
+                    LOG.log(Level.WARNING, "Failed to get function details for {0}", function.getName());
+                }
             }
 
         }
         catch (Exception e) {
-            e.printStackTrace();
+            LOG.log(Level.WARNING, "Failed to find function details for {0}", function.getName());
         }
 
         /*

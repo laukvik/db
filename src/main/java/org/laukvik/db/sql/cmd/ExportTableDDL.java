@@ -20,7 +20,7 @@ public class ExportTableDDL extends SqlCommand {
 
         Analyzer a = new Analyzer();
         try {
-            Schema s = a.findSchema(null, db);
+            Schema s = a.findSchema(db.getSchema(), db);
             for (Table t : s.getTables()) {
                 System.out.println(t.getDDL());
             }

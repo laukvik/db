@@ -96,7 +96,8 @@ public class CSV implements Serializable {
         this.metaData = reader.getMetaData();
         while (reader.hasNext()) {
             Row row = reader.getRow();
-            rows.add(row);
+            addRow(row);
+//            rows.add(row);
         }
     }
 
@@ -209,7 +210,7 @@ public class CSV implements Serializable {
      * @return
      */
     public Column addColumn(String name) {
-        return metaData.addColumn(name);
+        return metaData.addColumn(Column.parseColumn(name));
     }
 
     public VarCharColumn addStringColumn(String name) {

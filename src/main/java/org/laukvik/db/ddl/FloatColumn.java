@@ -15,6 +15,10 @@
  */
 package org.laukvik.db.ddl;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import org.laukvik.db.csv.Row;
+
 /**
  *
  * @author Morten Laukvik <morten@laukvik.no>
@@ -65,6 +69,14 @@ public class FloatColumn extends Column<Double> implements AutoIncrementColumn {
         }
         final FloatColumn other = (FloatColumn) obj;
         return true;
+    }
+
+    @Override
+    public void updateResultSet(int columnIndex, Row row, ResultSet rs) throws SQLException {
+        Float value = row.getFloat(this);
+        if (value != null) {
+            rs.updateFloat(columnIndex, value);
+        }
     }
 
 }

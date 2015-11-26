@@ -48,7 +48,7 @@ import org.laukvik.db.csv.io.JsonWriter;
 import org.laukvik.db.csv.query.Query;
 import org.laukvik.db.ddl.Column;
 import org.laukvik.db.ddl.DateColumn;
-import org.laukvik.db.ddl.DoubleColumn;
+import org.laukvik.db.ddl.DoublePrecisionColumn;
 import org.laukvik.db.ddl.FloatColumn;
 import org.laukvik.db.ddl.IntegerColumn;
 import org.laukvik.db.ddl.VarCharColumn;
@@ -222,8 +222,8 @@ public class Viewer extends javax.swing.JFrame implements ListSelectionListener,
                 }
                 selectionCount += arr.length;
 
-            } else if (c instanceof DoubleColumn) {
-                DoubleColumn ic = (DoubleColumn) c;
+            } else if (c instanceof DoublePrecisionColumn) {
+                DoublePrecisionColumn ic = (DoublePrecisionColumn) c;
                 UniqueTableModel<Double> mod = (UniqueTableModel<Double>) utm;
 
                 Double[] arr = new Double[utm.getSelection().size()];

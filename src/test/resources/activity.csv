@@ -1,0 +1,1 @@
+"ID(type=BIGINT,primaryKey=true,allowNulls=false)","name(type=VARCHAR,size=45,allowNulls=false)","description(type=VARCHAR,size=128)","created(type=TIMESTAMP,format=yyyy.MM.dd HH:mm:ss)","updated(type=TIMESTAMP,format=yyyy.MM.dd HH:mm:ss)"

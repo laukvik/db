@@ -15,12 +15,15 @@
  */
 package org.laukvik.db.ddl;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import org.laukvik.db.csv.Row;
 
 /**
  *
@@ -105,6 +108,14 @@ public class TimeColumn extends Column<Date> {
         }
         final TimeColumn other = (TimeColumn) obj;
         return true;
+    }
+
+    @Override
+    public void updateResultSet(int columnIndex, Row row, ResultSet rs) throws SQLException {
+        Date value = row.getDate(this);
+        if (value != null) {
+            rs.updateTime(columnIndex, new java.sql.Time(value.getTime()));
+        }
     }
 
 }

@@ -26,6 +26,7 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.Properties;
 import java.util.logging.Logger;
+import org.laukvik.db.DatabaseType;
 
 /**
  *
@@ -49,6 +50,10 @@ public class DatabaseConnection {
     private boolean readOnly;
 
     public DatabaseConnection() {
+    }
+
+    public DatabaseType getDatabaseType() {
+        return DatabaseType.parseFuzzy(driver);
     }
 
     public boolean isReadOnly() {

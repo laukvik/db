@@ -24,12 +24,24 @@ import java.util.List;
 import org.laukvik.db.csv.CSV;
 import org.laukvik.db.csv.MetaData;
 import org.laukvik.db.csv.Row;
+import org.laukvik.db.ddl.BigIntColumn;
+import org.laukvik.db.ddl.BinaryColumn;
 import org.laukvik.db.ddl.BitColumn;
+import org.laukvik.db.ddl.CharColumn;
 import org.laukvik.db.ddl.Column;
 import org.laukvik.db.ddl.DateColumn;
-import org.laukvik.db.ddl.DoubleColumn;
+import org.laukvik.db.ddl.DecimalColumn;
+import org.laukvik.db.ddl.DoublePrecisionColumn;
 import org.laukvik.db.ddl.FloatColumn;
 import org.laukvik.db.ddl.IntegerColumn;
+import org.laukvik.db.ddl.LongVarBinaryColumn;
+import org.laukvik.db.ddl.LongVarCharColumn;
+import org.laukvik.db.ddl.NumericColumn;
+import org.laukvik.db.ddl.RealColumn;
+import org.laukvik.db.ddl.TimeColumn;
+import org.laukvik.db.ddl.TimestampColumn;
+import org.laukvik.db.ddl.TinyIntColumn;
+import org.laukvik.db.ddl.VarBinaryColumn;
 import org.laukvik.db.ddl.VarCharColumn;
 
 /**
@@ -57,8 +69,8 @@ public class CsvReader implements AutoCloseable, Readable {
         this.metaData = new MetaData();
         this.metaData.setCharset(charset);
         List<String> columns = parseRow();
-        for (String c : columns) {
-            this.metaData.addColumn(c);
+        for (String rawColumnName : columns) {
+            this.metaData.addColumn(Column.parseColumn(rawColumnName));
         }
     }
 
@@ -81,22 +93,74 @@ public class CsvReader implements AutoCloseable, Readable {
             if (x >= metaData.getColumnCount()) {
             } else {
                 Column c = metaData.getColumn(x);
-                if (c instanceof VarCharColumn) {
+
+                if (value == null || value.trim().isEmpty()) {
+                    // ---- Char --------------------------------
+                } else if (c instanceof CharColumn) {
+                    row.update((CharColumn) c, value.charAt(0));
+                } else if (c instanceof VarCharColumn) {
                     row.update((VarCharColumn) c, value);
-                } else if (c instanceof IntegerColumn) {
-                    IntegerColumn ic = (IntegerColumn) c;
-                    row.update(ic, ic.parse(value));
+                } else if (c instanceof LongVarCharColumn) {
+                    row.update((LongVarCharColumn) c, value);
+
+                    // ---- Integer --------------------------------
+                    // "Decimal(type=decimal)","DoublePrecision(type=double)","Integer(type=integer)",
+                    // "Numeric(type=numeric)","Real(type=real)","SmallInt(type=smallint)","TinyInt(type=tinyint)","Bit(type=bit)"
                 } else if (c instanceof BitColumn) {
                     BitColumn bc = (BitColumn) c;
                     row.update(bc, bc.parse(value));
-                } else if (c instanceof DoubleColumn) {
-                    DoubleColumn dc = (DoubleColumn) c;
+
+                } else if (c instanceof TinyIntColumn) {
+                    TinyIntColumn ic = (TinyIntColumn) c;
+                    row.update(ic, ic.parse(value));
+
+                } else if (c instanceof IntegerColumn) {
+                    IntegerColumn ic = (IntegerColumn) c;
+                    row.update(ic, ic.parse(value));
+                } else if (c instanceof BigIntColumn) {
+                    BigIntColumn ic = (BigIntColumn) c;
+                    row.update(ic, ic.parse(value));
+
+                    // ---- Float --------------------------------
+                } else if (c instanceof DoublePrecisionColumn) {
+                    DoublePrecisionColumn dc = (DoublePrecisionColumn) c;
                     row.update(dc, dc.parse(value));
                 } else if (c instanceof FloatColumn) {
                     FloatColumn fc = (FloatColumn) c;
                     row.update(fc, fc.parse(value));
+
+                } else if (c instanceof DecimalColumn) {
+                    DecimalColumn fc = (DecimalColumn) c;
+                    row.update(fc, fc.parse(value));
+
+                } else if (c instanceof NumericColumn) {
+                    NumericColumn fc = (NumericColumn) c;
+                    row.update(fc, fc.parse(value));
+
+                } else if (c instanceof RealColumn) {
+                    RealColumn rc = (RealColumn) c;
+                    row.update(rc, rc.parse(value));
+
+                    // ---- Date --------------------------------
                 } else if (c instanceof DateColumn) {
                     DateColumn dc = (DateColumn) c;
+                    row.update(dc, dc.parse(value));
+                } else if (c instanceof TimeColumn) {
+                    TimeColumn dc = (TimeColumn) c;
+                    row.update(dc, dc.parse(value));
+                } else if (c instanceof TimestampColumn) {
+                    TimestampColumn dc = (TimestampColumn) c;
+                    row.update(dc, dc.parse(value));
+
+                    // ---- Binary --------------------------------
+                } else if (c instanceof BinaryColumn) {
+                    BinaryColumn dc = (BinaryColumn) c;
+                    row.update(dc, dc.parse(value));
+                } else if (c instanceof VarBinaryColumn) {
+                    VarBinaryColumn dc = (VarBinaryColumn) c;
+                    row.update(dc, dc.parse(value));
+                } else if (c instanceof LongVarBinaryColumn) {
+                    LongVarBinaryColumn dc = (LongVarBinaryColumn) c;
                     row.update(dc, dc.parse(value));
                 }
             }
@@ -216,10 +280,12 @@ public class CsvReader implements AutoCloseable, Readable {
         return values;
     }
 
+    @Override
     public Row getRow() {
         return row;
     }
 
+    @Override
     public MetaData getMetaData() {
         return metaData;
     }

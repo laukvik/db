@@ -24,7 +24,7 @@ import org.laukvik.db.csv.CSV;
 import org.laukvik.db.csv.MetaData;
 import org.laukvik.db.csv.Row;
 import org.laukvik.db.ddl.DateColumn;
-import org.laukvik.db.ddl.DoubleColumn;
+import org.laukvik.db.ddl.DoublePrecisionColumn;
 import org.laukvik.db.ddl.FloatColumn;
 import org.laukvik.db.ddl.IntegerColumn;
 import org.laukvik.db.ddl.VarCharColumn;
@@ -113,7 +113,7 @@ public class Query {
         }
 
         public Where isIn(Double[] values) {
-            matcher = new IsInMatcher<>((DoubleColumn) col, values);
+            matcher = new IsInMatcher<>((DoublePrecisionColumn) col, values);
             return where;
         }
 
