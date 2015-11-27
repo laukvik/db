@@ -15,10 +15,10 @@
  */
 package org.laukvik.db.csv.io;
 
-import org.laukvik.db.csv.io.CsvWriter;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.charset.Charset;
 import org.junit.Test;
 import org.laukvik.db.csv.CSV;
 
@@ -34,7 +34,7 @@ public class CsvWriterTest {
         CSV csv = new CSV();
         csv.addColumn("First");
         csv.addColumn("Last");
-        csv.write(new CsvWriter(new FileOutputStream(file)));
+        csv.write(new CsvWriter(new FileOutputStream(file), Charset.defaultCharset()));
     }
 
 }

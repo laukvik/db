@@ -1,5 +1,6 @@
 package org.laukvik.db.sql.cmd;
 
+import java.util.Map;
 import org.laukvik.db.ddl.Table;
 import org.laukvik.db.sql.Analyzer;
 
@@ -14,7 +15,7 @@ public class ListTables extends SqlCommand {
     }
 
     @Override
-    public int run(String value) {
+    public int run(String value, Map<String, String> props) {
         String catalog = null;
         String schema = null;
         Analyzer a = new Analyzer();

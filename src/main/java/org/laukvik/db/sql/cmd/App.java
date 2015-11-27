@@ -1,5 +1,6 @@
 package org.laukvik.db.sql.cmd;
 
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.laukvik.db.sql.DatabaseConnection;
@@ -27,7 +28,7 @@ public class App implements Command {
     }
 
     @Override
-    public int run(String value) {
+    public int run(String value, Map<String, String> props) {
         LOG.log(Level.INFO, "Opening Swing application for database ");
 
         Viewer v = new Viewer();

@@ -19,6 +19,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.charset.Charset;
 import org.junit.Assert;
 import org.junit.Test;
 import org.laukvik.db.csv.CSV;
@@ -42,7 +43,7 @@ public class CsvReaderTest {
         CSV csv = new CSV();
         VarCharColumn first = csv.addStringColumn("First");
         Column last = csv.addColumn("Last");
-        csv.write(new CsvWriter(new FileOutputStream(file)));
+        csv.write(new CsvWriter(new FileOutputStream(file), Charset.defaultCharset()));
         // Read it back
         CsvReader r = new CsvReader(new FileInputStream(file));
         Assert.assertEquals(2, r.getMetaData().getColumnCount());

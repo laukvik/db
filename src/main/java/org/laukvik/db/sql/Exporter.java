@@ -5,6 +5,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.nio.charset.Charset;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -32,12 +33,13 @@ public class Exporter {
      * Exports all table
      *
      * @param directory
+     * @param charset
      * @return
      * @throws IOException
      * @throws SQLException
      * @throws DatabaseConnectionNotFoundException
      */
-    public boolean backupCSV(File directory) throws IOException, SQLException, DatabaseConnectionNotFoundException {
+    public boolean backupCSV(File directory, Charset charset) throws IOException, SQLException, DatabaseConnectionNotFoundException {
         LOG.log(Level.FINE, "Creating CSV backup to {0}", directory.getAbsolutePath());
         Analyzer a = new Analyzer();
         Schema s = a.findSchema(databaseConnection.getSchema(), databaseConnection);
@@ -51,7 +53,7 @@ public class Exporter {
             LOG.log(Level.FINE, "{0}/{1} {2}", new Object[]{counter, max, t.getName()});
             System.out.println(counter + "/" + max + " " + t.getName());
             File dataFile = new File(directory.getAbsolutePath(), t.getName() + ".csv");
-            exportTableCSV(t, dataFile);
+            exportTableCSV(t, dataFile, charset);
         }
         return true;
     }
@@ -61,17 +63,18 @@ public class Exporter {
      *
      * @param table
      * @param file
+     * @param charset
      * @throws FileNotFoundException
      */
-    public void exportTableCSV(Table table, File file) throws FileNotFoundException {
-        LOG.fine("Exporting table '" + table + "' to file " + file.getAbsolutePath());
+    public void exportTableCSV(Table table, File file, Charset charset) throws FileNotFoundException {
+        LOG.log(Level.FINE, "Exporting table ''{0}'' to file {1}", new Object[]{table, file.getAbsolutePath()});
         try (
                 Connection conn = databaseConnection.getConnection();
                 OutputStream out = new FileOutputStream(file);
-                CsvWriter writer = new CsvWriter(out);
+                CsvWriter writer = new CsvWriter(out, charset);
                 ResultSet rs = conn.createStatement().executeQuery(table.getSelectTable());) {
             int columnCount = rs.getMetaData().getColumnCount();
-            LOG.fine("Found " + columnCount + " columns in table " + table.getName());
+            LOG.log(Level.FINE, "Found {0} columns in table {1}", new Object[]{columnCount, table.getName()});
 //            System.out.println("Found " + columnCount + " columns in table " + table.getName());
 
             writer.writeMetaData(table.getMetaData());
@@ -79,7 +82,7 @@ public class Exporter {
             int rowCounter = 0;
             while (rs.next()) {
                 rowCounter++;
-                LOG.fine("Row: " + rowCounter);
+                LOG.log(Level.FINE, "Row: {0}", rowCounter);
                 System.out.print(".");
                 String[] values = new String[columnCount];
                 for (int x = 0; x < columnCount; x++) {
@@ -100,7 +103,7 @@ public class Exporter {
     }
 
     public void exportScript(Schema schema, File file) {
-        LOG.info("Exporting database to file: " + file.getAbsolutePath());
+        LOG.log(Level.INFO, "Exporting database to file: {0}", file.getAbsolutePath());
         try (FileOutputStream out = new FileOutputStream(file)) {
             List<Table> tables = schema.getTables();
             for (int z = 0; z < tables.size(); z++) {

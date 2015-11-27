@@ -1,6 +1,7 @@
 package org.laukvik.db.sql.cmd;
 
 import java.io.IOException;
+import java.util.Map;
 import org.laukvik.db.sql.DatabaseExportFailedException;
 import org.laukvik.db.sql.Exporter;
 
@@ -15,7 +16,7 @@ public class ExportScripts extends SqlCommand {
     }
 
     @Override
-    public int run(String value) {
+    public int run(String value, Map<String, String> props) {
         Exporter exporter = new Exporter(db);
         try {
             exporter.exportDatabaseScripts(db.getSchema());

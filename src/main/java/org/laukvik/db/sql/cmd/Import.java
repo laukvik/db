@@ -1,5 +1,6 @@
 package org.laukvik.db.sql.cmd;
 
+import java.util.Map;
 import org.laukvik.db.sql.DatabaseReadOnlyException;
 import org.laukvik.db.sql.Importer;
 
@@ -14,7 +15,7 @@ public class Import extends SqlCommand {
     }
 
     @Override
-    public int run(String value) {
+    public int run(String value, Map<String, String> props) {
         try {
             Importer importer = new Importer(db);
             return SUCCESS;

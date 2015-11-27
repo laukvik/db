@@ -25,6 +25,7 @@ import java.awt.event.KeyEvent;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.sql.SQLException;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
@@ -577,7 +578,7 @@ public class Viewer extends javax.swing.JFrame implements ConnectionDialogListen
                     File file = new File(dialog.getDirectory(), dialog.getFile());
                     Exporter exporter = new Exporter(db);
                     try {
-                        exporter.exportTableCSV(t, file);
+                        exporter.exportTableCSV(t, file, Charset.defaultCharset());
                         JOptionPane.showMessageDialog(this, "Exported: " + file.getAbsolutePath());
 
                     }
@@ -610,7 +611,7 @@ public class Viewer extends javax.swing.JFrame implements ConnectionDialogListen
                     Exporter exporter = new Exporter(db);
 
                     try {
-                        exporter.backupCSV(file);
+                        exporter.backupCSV(file, Charset.defaultCharset());
                         JOptionPane.showMessageDialog(this, "Exported: " + file.getAbsolutePath());
                     }
                     catch (FileNotFoundException e) {

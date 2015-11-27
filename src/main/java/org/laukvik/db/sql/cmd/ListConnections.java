@@ -1,5 +1,6 @@
 package org.laukvik.db.sql.cmd;
 
+import java.util.Map;
 import org.laukvik.db.sql.Analyzer;
 import org.laukvik.db.sql.DatabaseConnection;
 
@@ -12,7 +13,7 @@ public class ListConnections implements Command {
     public ListConnections() {
     }
 
-    public int run(String value) {
+    public int run(String value, Map<String, String> props) {
         for (DatabaseConnection c : Analyzer.findDatabaseConnections()) {
             System.out.println(c.getFilename());
         }

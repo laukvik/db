@@ -1,5 +1,6 @@
 package org.laukvik.db.sql.cmd;
 
+import java.util.Map;
 import java.util.logging.Logger;
 
 /**
@@ -15,7 +16,7 @@ public class Wizard extends SqlCommand {
     }
 
     @Override
-    public int run(String value) {
+    public int run(String value, Map<String, String> props) {
 
         String driver = db.getDriver();
         String server = db.getServer();

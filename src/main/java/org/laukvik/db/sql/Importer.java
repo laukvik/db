@@ -70,7 +70,7 @@ public class Importer {
         for (File f : files) {
             x++;
             String tableName = BackupMetaDataFileFilter.getName(f);
-            try (CsvReader r = new CsvReader(new FileInputStream(f))) {
+            try (CsvReader r = new CsvReader(new FileInputStream(f), charset)) {
                 System.out.print(x + "/" + max + " " + tableName + " - ");
                 MetaData metaData = r.getMetaData();
                 // Save table name and meta data for post installation script

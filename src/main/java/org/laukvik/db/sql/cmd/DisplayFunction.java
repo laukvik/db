@@ -2,6 +2,7 @@ package org.laukvik.db.sql.cmd;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.Map;
 import org.laukvik.db.ddl.Function;
 import org.laukvik.db.sql.Analyzer;
 
@@ -16,7 +17,7 @@ public class DisplayFunction extends SqlCommand {
     }
 
     @Override
-    public int run(String value) {
+    public int run(String value, Map<String, String> props) {
         Analyzer a = new Analyzer();
         Function f = new Function(getParameter());
 

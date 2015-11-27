@@ -1,5 +1,6 @@
 package org.laukvik.db.sql.cmd;
 
+import java.util.Map;
 import java.util.logging.Logger;
 import org.laukvik.db.csv.sql.Column;
 import org.laukvik.db.csv.sql.ParseException;
@@ -19,7 +20,7 @@ public class UniqueValues extends SqlCommand {
     }
 
     @Override
-    public int run(String value) {
+    public int run(String value, Map<String, String> props) {
         try {
             Column c = Column.parse(value);
             String table = c.getTable().getName();

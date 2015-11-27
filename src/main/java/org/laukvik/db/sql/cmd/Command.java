@@ -1,5 +1,7 @@
 package org.laukvik.db.sql.cmd;
 
+import java.util.Map;
+
 /**
  * Created by morten on 17.10.2015.
  */
@@ -15,6 +17,6 @@ public interface Command {
 
     public String getParameter();
 
-    public int run(String value);
+    public int run(String value, Map<String, String> props);
 
 }

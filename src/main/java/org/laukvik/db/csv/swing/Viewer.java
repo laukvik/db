@@ -50,6 +50,7 @@ import org.laukvik.db.ddl.Column;
 import org.laukvik.db.ddl.DateColumn;
 import org.laukvik.db.ddl.DoublePrecisionColumn;
 import org.laukvik.db.ddl.FloatColumn;
+import org.laukvik.db.ddl.IllegalColumnDefinitionException;
 import org.laukvik.db.ddl.IntegerColumn;
 import org.laukvik.db.ddl.VarCharColumn;
 
@@ -405,6 +406,9 @@ public class Viewer extends javax.swing.JFrame implements ListSelectionListener,
             recentFileModel.add(new RecentFile(file.getAbsolutePath()));
             createUniqueModels();
         }
+        catch (IllegalColumnDefinitionException ex) {
+            JOptionPane.showMessageDialog(this, "Feil i fil", "", JOptionPane.ERROR_MESSAGE);
+        }
         catch (FileNotFoundException ex) {
             JOptionPane.showMessageDialog(this, "Fant ikke fil", "", JOptionPane.ERROR_MESSAGE);
         }
@@ -755,7 +759,7 @@ public class Viewer extends javax.swing.JFrame implements ListSelectionListener,
     private void saveMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_saveMenuItemActionPerformed
         try {
 
-            csv.write(new CsvWriter(new FileOutputStream(file)));
+            csv.write(new CsvWriter(new FileOutputStream(file), Charset.defaultCharset()));
         }
         catch (Exception ex) {
             JOptionPane.showMessageDialog(this,

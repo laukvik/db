@@ -2,13 +2,10 @@ package org.laukvik.db.sql.cmd;
 
 import java.io.File;
 import java.nio.charset.Charset;
+import java.util.Map;
 import org.laukvik.db.sql.DatabaseReadOnlyException;
 import org.laukvik.db.sql.Importer;
 
-/**
- *
- *
- */
 public class Restore extends SqlCommand {
 
     public Restore() {
@@ -16,13 +13,25 @@ public class Restore extends SqlCommand {
     }
 
     @Override
-    public int run(String value) {
+    public int run(String value, Map<String, String> props) {
         File directory = new File(value);
         if (directory.exists()) {
             try {
                 Importer imp = new Importer(db);
-                /* @todo - Add support for encoding */
-                imp.importDirectory(directory, Charset.forName("iso-8859-1"));
+                String encoding = props.get("encoding");
+                Charset charset;
+                if (encoding == null || encoding.trim().isEmpty()) {
+                    charset = Charset.defaultCharset();
+                } else {
+                    try {
+                        charset = Charset.forName(encoding);
+                    }
+                    catch (Exception e) {
+                        System.out.println("Invalid encoding: " + encoding);
+                        return EXCEPTION;
+                    }
+                }
+                imp.importDirectory(directory, charset);
                 return SUCCESS;
             }
             catch (DatabaseReadOnlyException e) {

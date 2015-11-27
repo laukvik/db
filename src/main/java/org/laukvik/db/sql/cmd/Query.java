@@ -1,5 +1,6 @@
 package org.laukvik.db.sql.cmd;
 
+import java.util.Map;
 import org.laukvik.db.sql.Exporter;
 
 /**
@@ -13,7 +14,7 @@ public class Query extends SqlCommand {
     }
 
     @Override
-    public int run(String value) {
+    public int run(String value, Map<String, String> props) {
         Exporter exporter = new Exporter(db);
         exporter.listQuery(value);
         return SUCCESS;

@@ -18,17 +18,21 @@ package org.laukvik.db.csv;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.charset.Charset;
 import org.junit.Assert;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.laukvik.db.csv.io.CsvWriter;
 import org.laukvik.db.ddl.VarCharColumn;
+import org.mockito.runners.MockitoJUnitRunner;
 
 /**
  *
  * @author Morten Laukvik <morten@laukvik.no>
  */
+@RunWith(MockitoJUnitRunner.class)
 public class CsvWriterTest {
 
     public static File getResource(String filename) {
@@ -38,15 +42,11 @@ public class CsvWriterTest {
 
     @Test
     public void writeAndRead() throws IOException {
-
         File f = File.createTempFile("CsvWriter", ".csv");
-
         MetaData md = new MetaData();
-
         VarCharColumn first = (VarCharColumn) md.addColumn(new VarCharColumn("First"));
         VarCharColumn last = (VarCharColumn) md.addColumn(new VarCharColumn("Last"));
-
-        try (CsvWriter w = new CsvWriter(new FileOutputStream(f), md)) {
+        try (CsvWriter w = new CsvWriter(new FileOutputStream(f), md, Charset.defaultCharset())) {
             //
             w.writeRow(new Row().update(first, "Bill").update(last, "Gates"));
             w.writeRow(new Row().update(first, "Steve").update(last, "Jobs"));
@@ -54,18 +54,12 @@ public class CsvWriterTest {
         catch (IOException e) {
             fail("Failed to write CSV file!");
         }
-
         try {
             CSV csv = new CSV();
             csv.read(f);
-
-//            System.out.println("Found columns");
             for (int x = 0; x < csv.getMetaData().getColumnCount(); x++) {
                 System.out.println(csv.getMetaData().getColumn(x));
             }
-
-//            VarCharColumn last = (VarCharColumn) csv.getMetaData().getColumn("Last");
-//                    assertEquals("Correct column count", 2, csv.getMetaData().getColumnCount());
             assertEquals("Correct row count", 2, csv.getRowCount());
             assertEquals("First", "First", csv.getMetaData().getColumn(0).getName());
             assertEquals("Last", "Last", csv.getMetaData().getColumn(1).getName());

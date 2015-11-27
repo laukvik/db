@@ -18,6 +18,7 @@ package org.laukvik.db.csv.io;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.lang.reflect.Field;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -39,16 +40,19 @@ public final class CsvWriter implements Writeable {
 
     private final OutputStream out;
     private MetaData metaData;
+    private Charset charset;
 
-    public CsvWriter(OutputStream out, MetaData metaData) throws IOException {
+    public CsvWriter(OutputStream out, MetaData metaData, Charset charset) throws IOException {
         this.out = out;
         this.metaData = metaData;
+        this.charset = charset;
         writeMetaData(metaData);
     }
 
-    public CsvWriter(OutputStream out) throws IOException {
+    public CsvWriter(OutputStream out, Charset charset) throws IOException {
         this.metaData = null;
         this.out = out;
+        this.charset = charset;
     }
 
     /**
@@ -93,7 +97,6 @@ public final class CsvWriter implements Writeable {
         List<String> items = new ArrayList<>();
         for (int x = 0; x < metaData.getColumnCount(); x++) {
             Column c = metaData.getColumn(x);
-//            String header = "\"" + c.getName() + "(" + c.getMetaHeader() + ")" + "\"";
             String header = c.getName() + "(" + c.getMetaHeader() + ")";
             items.add(header);
         }

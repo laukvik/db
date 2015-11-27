@@ -18,6 +18,7 @@ package org.laukvik.db.csv;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.util.List;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertSame;
@@ -75,7 +76,7 @@ public class CSVTest {
 
         assertSame("RowCount", csv.getRowCount(), 2);
         try {
-            csv.write(new CsvWriter(new FileOutputStream(File.createTempFile("ShouldWrite", ".csv")), md));
+            csv.write(new CsvWriter(new FileOutputStream(File.createTempFile("ShouldWrite", ".csv")), md, Charset.defaultCharset()));
         }
         catch (IOException e) {
             e.printStackTrace();

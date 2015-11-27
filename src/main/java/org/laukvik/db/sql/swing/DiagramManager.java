@@ -19,6 +19,7 @@ import java.awt.Point;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -48,7 +49,7 @@ public class DiagramManager {
             Table t = tp.getTable();
             csv.addRow().update(tableCol, t.getName()).update(xcol, p.x).update(ycol, p.y);
         }
-        CsvWriter w = new CsvWriter(new FileOutputStream(file));
+        CsvWriter w = new CsvWriter(new FileOutputStream(file), Charset.defaultCharset());
         w.write(csv);
     }
 

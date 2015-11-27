@@ -242,6 +242,9 @@ public abstract class Column<T> implements Comparable {
 
             }
         }
+        if (columnName == null || columnName.trim().isEmpty()) {
+            throw new IllegalColumnDefinitionException(columnName);
+        }
 
         // Find dataType before continuing
         String dataType = getValue("type", keys, values);

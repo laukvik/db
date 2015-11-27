@@ -1,7 +1,9 @@
 package org.laukvik.db.sql.cmd;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -30,6 +32,12 @@ public class CommandManager {
         commands.add(command);
     }
 
+    public Map<String, String> getActions() {
+        Map<String, String> map = new HashMap<>();
+
+        return map;
+    }
+
     /**
      * Runs the specified named command
      *
@@ -37,10 +45,16 @@ public class CommandManager {
      * @return
      */
     public int run(String... args) {
+        Map<String, String> map = new HashMap<>();
+
         //
         String namedConnection = null;
         String action = null;
         String parameter = null;
+        String encoding = args.length > 2 ? args[1] : null;
+
+        map.put("encoding", encoding);
+
         //
         for (String a : args) {
             if (a.startsWith("-")) {
@@ -72,7 +86,7 @@ public class CommandManager {
                     DatabaseConnection db = DatabaseConnection.read(namedConnection);
                     SqlCommand sqlCommand = (SqlCommand) cmd;
                     sqlCommand.setDatabaseConnection(db);
-                    return sqlCommand.run(parameter);
+                    return sqlCommand.run(parameter, map);
                 }
                 catch (DatabaseConnectionNotFoundException e) {
                     LOG.log(Level.FINE, "Failed to connect to {0}", namedConnection);
@@ -85,7 +99,7 @@ public class CommandManager {
                 }
 
             } else {
-                return cmd.run(parameter);
+                return cmd.run(parameter, map);
             }
         }
         catch (Exception e) {
@@ -117,7 +131,7 @@ public class CommandManager {
         if (action != null) {
             System.out.println("sql: Illegal option " + action);
         }
-        System.out.println("Usage: " + filename + " <option> <connection>");
+        System.out.println("Usage: " + filename + " <action> <encoding> <connection>");
         for (Command c : commands) {
             if (c.getParameter() == null) {
                 System.out.printf("\t-%-20s\t%s\n", c.getAction(), c.getDescription());
