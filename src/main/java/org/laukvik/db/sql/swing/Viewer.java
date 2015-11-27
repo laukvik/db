@@ -110,13 +110,17 @@ public class Viewer extends javax.swing.JFrame implements ConnectionDialogListen
         setLocationRelativeTo(null);
 
         DEFAULT_DIVIDER_SIZE = tableSplitPane.getDividerSize();
-        setQueryPanelVisible(false);
-        setDefinitionPanelVisible(false);
+//        setQueryPanelVisible(false);
+//        setDefinitionPanelVisible(false);
         jToolBar1.setVisible(false);
         setSize(Toolkit.getDefaultToolkit().getScreenSize());
         treeModel = new TreeModel();
 
         diagramScroll.setBorder(null);
+
+        tableSplitPane.setDividerLocation(Toolkit.getDefaultToolkit().getScreenSize().width - 200);
+        setQueryPanelVisible(false);
+        viewQueryMenuItem.setVisible(false);
     }
 
     /**
@@ -257,7 +261,6 @@ public class Viewer extends javax.swing.JFrame implements ConnectionDialogListen
         mainSplitPane.setLeftComponent(treeScrollPane);
 
         tableSplitPane.setBorder(null);
-        tableSplitPane.setDividerLocation(400);
         tableSplitPane.setResizeWeight(1.0);
 
         queryAndResultSplitPane.setBorder(null);
@@ -414,9 +417,19 @@ public class Viewer extends javax.swing.JFrame implements ConnectionDialogListen
         viewMenu.setText("View");
 
         viewQueryMenuItem.setText("Query");
+        viewQueryMenuItem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                viewQueryMenuItemActionPerformed(evt);
+            }
+        });
         viewMenu.add(viewQueryMenuItem);
 
         viewDDLMenuItem.setText("Table definition");
+        viewDDLMenuItem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                viewDDLMenuItemActionPerformed(evt);
+            }
+        });
         viewMenu.add(viewDDLMenuItem);
 
         menuBar.add(viewMenu);
@@ -497,6 +510,14 @@ public class Viewer extends javax.swing.JFrame implements ConnectionDialogListen
         }
     }//GEN-LAST:event_openMenuItemActionPerformed
 
+    public void toggleQueryPanel() {
+        setQueryPanelVisible(queryAndResultSplitPane.getDividerLocation() == 0);
+    }
+
+    public void toggleDefinitionPanel() {
+        setDefinitionPanelVisible(tableSplitPane.getDividerLocation() > tableSplitPane.getWidth() - DEFAULT_DDL_WIDTH);
+    }
+
     public void setDefinitionPanelVisible(boolean isVisible) {
         if (isVisible) {
             tableSplitPane.setDividerLocation(tableSplitPane.getWidth() - DEFAULT_DDL_WIDTH);
@@ -507,10 +528,10 @@ public class Viewer extends javax.swing.JFrame implements ConnectionDialogListen
             tableSplitPane.setDividerSize(0);
             tableSplitPane.setRightComponent(null);
         }
+        toggleDDL.setSelected(isVisible);
     }
 
     private void toggleDDLActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_toggleDDLActionPerformed
-        setDefinitionPanelVisible(tableSplitPane.getDividerLocation() > tableSplitPane.getWidth() - DEFAULT_DDL_WIDTH);
 
     }//GEN-LAST:event_toggleDDLActionPerformed
 
@@ -525,7 +546,7 @@ public class Viewer extends javax.swing.JFrame implements ConnectionDialogListen
     }
 
     private void toggleQueryActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_toggleQueryActionPerformed
-        setQueryPanelVisible(queryAndResultSplitPane.getDividerLocation() == 0);
+        toggleQueryPanel();
     }//GEN-LAST:event_toggleQueryActionPerformed
 
     private void importMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_importMenuItemActionPerformed
@@ -628,6 +649,16 @@ public class Viewer extends javax.swing.JFrame implements ConnectionDialogListen
         connectionPanel.setVisible(true);
 
     }//GEN-LAST:event_newMenuItemActionPerformed
+
+    private void viewDDLMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_viewDDLMenuItemActionPerformed
+
+        toggleDefinitionPanel();
+    }//GEN-LAST:event_viewDDLMenuItemActionPerformed
+
+    private void viewQueryMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_viewQueryMenuItemActionPerformed
+        // TODO add your handling code here:
+
+    }//GEN-LAST:event_viewQueryMenuItemActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JMenuItem aboutMenuItem;

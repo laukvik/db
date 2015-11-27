@@ -21,7 +21,21 @@ package org.laukvik.db;
  */
 public enum DatabaseType {
 
-    PostgreSQL, MySQL, SQLServer, Oracle, Sybase;
+    PostgreSQL(5432),
+    MySQL(3306),
+    MSSQLServer(1433),
+    Oracle(1521),
+    Sybase(2638);
+
+    private int port;
+
+    private DatabaseType(int port) {
+        this.port = port;
+    }
+
+    public int getPort() {
+        return port;
+    }
 
     static public DatabaseType parseFuzzy(String name) {
         for (DatabaseType dt : values()) {
