@@ -26,13 +26,13 @@ public class Wizard extends SqlCommand {
         String port = db.getPort();
         String url = db.getUrl();
 
-        driver = System.console().readLine("Driver (%s): ", new Object[]{db.getDriver()});
-        server = System.console().readLine("Server (%s): ", new Object[]{db.getServer()});
-        database = System.console().readLine("Database (%s): ", new Object[]{db.getDatabase()});
-        user = System.console().readLine("User (%s): ", new Object[]{db.getUser()});
-        password = System.console().readLine("Password (%s): ", new Object[]{db.getPassword()});
-        port = System.console().readLine("Port (%s): ", new Object[]{db.getPort()});
-        url = System.console().readLine("URL (%s): ", new Object[]{db.getUrl()});
+        driver = System.console().readLine("Driver (%s): ", db.getDriver());
+        server = System.console().readLine("Server (%s): ", db.getServer());
+        database = System.console().readLine("Database (%s): ", db.getDatabase());
+        user = System.console().readLine("User (%s): ", db.getUser());
+        password = System.console().readLine("Password (%s): ", db.getPassword());
+        port = System.console().readLine("Port (%s): ", db.getPort());
+        url = System.console().readLine("URL (%s): ", db.getUrl());
 
         return SUCCESS;
     }

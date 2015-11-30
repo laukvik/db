@@ -58,12 +58,18 @@ public class CsvReader implements AutoCloseable, Readable {
     private int lineCounter;
     private MetaData metaData;
     private Row row;
+    private final char seperatorChar;
 
     public CsvReader(InputStream is) throws IOException {
-        this(is, Charset.defaultCharset());
+        this(is, Charset.defaultCharset(), CSV.COMMA);
     }
 
     public CsvReader(InputStream is, Charset charset) throws IOException {
+        this(is, charset, CSV.COMMA);
+    }
+
+    public CsvReader(InputStream is, Charset charset, char seperatorChar) throws IOException {
+        this.seperatorChar = seperatorChar;
         this.is = new BufferedInputStream(is);
         this.lineCounter = 0;
         this.metaData = new MetaData();
@@ -102,10 +108,6 @@ public class CsvReader implements AutoCloseable, Readable {
                     row.update((VarCharColumn) c, value);
                 } else if (c instanceof LongVarCharColumn) {
                     row.update((LongVarCharColumn) c, value);
-
-                    // ---- Integer --------------------------------
-                    // "Decimal(type=decimal)","DoublePrecision(type=double)","Integer(type=integer)",
-                    // "Numeric(type=numeric)","Real(type=real)","SmallInt(type=smallint)","TinyInt(type=tinyint)","Bit(type=bit)"
                 } else if (c instanceof BitColumn) {
                     BitColumn bc = (BitColumn) c;
                     row.update(bc, bc.parse(value));
@@ -201,63 +203,107 @@ public class CsvReader implements AutoCloseable, Readable {
             boolean addValue = false;
 
             /* Check char */
-            switch (currentChar) {
-                case CSV.RETURN: /* Found carriage return. Do nothing. */
+            if (currentChar == CSV.RETURN) {
+                addChar = false;
 
-                    addChar = false;
-                    break;
+            } else if (currentChar == CSV.LINEFEED) {
+                addChar = false;
+                addValue = true;
+                isNextLine = true;
+                if (isWithinQuote) {
+                    currentValue.deleteCharAt(currentValue.length() - 1);
+                    isWithinQuote = false;
+                }
 
-                case CSV.LINEFEED: /* Found new line symbol */
+            } else if (currentChar == CSV.QUOTE) {
+                /*    "Venture ""Extended Edition"""  */
+                addChar = true;
 
-                    addChar = false;
-                    addValue = true;
-                    isNextLine = true;
-                    if (isWithinQuote) {
-                        currentValue.deleteCharAt(currentValue.length() - 1);
-                        isWithinQuote = false;
+                isWithinQuote = true;
+
+                int read = -1;
+                while (is.available() > 0) {
+                    currentChar = (char) is.read();
+                    rawLine.append(currentChar);
+                    if (currentChar == CSV.QUOTE) {
+                        quoteCount++;
+                        break;
+                    } else {
+                        currentValue.append(currentChar);
                     }
-                    break;
+                }
 
-                case CSV.QUOTE:
+                quoteCount--;
 
-                    /*    "Venture ""Extended Edition"""  */
-                    addChar = true;
+            } else if (currentChar == seperatorChar) { // CSV.COMMA
+                addChar = false;
+                addValue = true;
 
-                    isWithinQuote = true;
-
-                    int read = -1;
-                    while (is.available() > 0) {
-                        currentChar = (char) is.read();
-                        rawLine.append(currentChar);
-                        if (currentChar == CSV.QUOTE) {
-                            quoteCount++;
-                            break;
-                        } else {
-                            currentValue.append(currentChar);
-                        }
-                    }
-
-                    quoteCount--;
-
-                    break;
-
-                case CSV.COMMA:
-
-                    addChar = false;
-                    addValue = true;
-
-                    if (isWithinQuote) {
-                        currentValue.deleteCharAt(currentValue.length() - 1);
-                        isWithinQuote = false;
-                    }
-
-                    break;
-
-                default:
-                    /* Everything else... */
-                    addChar = true;
-                    break;
+                if (isWithinQuote) {
+                    currentValue.deleteCharAt(currentValue.length() - 1);
+                    isWithinQuote = false;
+                }
+            } else {
+                addChar = true;
             }
+
+//            switch (currentChar) {
+//                case CSV.RETURN: /* Found carriage return. Do nothing. */
+//
+//                    addChar = false;
+//                    break;
+//
+//                case CSV.LINEFEED: /* Found new line symbol */
+//
+//                    addChar = false;
+//                    addValue = true;
+//                    isNextLine = true;
+//                    if (isWithinQuote) {
+//                        currentValue.deleteCharAt(currentValue.length() - 1);
+//                        isWithinQuote = false;
+//                    }
+//                    break;
+//
+//                case CSV.QUOTE:
+//
+//                    /*    "Venture ""Extended Edition"""  */
+//                    addChar = true;
+//
+//                    isWithinQuote = true;
+//
+//                    int read = -1;
+//                    while (is.available() > 0) {
+//                        currentChar = (char) is.read();
+//                        rawLine.append(currentChar);
+//                        if (currentChar == CSV.QUOTE) {
+//                            quoteCount++;
+//                            break;
+//                        } else {
+//                            currentValue.append(currentChar);
+//                        }
+//                    }
+//
+//                    quoteCount--;
+//
+//                    break;
+//
+//                case CSV.COMMA:
+//
+//                    addChar = false;
+//                    addValue = true;
+//
+//                    if (isWithinQuote) {
+//                        currentValue.deleteCharAt(currentValue.length() - 1);
+//                        isWithinQuote = false;
+//                    }
+//
+//                    break;
+//
+//                default:
+//                    /* Everything else... */
+//                    addChar = true;
+//                    break;
+//            }
             if (addChar) {
                 currentValue.append(currentChar);
             }

@@ -7,16 +7,16 @@ import java.util.Map;
  */
 public interface Command {
 
-    final int EXCEPTION = -1;
-    final int SUCCESS = 0;
-    final int ERROR = 1;
+    int EXCEPTION = -1;
+    int SUCCESS = 0;
+    int ERROR = 1;
 
-    public String getAction();
+    String getAction();
 
-    public String getDescription();
+    String getDescription();
 
-    public String getParameter();
+    String getParameter();
 
-    public int run(String value, Map<String, String> props);
+    int run(String value, Map<String, String> props);
 
 }

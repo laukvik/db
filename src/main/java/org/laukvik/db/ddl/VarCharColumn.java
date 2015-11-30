@@ -75,10 +75,7 @@ public class VarCharColumn extends Column<String> implements SizeColumn {
             return false;
         }
         final VarCharColumn other = (VarCharColumn) obj;
-        if (!Objects.equals(this.name, other.name)) {
-            return false;
-        }
-        return true;
+        return Objects.equals(this.name, other.name);
     }
 
     @Override

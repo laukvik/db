@@ -2,8 +2,8 @@ package org.laukvik.db.sql.cmd;
 
 import java.util.Map;
 import java.util.logging.Logger;
-import org.laukvik.db.csv.sql.Column;
-import org.laukvik.db.csv.sql.ParseException;
+import org.laukvik.db.parser.Column;
+import org.laukvik.db.parser.ParseException;
 import org.laukvik.db.csv.swing.Unique;
 import org.laukvik.db.sql.Analyzer;
 
@@ -27,7 +27,7 @@ public class UniqueValues extends SqlCommand {
             String column = c.getName();
             Analyzer a = new Analyzer();
             for (Unique u : a.findUnique(table, column, db)) {
-                System.out.format("%d - %s \n", new Object[]{u.getCount(), u.getValue()});
+                System.out.format("%d - %s \n", u.getCount(), u.getValue());
             }
         }
         catch (ParseException ex) {

@@ -15,13 +15,13 @@
  */
 package org.laukvik.db.csv.jdbc.syntax;
 
-import org.laukvik.db.csv.sql.parser.ListReader;
-import org.laukvik.db.csv.sql.parser.CommaReader;
-import org.laukvik.db.csv.sql.parser.SyntaxException;
-import org.laukvik.db.csv.sql.parser.ColumnReader;
-import org.laukvik.db.csv.sql.parser.ColumnListener;
+import org.laukvik.db.parser.reader.ListReader;
+import org.laukvik.db.parser.reader.CommaReader;
+import org.laukvik.db.parser.reader.SyntaxException;
+import org.laukvik.db.parser.reader.ColumnReader;
+import org.laukvik.db.parser.reader.ColumnListener;
 import org.junit.Test;
-import org.laukvik.db.csv.sql.Column;
+import org.laukvik.db.parser.Column;
 
 /**
  *

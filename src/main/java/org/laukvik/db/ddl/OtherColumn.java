@@ -60,10 +60,7 @@ public class OtherColumn extends Column<String> {
             return false;
         }
         final OtherColumn other = (OtherColumn) obj;
-        if (!Objects.equals(this.name, other.name)) {
-            return false;
-        }
-        return true;
+        return Objects.equals(this.name, other.name);
     }
 
     @Override

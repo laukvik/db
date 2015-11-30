@@ -108,12 +108,12 @@ public class Query {
         }
 
         public Where isIn(Float... values) {
-            matcher = new IsInMatcher((FloatColumn) col, values);
+            matcher = new IsInMatcher(col, values);
             return where;
         }
 
         public Where isIn(Double[] values) {
-            matcher = new IsInMatcher<>((DoublePrecisionColumn) col, values);
+            matcher = new IsInMatcher<>(col, values);
             return where;
         }
 

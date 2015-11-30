@@ -16,8 +16,8 @@
 package org.laukvik.db.csv.jdbc.syntax;
 
 import org.junit.Test;
-import org.laukvik.db.csv.sql.parser.ListItemReader;
-import org.laukvik.db.csv.sql.parser.SyntaxException;
+import org.laukvik.db.parser.reader.ListItemReader;
+import org.laukvik.db.parser.reader.SyntaxException;
 
 /**
  *

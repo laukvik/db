@@ -29,7 +29,7 @@ public enum DatabaseType {
 
     private int port;
 
-    private DatabaseType(int port) {
+    DatabaseType(int port) {
         this.port = port;
     }
 

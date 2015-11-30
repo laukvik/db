@@ -16,12 +16,12 @@
 package org.laukvik.db.csv.sql.query;
 
 import org.junit.Test;
-import org.laukvik.db.csv.sql.Column;
-import org.laukvik.db.csv.sql.Select;
-import org.laukvik.db.csv.sql.Sort;
-import org.laukvik.db.csv.sql.Table;
-import org.laukvik.db.csv.sql.joins.LeftJoin;
-import org.laukvik.db.csv.sql.joins.OuterJoin;
+import org.laukvik.db.parser.Column;
+import org.laukvik.db.parser.Select;
+import org.laukvik.db.parser.Sort;
+import org.laukvik.db.parser.Table;
+import org.laukvik.db.parser.joins.LeftJoin;
+import org.laukvik.db.parser.joins.OuterJoin;
 
 /**
  *

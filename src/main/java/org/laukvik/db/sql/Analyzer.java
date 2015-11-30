@@ -158,7 +158,7 @@ public class Analyzer {
             String[] types = {"TABLE"};
             schemaPattern = null;
             catalog = null;
-            try (ResultSet rs = conn.getMetaData().getTables(catalog, schemaPattern, tableNamePattern, types);) {
+            try (ResultSet rs = conn.getMetaData().getTables(catalog, schemaPattern, tableNamePattern, types)) {
                 while (rs.next()) {
 //                    System.out.println(rs.getString("TABLE_NAME") + " Type=" + rs.getString("TABLE_TYPE") + " Catalog=" + rs.getString("TABLE_CAT") + " Schema=" + rs.getString("TABLE_SCHEM") + " TYPE_SCHEM=" + rs.getString("SELF_REFERENCING_COL_NAME"));
                     Table t = new Table(rs.getString("TABLE_NAME"));
@@ -275,10 +275,10 @@ public class Analyzer {
      */
     public List<Function> findUserFunctions(String schema, DatabaseConnection db) {
         List<Function> list = new ArrayList<>();
-        try (Connection conn = db.getConnection();) {
+        try (Connection conn = db.getConnection()) {
             DatabaseMetaData dbmd = conn.getMetaData();
             String catalog = null;
-            try (ResultSet rs = dbmd.getFunctions(catalog, schema, "%");) {
+            try (ResultSet rs = dbmd.getFunctions(catalog, schema, "%")) {
                 while (rs.next()) {
                     Function f = new Function(rs.getString(1));
                     f.setUserFunction(true);
@@ -308,7 +308,7 @@ public class Analyzer {
         try (Connection conn = db.getConnection()) {
             DatabaseMetaData dbmd = conn.getMetaData();
             String[] types = {"VIEW"};
-            try (ResultSet rs = dbmd.getTables(null, null, "%", types);) {
+            try (ResultSet rs = dbmd.getTables(null, null, "%", types)) {
                 while (rs.next()) {
                     list.add(new View(rs.getString(3)));
                 }
@@ -443,7 +443,7 @@ public class Analyzer {
         //LOG.info("Getting function details for " + function.getName() );
         try (
                 Connection conn = db.getConnection();
-                ResultSet rs = conn.getMetaData().getProcedureColumns("", "%", function.getName(), null);) {
+                ResultSet rs = conn.getMetaData().getProcedureColumns("", "%", function.getName(), null)) {
 
             /**
              *
@@ -500,11 +500,11 @@ public class Analyzer {
 
     public List<Unique> findUnique(String table, String column, DatabaseConnection db) {
         List<Unique> list = new ArrayList<>();
-        try (Connection conn = db.getConnection();) {
+        try (Connection conn = db.getConnection()) {
             String catalog = null;
             try (ResultSet rs = conn.createStatement().executeQuery("SELECT " + column + ", count(" + column + ") FROM " + table + " GROUP BY " + column + " ORDER BY " + column + " ASC")) {
                 while (rs.next()) {
-                    Unique u = new Unique(rs.getString(1), rs.getInt(2));
+                    Unique<String> u = new Unique(rs.getString(1), rs.getInt(2));
                     list.add(u);
                 }
             }
@@ -526,13 +526,13 @@ public class Analyzer {
      */
     public List<Unique> findRowCount(DatabaseConnection db) {
         List<Unique> list = new ArrayList<>();
-        try (Connection conn = db.getConnection();) {
+        try (Connection conn = db.getConnection()) {
             String catalog = null;
             String schema = null;
             for (Table t : findTables(catalog, schema, db)) {
                 try (ResultSet rs = conn.createStatement().executeQuery("SELECT count(*) FROM " + t.getName())) {
                     while (rs.next()) {
-                        Unique u = new Unique(t.getName(), rs.getInt(1));
+                        Unique<String> u = new Unique(t.getName(), rs.getInt(1));
                         list.add(u);
                     }
                 }

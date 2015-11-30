@@ -25,8 +25,8 @@ import org.laukvik.db.csv.Row;
  */
 public interface Readable extends Iterator<Row> {
 
-    public MetaData getMetaData();
+    MetaData getMetaData();
 
-    public Row getRow();
+    Row getRow();
 
 }

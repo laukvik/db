@@ -442,7 +442,7 @@ public class DiagramPanel extends JPanel implements MouseListener, MouseMotionLi
      * @param file
      * @throws IOException
      */
-    public void write(File file) throws IOException, Exception {
+    public void write(File file) throws Exception {
         if (file == null) {
             LOG.log(Level.FINE, "File not specified. Saving is disabled.");
         } else {

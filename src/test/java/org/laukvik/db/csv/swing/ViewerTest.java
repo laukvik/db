@@ -20,7 +20,7 @@ import org.laukvik.db.csv.swing.CSVTableModel;
 import java.io.File;
 import org.junit.Assert;
 import static org.junit.Assert.fail;
-import org.laukvik.db.csv.CsvReaderTest;
+import org.laukvik.db.csv.io.CsvReaderTest;
 
 /**
  *

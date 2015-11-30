@@ -75,10 +75,7 @@ public class LongVarCharColumn extends Column<String> {
             return false;
         }
         final LongVarCharColumn other = (LongVarCharColumn) obj;
-        if (!Objects.equals(this.name, other.name)) {
-            return false;
-        }
-        return true;
+        return Objects.equals(this.name, other.name);
     }
 
     @Override

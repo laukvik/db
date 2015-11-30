@@ -29,7 +29,7 @@ import org.laukvik.db.csv.CSV;
 public class CsvWriterTest {
 
     @Test
-    public void canWrite() throws IOException, Exception {
+    public void canWrite() throws Exception {
         File file = File.createTempFile("tmp", ".csv");
         CSV csv = new CSV();
         csv.addColumn("First");

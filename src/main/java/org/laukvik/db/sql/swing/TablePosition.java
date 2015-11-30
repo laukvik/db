@@ -78,10 +78,7 @@ public class TablePosition {
         if (!Objects.equals(this.table, other.table)) {
             return false;
         }
-        if (!Objects.equals(this.point, other.point)) {
-            return false;
-        }
-        return true;
+        return Objects.equals(this.point, other.point);
     }
 
 }

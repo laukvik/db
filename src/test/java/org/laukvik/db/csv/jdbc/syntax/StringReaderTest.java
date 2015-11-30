@@ -16,9 +16,9 @@
 package org.laukvik.db.csv.jdbc.syntax;
 
 import org.junit.Test;
-import org.laukvik.db.csv.sql.parser.ReaderListener;
-import org.laukvik.db.csv.sql.parser.StringReader;
-import org.laukvik.db.csv.sql.parser.SyntaxException;
+import org.laukvik.db.parser.reader.ReaderListener;
+import org.laukvik.db.parser.reader.StringReader;
+import org.laukvik.db.parser.reader.SyntaxException;
 
 import static org.junit.Assert.assertEquals;
 

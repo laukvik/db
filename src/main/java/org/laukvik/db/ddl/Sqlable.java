@@ -23,6 +23,6 @@ package org.laukvik.db.ddl;
  */
 public interface Sqlable {
 
-    public String getName();
+    String getName();
 
 }

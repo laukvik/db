@@ -25,10 +25,10 @@ import org.laukvik.db.sql.DatabaseConnection;
  */
 public interface ConnectionDialogListener {
 
-    public void accepted(DatabaseConnection connection);
+    void accepted(DatabaseConnection connection);
 
-    public void denied();
+    void denied();
 
-    public boolean canConnect(DatabaseConnection connection);
+    boolean canConnect(DatabaseConnection connection);
 
 }

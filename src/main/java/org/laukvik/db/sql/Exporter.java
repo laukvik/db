@@ -72,7 +72,7 @@ public class Exporter {
                 Connection conn = databaseConnection.getConnection();
                 OutputStream out = new FileOutputStream(file);
                 CsvWriter writer = new CsvWriter(out, charset);
-                ResultSet rs = conn.createStatement().executeQuery(table.getSelectTable());) {
+                ResultSet rs = conn.createStatement().executeQuery(table.getSelectTable())) {
             int columnCount = rs.getMetaData().getColumnCount();
             LOG.log(Level.FINE, "Found {0} columns in table {1}", new Object[]{columnCount, table.getName()});
 //            System.out.println("Found " + columnCount + " columns in table " + table.getName());

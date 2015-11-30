@@ -90,7 +90,7 @@ public class Importer {
                 try (
                         Connection conn = db.getConnection();
                         Statement st = conn.createStatement();
-                        ResultSet rs = st.executeQuery("SELECT * FROM " + tableName);) {
+                        ResultSet rs = st.executeQuery("SELECT * FROM " + tableName)) {
                     canImport = true;
                     System.out.print("Exists ");
                 }
@@ -98,7 +98,7 @@ public class Importer {
 
                     try (
                             Connection conn = db.getConnection();
-                            Statement st = conn.createStatement();) {
+                            Statement st = conn.createStatement()) {
 
                         int results = st.executeUpdate(sql);
                         canImport = true;
@@ -128,7 +128,7 @@ public class Importer {
                         Row row = r.next();
                         try (Connection conn = db.getConnection();
                                 Statement st = conn.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE);
-                                ResultSet rs = st.executeQuery("SELECT * FROM " + tableName);) {
+                                ResultSet rs = st.executeQuery("SELECT * FROM " + tableName)) {
 
                             installRow(row, metaData, rs);
 //                            if (x % rowsPrDot == 0) {
@@ -159,7 +159,7 @@ public class Importer {
          * Post Install Script
          * **********************************************************
          */
-        try (Connection conn = db.getConnection();) {
+        try (Connection conn = db.getConnection()) {
             System.out.println("Installing Post Scripts...");
             for (int y = 0; y < tables.size(); y++) {
                 String table = tables.get(y);
@@ -168,7 +168,7 @@ public class Importer {
                 System.out.println((y + 1) + "/" + tables.size() + " Table: " + table + " AutoNumberScripts: " + autoNumberScripts.size());
                 for (String q : autoNumberScripts) {
                     System.out.println(" SQL: " + q);
-                    try (Statement st = conn.createStatement();) {
+                    try (Statement st = conn.createStatement()) {
                         st.executeUpdate(q);
                     }
                     catch (Exception e) {
@@ -180,7 +180,7 @@ public class Importer {
                 System.out.println((y + 1) + "/" + tables.size() + " " + table + " ConstraintScripts: " + constraintsScripts.size());
                 for (String q : constraintsScripts) {
                     System.out.println(" SQL: " + q);
-                    try (Statement st = conn.createStatement();) {
+                    try (Statement st = conn.createStatement()) {
                         st.executeUpdate(q);
                     }
                     catch (Exception e) {
@@ -240,7 +240,7 @@ public class Importer {
         if (t.isPostInstallRequired()) {
             try (
                     Connection conn = db.getConnection();
-                    Statement st = conn.createStatement();) {
+                    Statement st = conn.createStatement()) {
                 for (String q : t.getPostAutoNumberScript(db)) {
                     try {
                         st.executeUpdate(q);
@@ -264,7 +264,7 @@ public class Importer {
         if (t.isPostInstallRequired()) {
             try (
                     Connection conn = db.getConnection();
-                    Statement st = conn.createStatement();) {
+                    Statement st = conn.createStatement()) {
                 for (String q : t.getPostConstraintScript(db)) {
                     try {
                         st.executeUpdate(q);

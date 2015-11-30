@@ -24,6 +24,6 @@ import org.laukvik.db.csv.CSV;
  */
 public interface Writeable extends AutoCloseable {
 
-    public void write(CSV csv) throws IOException;
+    void write(CSV csv) throws IOException;
 
 }

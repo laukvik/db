@@ -21,8 +21,8 @@ package org.laukvik.db.ddl;
  */
 public interface SizeColumn {
 
-    public int getSize();
+    int getSize();
 
-    public void setSize(int size);
+    void setSize(int size);
 
 }

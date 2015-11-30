@@ -60,10 +60,7 @@ public class RecentFile {
             return false;
         }
         final RecentFile other = (RecentFile) obj;
-        if (!Objects.equals(this.path, other.path)) {
-            return false;
-        }
-        return true;
+        return Objects.equals(this.path, other.path);
     }
 
 

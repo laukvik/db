@@ -241,12 +241,7 @@ public class TreeModel extends DefaultTreeCellRenderer implements javax.swing.tr
             return false;
         } else if (parent == stringFunctions) {
             return false;
-        } else if (parent == numericFunctions) {
-            return false;
-
-        } else {
-            return true;
-        }
+        } else return parent != numericFunctions;
     }
 
     @Override

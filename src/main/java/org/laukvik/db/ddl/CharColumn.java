@@ -70,10 +70,7 @@ public class CharColumn extends Column<String> {
             return false;
         }
         final CharColumn other = (CharColumn) obj;
-        if (this.size != other.size) {
-            return false;
-        }
-        return true;
+        return this.size == other.size;
     }
 
     @Override

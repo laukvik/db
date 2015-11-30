@@ -54,7 +54,7 @@ public class XmlWriterTest {
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         DocumentBuilder builder = factory.newDocumentBuilder();
 
-        Document document = (Document) builder.parse(file);
+        Document document = builder.parse(file);
     }
 
     @Test
@@ -73,7 +73,7 @@ public class XmlWriterTest {
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         DocumentBuilder builder = factory.newDocumentBuilder();
 
-        Document document = (Document) builder.parse(file);
+        Document document = builder.parse(file);
 
         Assert.assertEquals("people", document.getDocumentElement().getNodeName());
         Assert.assertEquals(2, document.getDocumentElement().getElementsByTagName("person").getLength());

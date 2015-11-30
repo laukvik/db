@@ -15,7 +15,7 @@
  */
 package org.laukvik.db.csv.jdbc;
 
-import org.laukvik.db.csv.jdbc.TextDriver;
+import org.laukvik.db.jdbc.TextDriver;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -33,7 +33,7 @@ public class TextDriverTest {
         DriverManager.registerDriver(new TextDriver());
         try (
                 Connection connection = DriverManager.getConnection("jdbc:TextDriver:/");
-                Statement st = connection.createStatement();) {
+                Statement st = connection.createStatement()) {
 
         }
         catch (SQLException e) {

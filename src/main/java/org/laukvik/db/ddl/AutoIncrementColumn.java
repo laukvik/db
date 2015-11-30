@@ -21,8 +21,8 @@ package org.laukvik.db.ddl;
  */
 public interface AutoIncrementColumn {
 
-    public void setAutoIncrement(boolean autoIncrement);
+    void setAutoIncrement(boolean autoIncrement);
 
-    public boolean isAutoIncrement();
+    boolean isAutoIncrement();
 
 }

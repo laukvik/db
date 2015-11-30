@@ -154,7 +154,7 @@ public class DatabaseConnection {
 
     public boolean canConnect() {
         try (
-                Connection conn = getConnection();) {
+                Connection conn = getConnection()) {
             conn.getMetaData().getDatabaseProductName();
             return true;
         }
@@ -165,16 +165,12 @@ public class DatabaseConnection {
 
     public boolean isMissingDriver() {
         try (
-                Connection conn = getConnection();) {
+                Connection conn = getConnection()) {
             conn.getMetaData().getDatabaseProductName();
             return false;
         }
         catch (Exception e) {
-            if (e.getMessage().toLowerCase().contains("no suitable driver found")) {
-                return true;
-            } else {
-                return false;
-            }
+            return e.getMessage().toLowerCase().contains("no suitable driver found");
         }
     }
 

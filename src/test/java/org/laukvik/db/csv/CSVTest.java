@@ -258,7 +258,7 @@ public class CSVTest {
         try {
             CSV csv = new CSV();
             csv.read(getResource("person.csv"));
-            List<Person> items = csv.findByClass(Person.class);
+            List<Person> items = CSV.findByClass(Person.class);
             int x = 1;
             for (Person p : items) {
                 x++;

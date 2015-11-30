@@ -61,7 +61,7 @@ public class CSV implements Serializable {
     public final static char COMMA = ',';
     public final static char SEMINCOLON = ';';
     public final static char PIPE = '|';
-    public final static char TAB = '\t';
+    public final static char TAB = 9;
     public final static char QUOTE = '"';
     public final static String CRLF = "\r\n";
 
@@ -152,7 +152,7 @@ public class CSV implements Serializable {
         rows.clear();
     }
 
-    public void write(Writeable writer) throws IOException, Exception {
+    public void write(Writeable writer) throws Exception {
         writer.write(this);
         writer.close();
     }
@@ -347,7 +347,7 @@ public class CSV implements Serializable {
     /**
      * Returns a set of unique values for the specified column
      *
-     * @param columnIndex
+     * @param column
      * @return
      */
     public Set<String> listDistinct(Column column) {
