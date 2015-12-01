@@ -58,7 +58,8 @@ public class CsvReader implements AutoCloseable, Readable {
     private int lineCounter;
     private MetaData metaData;
     private Row row;
-    private final char seperatorChar;
+    private char seperatorChar;
+    private boolean autoDetect = true;
 
     public CsvReader(InputStream is) throws IOException {
         this(is, Charset.defaultCharset(), CSV.COMMA);
@@ -193,16 +194,24 @@ public class CsvReader implements AutoCloseable, Readable {
         /* Read until */
         while (is.available() > 0 && !isNextLine) {
 
-            /* Read next char */
+            // Read next char
             currentChar = (char) is.read();
 
-            /* Determines whether or not to add char */
+            // Determines whether or not to add char
             boolean addChar;
 
-            /* Adds the currentValue */
+            // Adds the currentValue
             boolean addValue = false;
 
-            /* Check char */
+            // Look for seperator characters in first line
+            if (lineCounter == 0 && autoDetect) {
+                if (currentChar == CSV.TAB || currentChar == CSV.SEMINCOLON || currentChar == CSV.PIPE || currentChar == CSV.COMMA) {
+                    seperatorChar = currentChar;
+                    autoDetect = false;
+                }
+            }
+
+            // Check char
             if (currentChar == CSV.RETURN) {
                 addChar = false;
 
