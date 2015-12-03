@@ -25,12 +25,17 @@ public class AboutDialog extends javax.swing.JDialog {
 
     /**
      * Creates new form AboutDialog
+     *
+     * @param parent
+     * @param modal
+     * @param bundle
      */
     public AboutDialog(java.awt.Frame parent, boolean modal, ResourceBundle bundle) {
         super(parent, modal);
         initComponents();
-        aboutLabel.setText(bundle.getString("app.title"));
-        descLabel.setText(bundle.getString("app.description"));
+
+        aboutLabel.setText(bundle.getString("about.title"));
+        descLabel.setText(bundle.getString("about.description"));
     }
 
     /**
@@ -60,12 +65,14 @@ public class AboutDialog extends javax.swing.JDialog {
         jPanel1.setLayout(null);
 
         aboutLabel.setText("About");
+        aboutLabel.setEnabled(false);
         jPanel1.add(aboutLabel);
-        aboutLabel.setBounds(50, 50, 230, 16);
+        aboutLabel.setBounds(20, 20, 300, 16);
 
         descLabel.setText("Written by Morten Laukvik");
+        descLabel.setVerticalAlignment(javax.swing.SwingConstants.TOP);
         jPanel1.add(descLabel);
-        descLabel.setBounds(50, 80, 240, 30);
+        descLabel.setBounds(20, 40, 290, 30);
 
         jScrollPane1.setViewportView(jPanel1);
 
@@ -77,7 +84,7 @@ public class AboutDialog extends javax.swing.JDialog {
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 183, Short.MAX_VALUE)
+            .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 124, Short.MAX_VALUE)
         );
 
         pack();

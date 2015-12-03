@@ -98,11 +98,9 @@ public class Viewer extends javax.swing.JFrame implements ListSelectionListener,
      * Creates new form Viewer
      */
     public Viewer() {
-        super("CSV");
+        super();
         tableModels = new ArrayList<>();
         bundle = ResourceBundle.getBundle("messages"); // NOI18N
-        setTitle(bundle.getString("app"));
-        setTitle("");
         initComponents();
         tabbedPane.setTabLayoutPolicy(JTabbedPane.SCROLL_TAB_LAYOUT);
         newMenuItem.setAccelerator(getKeystroke(java.awt.event.KeyEvent.VK_N));
