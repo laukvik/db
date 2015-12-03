@@ -52,8 +52,44 @@ import org.laukvik.db.ddl.VarCharColumn;
 public class CsvReaderTest {
 
     @Test
+    public void autoDetectTab() {
+        autoDetectSeperators("seperator_tabbed.txt");
+    }
+
+    @Test
+    public void autoDetectPipe() {
+        autoDetectSeperators("seperator_pipe.csv");
+    }
+
+    @Test
+    public void autoDetectSemiColon() {
+        autoDetectSeperators("seperator_semicolon.csv");
+    }
+
+    public void autoDetectSeperators(String fileName) {
+        try (CsvReader reader = new CsvReader(new FileInputStream(getResource(fileName)), Charset.forName("utf-8"))) {
+            int rows = 0;
+            VarCharColumn first = (VarCharColumn) reader.getMetaData().getColumn(0);
+            assertEquals("First", first.getName());
+            VarCharColumn last = (VarCharColumn) reader.getMetaData().getColumn(1);
+            assertEquals("Last", last.getName());
+            while (reader.hasNext()) {
+                Row r = reader.getRow();
+                assertEquals("Morten", r.getString(first));
+                assertEquals("Laukvik", r.getString(last));
+                rows++;
+            }
+            assertEquals("Row count", 1, rows);
+            assertEquals("Column count", 2, reader.getMetaData().getColumnCount());
+        }
+        catch (IOException e) {
+            fail(e.getMessage());
+        }
+    }
+
+    @Test
     public void readTabDelimited() {
-        try (CsvReader reader = new CsvReader(new FileInputStream(getResource("tabbed.txt")), Charset.forName("utf-8"), CSV.TAB)) {
+        try (CsvReader reader = new CsvReader(new FileInputStream(getResource("seperator_tabbed.txt")), Charset.forName("utf-8"), CSV.TAB)) {
             int rows = 0;
             VarCharColumn first = (VarCharColumn) reader.getMetaData().getColumn(0);
             assertEquals("First", first.getName());
@@ -75,7 +111,7 @@ public class CsvReaderTest {
 
     @Test
     public void readSemiColonDelimited() {
-        try (CsvReader reader = new CsvReader(new FileInputStream(getResource("semicolon.csv")), Charset.forName("utf-8"), CSV.SEMINCOLON)) {
+        try (CsvReader reader = new CsvReader(new FileInputStream(getResource("seperator_semicolon.csv")), Charset.forName("utf-8"), CSV.SEMINCOLON)) {
             int rows = 0;
             VarCharColumn first = (VarCharColumn) reader.getMetaData().getColumn(0);
             System.out.println(first.getName());

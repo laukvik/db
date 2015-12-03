@@ -33,7 +33,6 @@ public class RecentFileModel {
     RecentFileListener listener;
     private static final Logger LOG = Logger.getLogger(RecentFileModel.class.getName());
 
-
     public RecentFileModel(JMenu recentMenu, RecentFileListener listener) {
         this.files = CSV.findByClass(RecentFile.class);
         this.recentMenu = recentMenu;
@@ -41,7 +40,6 @@ public class RecentFileModel {
         for (RecentFile rf : files) {
             add(rf, false);
         }
-
     }
 
     private void save() {
@@ -49,7 +47,8 @@ public class RecentFileModel {
             LOG.info("Saving recent");
             CSV.saveAll(files, RecentFile.class);
             LOG.info("Saved recent!");
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             e.printStackTrace();
         }
     }

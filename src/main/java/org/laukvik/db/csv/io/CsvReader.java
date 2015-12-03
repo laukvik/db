@@ -256,63 +256,6 @@ public class CsvReader implements AutoCloseable, Readable {
                 addChar = true;
             }
 
-//            switch (currentChar) {
-//                case CSV.RETURN: /* Found carriage return. Do nothing. */
-//
-//                    addChar = false;
-//                    break;
-//
-//                case CSV.LINEFEED: /* Found new line symbol */
-//
-//                    addChar = false;
-//                    addValue = true;
-//                    isNextLine = true;
-//                    if (isWithinQuote) {
-//                        currentValue.deleteCharAt(currentValue.length() - 1);
-//                        isWithinQuote = false;
-//                    }
-//                    break;
-//
-//                case CSV.QUOTE:
-//
-//                    /*    "Venture ""Extended Edition"""  */
-//                    addChar = true;
-//
-//                    isWithinQuote = true;
-//
-//                    int read = -1;
-//                    while (is.available() > 0) {
-//                        currentChar = (char) is.read();
-//                        rawLine.append(currentChar);
-//                        if (currentChar == CSV.QUOTE) {
-//                            quoteCount++;
-//                            break;
-//                        } else {
-//                            currentValue.append(currentChar);
-//                        }
-//                    }
-//
-//                    quoteCount--;
-//
-//                    break;
-//
-//                case CSV.COMMA:
-//
-//                    addChar = false;
-//                    addValue = true;
-//
-//                    if (isWithinQuote) {
-//                        currentValue.deleteCharAt(currentValue.length() - 1);
-//                        isWithinQuote = false;
-//                    }
-//
-//                    break;
-//
-//                default:
-//                    /* Everything else... */
-//                    addChar = true;
-//                    break;
-//            }
             if (addChar) {
                 currentValue.append(currentChar);
             }

@@ -97,7 +97,6 @@ public class CSV implements Serializable {
         while (reader.hasNext()) {
             Row row = reader.getRow();
             addRow(row);
-//            rows.add(row);
         }
     }
 
@@ -328,6 +327,10 @@ public class CSV implements Serializable {
         catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    public void clearQuery() {
+        this.query = null;
     }
 
     public Query findByQuery() {

@@ -15,6 +15,7 @@
  */
 package org.laukvik.db.swing;
 
+import org.laukvik.db.csv.swing.LoadingWorker;
 import java.awt.Dimension;
 import java.awt.FileDialog;
 import java.awt.Rectangle;
@@ -99,6 +100,7 @@ public class CsvAppSwing extends javax.swing.JFrame implements ListSelectionList
     private List<UniqueTableModel> tableModels;
 
     private final RecentFileModel recentFileModel;
+    private LoadingWorker loadingWorker;
 
     /**
      * Creates new form Viewer
@@ -159,6 +161,7 @@ public class CsvAppSwing extends javax.swing.JFrame implements ListSelectionList
         jSplitPane1.setDividerLocation(split.intValue());
 
         setSize(width.intValue(), height.intValue());
+
     }
 
     public void updateStatus() {
@@ -379,16 +382,17 @@ public class CsvAppSwing extends javax.swing.JFrame implements ListSelectionList
         tabbedPane.invalidate();
     }
 
-//    public void openCSV(CsvAppSwing csv) {
-//        model = new CSVTableModel(csv);
-//        table.setModel(model);
-//        setTitle("Untitled");
-//    }
+    /**
+     * Opens a file
+     *
+     * @param file
+     */
     public void openFile(File file) {
 
         try {
-            //csv = new org.laukvik.csv.CSV(file);
-            csv.read(new CsvReader(new FileInputStream(file)));
+            CsvReader reader = new CsvReader(new FileInputStream(file));
+
+            csv.read(reader);
             this.file = file;
             model = new CSVTableModel(csv);
             table.setModel(model);
@@ -413,6 +417,7 @@ public class CsvAppSwing extends javax.swing.JFrame implements ListSelectionList
             JOptionPane.showMessageDialog(this, "Fant ikke fil", "", JOptionPane.ERROR_MESSAGE);
         }
         catch (IOException ex) {
+
             JOptionPane.showMessageDialog(this, "Kunne ikke åpne", "", JOptionPane.ERROR_MESSAGE);
         }
 
@@ -537,11 +542,6 @@ public class CsvAppSwing extends javax.swing.JFrame implements ListSelectionList
 
         openMenuItem.setText(bundle.getString("open")); // NOI18N
         openMenuItem.setToolTipText("Opens a CSV file for editing");
-        openMenuItem.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                openMenuItemActionPerformed(evt);
-            }
-        });
         fileMenu.add(openMenuItem);
 
         recentMenu.setText("Open recent");
@@ -697,30 +697,6 @@ public class CsvAppSwing extends javax.swing.JFrame implements ListSelectionList
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
-
-    private void openMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_openMenuItemActionPerformed
-
-        java.awt.FileDialog fd = new FileDialog(this, "Velg fil", FileDialog.LOAD);
-        fd.setFilenameFilter(new CSVFileFilter());
-        fd.setVisible(true);
-        String filename = fd.getFile();
-        if (filename == null) {
-        } else {
-            openFile(new File(fd.getDirectory(), filename));
-
-//            try {
-//                openFile(new File(fd.getDirectory(), filename));
-//            } catch (FileNotFoundException ex) {
-//                JOptionPane.showMessageDialog(this, "Fant ikke fil", "", JOptionPane.ERROR_MESSAGE);
-//            } catch (IOException ex) {
-//                JOptionPane.showMessageDialog(this, "Kunne ikke åpne", "", JOptionPane.ERROR_MESSAGE);
-//            } catch (InvalidRowDataException ex) {
-//                JOptionPane.showMessageDialog(this, ex.getMessage() + "\n" + ex.getRow().getRaw() , "Feil i CsvAppSwing fil", JOptionPane.ERROR_MESSAGE);
-//            } catch (ParseException ex) {
-//                JOptionPane.showMessageDialog(this, ex.getMessage() + "\n", "Feil i CsvAppSwing fil", JOptionPane.ERROR_MESSAGE);
-//            }
-        }
-    }//GEN-LAST:event_openMenuItemActionPerformed
 
     private void exitMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_exitMenuItemActionPerformed
 

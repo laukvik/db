@@ -21,9 +21,9 @@ import javax.swing.event.TableModelListener;
 import javax.swing.table.TableModel;
 import org.laukvik.db.csv.CSV;
 import org.laukvik.db.csv.Row;
+import org.laukvik.db.csv.query.Query;
 import org.laukvik.db.ddl.Column;
 import org.laukvik.db.ddl.VarCharColumn;
-import org.laukvik.db.csv.query.Query;
 
 public class CSVTableModel implements TableModel {
 
@@ -41,6 +41,23 @@ public class CSVTableModel implements TableModel {
         this.csv = csv;
         this.listeners = new ArrayList<>();
         this.query = query;
+    }
+
+    public int getMaxColumnWidth(Column column) {
+        int x = column.getName().length();
+        for (int y = 0; y < csv.getRowCount(); y++) {
+            Row row = csv.getRow(y);
+            if (column instanceof VarCharColumn) {
+                VarCharColumn vcc = (VarCharColumn) column;
+                String s = row.getString(vcc);
+                if (s != null) {
+                    if (s.length() > x) {
+                        x = s.length();
+                    }
+                }
+            }
+        }
+        return x;
     }
 
     @Override
