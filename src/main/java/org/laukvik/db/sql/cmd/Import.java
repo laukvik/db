@@ -11,7 +11,7 @@ import org.laukvik.db.sql.Importer;
 public class Import extends SqlCommand {
 
     public Import() {
-        super("import", "Imports the database from file");
+        super("file.import", "Imports the database from file");
     }
 
     @Override

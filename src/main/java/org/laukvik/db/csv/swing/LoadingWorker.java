@@ -23,6 +23,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.text.MessageFormat;
+import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JOptionPane;
@@ -30,7 +32,6 @@ import javax.swing.SwingWorker;
 import org.laukvik.db.csv.CSV;
 import org.laukvik.db.csv.Row;
 import org.laukvik.db.csv.io.CsvReader;
-import org.laukvik.db.csv.swing.Viewer;
 import org.laukvik.db.ddl.IllegalColumnDefinitionException;
 
 /**
@@ -44,6 +45,7 @@ public class LoadingWorker extends javax.swing.JDialog implements ActionListener
     private final Viewer viewer;
     private Task task;
     private boolean canContinue;
+    ResourceBundle bundle;
 
     class Task extends SwingWorker<Void, Void> {
 
@@ -65,31 +67,40 @@ public class LoadingWorker extends javax.swing.JDialog implements ActionListener
             setLocationRelativeTo(null);
             setUndecorated(true);
             setVisible(true);
+            setTitle(bundle.getString("loading"));
             LOG.info("Starting reading in background...");
             canContinue = true;
             progressBar.setIndeterminate(true);
             LOG.fine("Setting visible");
             labelFilename.setText(file.getName());
+            MessageFormat mf = new MessageFormat(bundle.getString("loading.rows"));
             CSV csv = new CSV();
             try (CsvReader r = new CsvReader(new FileInputStream(file))) {
                 csv.setMetaData(r.getMetaData());
                 while (canContinue && r.hasNext()) {
                     Row row = r.next();
                     csv.addRow(row);
-                    label.setText("Rows: " + r.getLineCounter());
+                    Object[] params = {r.getLineCounter()};
+                    label.setText(mf.format(params));
                     LOG.log(Level.FINE, "Reading row {0}", r.getLineCounter());
                 }
                 viewer.openCSV(csv, file);
                 setVisible(false);
             }
             catch (IllegalColumnDefinitionException ex) {
-                JOptionPane.showMessageDialog(viewer, "Feil i fil", "", JOptionPane.ERROR_MESSAGE);
+                MessageFormat f = new MessageFormat(bundle.getString("loading.column_exception"));
+                Object[] params = {file.getAbsolutePath()};
+                JOptionPane.showMessageDialog(viewer, f.format(params), "", JOptionPane.ERROR_MESSAGE);
             }
             catch (FileNotFoundException ex) {
-                JOptionPane.showMessageDialog(viewer, "Fant ikke fil", "", JOptionPane.ERROR_MESSAGE);
+                MessageFormat f = new MessageFormat(bundle.getString("loading.file_not_found"));
+                Object[] params = {file.getAbsolutePath()};
+                JOptionPane.showMessageDialog(viewer, f.format(params), "", JOptionPane.ERROR_MESSAGE);
             }
             catch (IOException ex) {
-                JOptionPane.showMessageDialog(viewer, "Kunne ikke åpne", "", JOptionPane.ERROR_MESSAGE);
+                MessageFormat f = new MessageFormat(bundle.getString("loading.failed_to_load"));
+                Object[] params = {file.getAbsolutePath()};
+                JOptionPane.showMessageDialog(viewer, f.format(params), "", JOptionPane.ERROR_MESSAGE);
             }
 
             LOG.fine("Done reading");
@@ -109,8 +120,9 @@ public class LoadingWorker extends javax.swing.JDialog implements ActionListener
      *
      * @param viewer
      */
-    public LoadingWorker(Viewer viewer) {
+    public LoadingWorker(Viewer viewer, ResourceBundle bundle) {
         super(viewer);
+        this.bundle = bundle;
         this.viewer = viewer;
         initComponents();
     }
@@ -148,6 +160,8 @@ public class LoadingWorker extends javax.swing.JDialog implements ActionListener
         label = new javax.swing.JLabel();
         labelFilename = new javax.swing.JLabel();
 
+        setModal(false);
+        setModalExclusionType(java.awt.Dialog.ModalExclusionType.APPLICATION_EXCLUDE);
         setSize(new java.awt.Dimension(300, 150));
         getContentPane().setLayout(null);
 
@@ -156,7 +170,8 @@ public class LoadingWorker extends javax.swing.JDialog implements ActionListener
         getContentPane().add(progressBar);
         progressBar.setBounds(20, 20, 360, 30);
 
-        button.setText("Cancel");
+        java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle("messages"); // NOI18N
+        button.setText(bundle.getString("cancel")); // NOI18N
         button.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 buttonActionPerformed(evt);

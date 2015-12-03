@@ -23,6 +23,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.charset.Charset;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -55,9 +56,6 @@ import org.laukvik.db.sql.swing.SqlTableHeaderRenderer;
 /**
  * Milestone
  *
- * @todo Åpning av CSV filer med feilrapportering
- * @todo Kun på engelsk
- * @todo Ingen redigering
  * @todo Webside
  * @todo Besøksstatistikk
  * @todo Nedlastingsstatistikk
@@ -104,21 +102,15 @@ public class Viewer extends javax.swing.JFrame implements ListSelectionListener,
         initComponents();
         tabbedPane.setTabLayoutPolicy(JTabbedPane.SCROLL_TAB_LAYOUT);
         newMenuItem.setAccelerator(getKeystroke(java.awt.event.KeyEvent.VK_N));
-        fileMenu.setText(bundle.getString("file"));
-        openMenuItem.setText(bundle.getString("open"));
         openMenuItem.setAccelerator(getKeystroke(java.awt.event.KeyEvent.VK_O));
-        saveMenuItem.setText(bundle.getString("save"));
         saveMenuItem.setAccelerator(getKeystroke(java.awt.event.KeyEvent.VK_S));
-        saveAsMenuItem.setText(bundle.getString("saveas"));
         printMenuItem.setAccelerator(getKeystroke(java.awt.event.KeyEvent.VK_P));
-        exitMenuItem.setText(bundle.getString("exit"));
         exitMenuItem.setAccelerator(getKeystroke(java.awt.event.KeyEvent.VK_Q));
 
         gotoMenuItem.setAccelerator(getKeystroke(java.awt.event.KeyEvent.VK_G));
 
-        helpMenu.setText(bundle.getString("help"));
-        aboutMenuItem.setText(bundle.getString("about"));
-
+        findMenuItem.setAccelerator(getKeystroke(java.awt.event.KeyEvent.VK_F));
+        toolsMenu.setVisible(false);
         file = null;
         csv = new org.laukvik.db.csv.CSV();
         model = new CSVTableModel(csv);
@@ -138,12 +130,11 @@ public class Viewer extends javax.swing.JFrame implements ListSelectionListener,
         Float height = size.height * 0.7f;
         Float split = size.width * 0.2f;
         jSplitPane1.setDividerLocation(split.intValue());
-        loadingWorker = new LoadingWorker(this);
+        loadingWorker = new LoadingWorker(this, bundle);
         openMenuItem.addActionListener(loadingWorker);
         setSize(width.intValue(), height.intValue());
         importMenuItem.setVisible(false);
         exportMenuItem.setVisible(false);
-
         cutMenuItem.setVisible(false);
         copyMenuItem.setVisible(false);
         pasteMenuItem.setVisible(false);
@@ -151,17 +142,19 @@ public class Viewer extends javax.swing.JFrame implements ListSelectionListener,
         recentMenu.setVisible(false);
         undoMenuItem.setVisible(false);
         redoMenuItem.setVisible(false);
-
     }
 
     public void updateStatusBar() {
         boolean hasQuery = csv.getQuery() != null;
         int resultCount = hasQuery ? csv.getQuery().getResultList().size() : 0;
         if (hasQuery) {
-            statusLabel.setText("Selection matched " + resultCount + " rows of a total of " + csv.getRowCount() + " rows");
-            // Selection matched 5 rows of a total 129 rows
+            MessageFormat mf = new MessageFormat(bundle.getString("status.results_with_query"));
+            Object[] params = {resultCount, csv.getRowCount()};
+            statusLabel.setText(mf.format(params));
         } else {
-            statusLabel.setText(csv.getRowCount() + " rows");
+            MessageFormat mf = new MessageFormat(bundle.getString("status.results_empty_query"));
+            Object[] params = {csv.getRowCount()};
+            statusLabel.setText(mf.format(params));
         }
         setTitle(file == null ? "" : file.getAbsolutePath());
         getRootPane().putClientProperty("Window.documentFile", file);
@@ -277,9 +270,6 @@ public class Viewer extends javax.swing.JFrame implements ListSelectionListener,
         } else {
             createModel(new CSVTableModel(csv, query));
         }
-
-//        table.setModel(model);
-//        table.tableChanged(new TableModelEvent(model));
         updateStatusBar();
     }
 
@@ -362,9 +352,6 @@ public class Viewer extends javax.swing.JFrame implements ListSelectionListener,
             t.setCellSelectionEnabled(false);
             t.setColumnSelectionAllowed(false);
             t.setRowSelectionAllowed(true);
-//            t.setShowVerticalLines(false);
-//            t.setShowHorizontalLines(false);
-//            t.setShowGrid(false);
             t.setIntercellSpacing(new Dimension(0, 0));
 
             t.getColumnModel().getColumn(0).setMinWidth(32);
@@ -408,8 +395,9 @@ public class Viewer extends javax.swing.JFrame implements ListSelectionListener,
 
         for (int x = 0; x < csv.getMetaData().getColumnCount(); x++) {
             int maxWidth = model.getMaxColumnWidth(csv.getMetaData().getColumn(x));
-            LOG.log(Level.INFO, "Max width {0} for column {1}", new Object[]{maxWidth, x});
-            if (maxWidth > 150) {
+            LOG.log(Level.FINE, "Max width {0} for column {1}", new Object[]{maxWidth, x});
+            if (maxWidth > 20) {
+                maxWidth = 20;
             }
             int size = (maxWidth * 10) + 10;
 
@@ -426,28 +414,12 @@ public class Viewer extends javax.swing.JFrame implements ListSelectionListener,
      * @param file
      */
     public void openCSV(CSV csv, File file) {
-        LOG.log(Level.INFO, "Opening csv with columns: {0} rows: {1}", new Object[]{csv.getMetaData().getColumnCount(), csv.getRowCount()});
+        LOG.log(Level.FINE, "Opening csv with columns: {0} rows: {1}", new Object[]{csv.getMetaData().getColumnCount(), csv.getRowCount()});
         this.csv = csv;
         this.file = file;
-//        model = new CSVTableModel(csv);
-//        table = new JTable(model);
-//        scroll.setViewportView(table);
         createModel(new CSVTableModel(csv));
-
-//        table.setModel(model);
         setTitle(file.getAbsolutePath());
         getRootPane().putClientProperty("Window.documentFile", file);
-//        table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
-//        for (int x = 0; x < csv.getMetaData().getColumnCount(); x++) {
-//            int maxWidth = csv.getMaxColumnWidth(csv.getMetaData().getColumn(x));
-//            LOG.log(Level.INFO, "Max width {0} for column {1}", new Object[]{maxWidth, x});
-//            if (maxWidth > 150) {
-//            }
-//            int size = maxWidth * 10;
-//            size = 150;
-////            table.getColumnModel().getColumn(x).setPreferredWidth(size);
-//            table.getColumnModel().getColumn(x).setWidth(size);
-//        }
         recentFileModel.add(new RecentFile(file.getAbsolutePath()));
         createUniqueModels();
         updateStatusBar();
@@ -489,7 +461,6 @@ public class Viewer extends javax.swing.JFrame implements ListSelectionListener,
         jMenuBar1 = new javax.swing.JMenuBar();
         fileMenu = new javax.swing.JMenu();
         newMenuItem = new javax.swing.JMenuItem();
-        jSeparator4 = new javax.swing.JPopupMenu.Separator();
         openMenuItem = new javax.swing.JMenuItem();
         recentMenu = new javax.swing.JMenu();
         jSeparator7 = new javax.swing.JPopupMenu.Separator();
@@ -509,18 +480,17 @@ public class Viewer extends javax.swing.JFrame implements ListSelectionListener,
         cutMenuItem = new javax.swing.JMenuItem();
         copyMenuItem = new javax.swing.JMenuItem();
         pasteMenuItem = new javax.swing.JMenuItem();
-        deleteRowMenuItem = new javax.swing.JMenuItem();
+        jSeparator10 = new javax.swing.JPopupMenu.Separator();
         insertRowMenuItem = new javax.swing.JMenuItem();
+        deleteRowMenuItem = new javax.swing.JMenuItem();
         jSeparator2 = new javax.swing.JPopupMenu.Separator();
         gotoMenuItem = new javax.swing.JMenuItem();
         jSeparator3 = new javax.swing.JPopupMenu.Separator();
-        jSeparator6 = new javax.swing.JPopupMenu.Separator();
-        jMenuItem3 = new javax.swing.JMenuItem();
-        jMenuItem6 = new javax.swing.JMenuItem();
-        columnMenu = new javax.swing.JMenu();
         insertColumnMenuItem = new javax.swing.JMenuItem();
         deleteColumnMenuItem = new javax.swing.JMenuItem();
-        jSeparator10 = new javax.swing.JPopupMenu.Separator();
+        jSeparator6 = new javax.swing.JPopupMenu.Separator();
+        findMenuItem = new javax.swing.JMenuItem();
+        replaceMenuItem = new javax.swing.JMenuItem();
         toolsMenu = new javax.swing.JMenu();
         charsetMenu = new javax.swing.JMenu();
         jMenuItem4 = new javax.swing.JMenuItem();
@@ -559,7 +529,8 @@ public class Viewer extends javax.swing.JFrame implements ListSelectionListener,
         jToolBar2.setFloatable(false);
         jToolBar2.setRollover(true);
 
-        statusLabel.setText("0 rows");
+        statusLabel.setText("Status");
+        statusLabel.setToolTipText("");
         statusLabel.setEnabled(false);
         jToolBar2.add(statusLabel);
 
@@ -568,29 +539,28 @@ public class Viewer extends javax.swing.JFrame implements ListSelectionListener,
         java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle("messages"); // NOI18N
         fileMenu.setText(bundle.getString("file")); // NOI18N
 
-        newMenuItem.setText(bundle.getString("new")); // NOI18N
+        newMenuItem.setText(bundle.getString("file.new")); // NOI18N
         newMenuItem.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 newMenuItemActionPerformed(evt);
             }
         });
         fileMenu.add(newMenuItem);
-        fileMenu.add(jSeparator4);
 
-        openMenuItem.setText(bundle.getString("open")); // NOI18N
+        openMenuItem.setText(bundle.getString("file.open")); // NOI18N
         openMenuItem.setToolTipText("Opens a CSV file for editing");
         fileMenu.add(openMenuItem);
 
-        recentMenu.setText("Open recent");
+        recentMenu.setText(bundle.getString("file.open_recent")); // NOI18N
         recentMenu.add(jSeparator7);
 
         fileMenu.add(recentMenu);
         fileMenu.add(jSeparator8);
 
-        importMenuItem.setText(bundle.getString("import")); // NOI18N
+        importMenuItem.setText(bundle.getString("file.import")); // NOI18N
         fileMenu.add(importMenuItem);
 
-        exportMenuItem.setText(bundle.getString("export")); // NOI18N
+        exportMenuItem.setText(bundle.getString("file.export")); // NOI18N
         exportMenuItem.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 exportMenuItemActionPerformed(evt);
@@ -599,7 +569,7 @@ public class Viewer extends javax.swing.JFrame implements ListSelectionListener,
         fileMenu.add(exportMenuItem);
         fileMenu.add(jSeparator9);
 
-        saveMenuItem.setText("Save");
+        saveMenuItem.setText(bundle.getString("file.save")); // NOI18N
         saveMenuItem.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 saveMenuItemActionPerformed(evt);
@@ -607,7 +577,7 @@ public class Viewer extends javax.swing.JFrame implements ListSelectionListener,
         });
         fileMenu.add(saveMenuItem);
 
-        saveAsMenuItem.setText("Save as...");
+        saveAsMenuItem.setText(bundle.getString("file.saveas")); // NOI18N
         saveAsMenuItem.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 saveAsMenuItemActionPerformed(evt);
@@ -615,11 +585,11 @@ public class Viewer extends javax.swing.JFrame implements ListSelectionListener,
         });
         fileMenu.add(saveAsMenuItem);
 
-        printMenuItem.setText(bundle.getString("print")); // NOI18N
+        printMenuItem.setText(bundle.getString("file.print")); // NOI18N
         fileMenu.add(printMenuItem);
         fileMenu.add(jSeparator1);
 
-        exitMenuItem.setText("Exit");
+        exitMenuItem.setText(bundle.getString("file.exit")); // NOI18N
         exitMenuItem.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 exitMenuItemActionPerformed(evt);
@@ -631,31 +601,24 @@ public class Viewer extends javax.swing.JFrame implements ListSelectionListener,
 
         editMenu.setText(bundle.getString("edit")); // NOI18N
 
-        undoMenuItem.setText("Undo");
+        undoMenuItem.setText(bundle.getString("edit.undo")); // NOI18N
         editMenu.add(undoMenuItem);
 
-        redoMenuItem.setText("Redo");
+        redoMenuItem.setText(bundle.getString("edit.redo")); // NOI18N
         editMenu.add(redoMenuItem);
         editMenu.add(jSeparator5);
 
-        cutMenuItem.setText(bundle.getString("cut")); // NOI18N
+        cutMenuItem.setText(bundle.getString("edit.cut")); // NOI18N
         editMenu.add(cutMenuItem);
 
-        copyMenuItem.setText(bundle.getString("copy")); // NOI18N
+        copyMenuItem.setText(bundle.getString("edit.copy")); // NOI18N
         editMenu.add(copyMenuItem);
 
-        pasteMenuItem.setText("Paste");
+        pasteMenuItem.setText(bundle.getString("edit.paste")); // NOI18N
         editMenu.add(pasteMenuItem);
+        editMenu.add(jSeparator10);
 
-        deleteRowMenuItem.setText(bundle.getString("row_delete")); // NOI18N
-        deleteRowMenuItem.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                deleteRowMenuItemActionPerformed(evt);
-            }
-        });
-        editMenu.add(deleteRowMenuItem);
-
-        insertRowMenuItem.setText("Insert row");
+        insertRowMenuItem.setText(bundle.getString("edit.newrow")); // NOI18N
         insertRowMenuItem.setToolTipText("");
         insertRowMenuItem.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -663,9 +626,17 @@ public class Viewer extends javax.swing.JFrame implements ListSelectionListener,
             }
         });
         editMenu.add(insertRowMenuItem);
+
+        deleteRowMenuItem.setText(bundle.getString("edit.deleterow")); // NOI18N
+        deleteRowMenuItem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                deleteRowMenuItemActionPerformed(evt);
+            }
+        });
+        editMenu.add(deleteRowMenuItem);
         editMenu.add(jSeparator2);
 
-        gotoMenuItem.setText("Goto...");
+        gotoMenuItem.setText(bundle.getString("edit.goto_row")); // NOI18N
         gotoMenuItem.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 gotoMenuItemActionPerformed(evt);
@@ -673,36 +644,31 @@ public class Viewer extends javax.swing.JFrame implements ListSelectionListener,
         });
         editMenu.add(gotoMenuItem);
         editMenu.add(jSeparator3);
-        editMenu.add(jSeparator6);
 
-        jMenuItem3.setText("Find");
-        editMenu.add(jMenuItem3);
-
-        jMenuItem6.setText(bundle.getString("replace")); // NOI18N
-        editMenu.add(jMenuItem6);
-
-        jMenuBar1.add(editMenu);
-
-        columnMenu.setText("Kolonner");
-
-        insertColumnMenuItem.setText(bundle.getString("column_new")); // NOI18N
+        insertColumnMenuItem.setText(bundle.getString("edit.newcolumn")); // NOI18N
         insertColumnMenuItem.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 insertColumnMenuItemActionPerformed(evt);
             }
         });
-        columnMenu.add(insertColumnMenuItem);
+        editMenu.add(insertColumnMenuItem);
 
-        deleteColumnMenuItem.setText(bundle.getString("column_delete")); // NOI18N
+        deleteColumnMenuItem.setText(bundle.getString("edit.deletecolumn")); // NOI18N
         deleteColumnMenuItem.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 deleteColumnMenuItemActionPerformed(evt);
             }
         });
-        columnMenu.add(deleteColumnMenuItem);
-        columnMenu.add(jSeparator10);
+        editMenu.add(deleteColumnMenuItem);
+        editMenu.add(jSeparator6);
 
-        jMenuBar1.add(columnMenu);
+        findMenuItem.setText(bundle.getString("edit.find")); // NOI18N
+        editMenu.add(findMenuItem);
+
+        replaceMenuItem.setText(bundle.getString("edit.replace")); // NOI18N
+        editMenu.add(replaceMenuItem);
+
+        jMenuBar1.add(editMenu);
 
         toolsMenu.setText(bundle.getString("tools")); // NOI18N
 
@@ -718,9 +684,9 @@ public class Viewer extends javax.swing.JFrame implements ListSelectionListener,
 
         jMenuBar1.add(toolsMenu);
 
-        helpMenu.setText("Help");
+        helpMenu.setText(bundle.getString("help")); // NOI18N
 
-        aboutMenuItem.setText("About");
+        aboutMenuItem.setText(bundle.getString("help.about")); // NOI18N
         aboutMenuItem.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 aboutMenuItemActionPerformed(evt);
@@ -741,11 +707,9 @@ public class Viewer extends javax.swing.JFrame implements ListSelectionListener,
     }//GEN-LAST:event_exitMenuItemActionPerformed
 
     private void saveAsMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_saveAsMenuItemActionPerformed
-
         java.awt.FileDialog fd = new FileDialog(this, "Velg fil", FileDialog.SAVE);
         fd.setFilenameFilter(new CSVFileFilter());
         fd.setVisible(true);
-
         String filename = fd.getFile();
         if (filename == null) {
         } else {
@@ -754,8 +718,7 @@ public class Viewer extends javax.swing.JFrame implements ListSelectionListener,
                 csv.write(new JsonWriter(new FileOutputStream(file)));
             }
             catch (IOException ex) {
-                JOptionPane.showMessageDialog(this,
-                        "Could not save file!", "", JOptionPane.WARNING_MESSAGE);
+                JOptionPane.showMessageDialog(this, "Could not save file!", "", JOptionPane.WARNING_MESSAGE);
             }
             catch (Exception ex) {
                 Logger.getLogger(Viewer.class.getName()).log(Level.SEVERE, null, ex);
@@ -774,8 +737,7 @@ public class Viewer extends javax.swing.JFrame implements ListSelectionListener,
             csv.write(new CsvWriter(new FileOutputStream(file), Charset.defaultCharset()));
         }
         catch (Exception ex) {
-            JOptionPane.showMessageDialog(this,
-                    "Could not save file!", "", JOptionPane.WARNING_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Could not save file!", "", JOptionPane.WARNING_MESSAGE);
         }
     }//GEN-LAST:event_saveMenuItemActionPerformed
 
@@ -837,7 +799,8 @@ public class Viewer extends javax.swing.JFrame implements ListSelectionListener,
     }
 
     public void gotoRow() {
-        String answer = JOptionPane.showInputDialog(this, "Linje", "", JOptionPane.QUESTION_MESSAGE);
+
+        String answer = JOptionPane.showInputDialog(this, bundle.getString("edit.goto_row.specify"), "", JOptionPane.QUESTION_MESSAGE);
         if (csv.getRowCount() == 0) {
             return;
         }
@@ -931,7 +894,6 @@ public class Viewer extends javax.swing.JFrame implements ListSelectionListener,
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JMenuItem aboutMenuItem;
     private javax.swing.JMenu charsetMenu;
-    private javax.swing.JMenu columnMenu;
     private javax.swing.JMenuItem copyMenuItem;
     private javax.swing.JMenuItem cutMenuItem;
     private javax.swing.JMenuItem deleteColumnMenuItem;
@@ -940,21 +902,19 @@ public class Viewer extends javax.swing.JFrame implements ListSelectionListener,
     private javax.swing.JMenuItem exitMenuItem;
     private javax.swing.JMenuItem exportMenuItem;
     private javax.swing.JMenu fileMenu;
+    private javax.swing.JMenuItem findMenuItem;
     private javax.swing.JMenuItem gotoMenuItem;
     private javax.swing.JMenu helpMenu;
     private javax.swing.JMenuItem importMenuItem;
     private javax.swing.JMenuItem insertColumnMenuItem;
     private javax.swing.JMenuItem insertRowMenuItem;
     private javax.swing.JMenuBar jMenuBar1;
-    private javax.swing.JMenuItem jMenuItem3;
     private javax.swing.JMenuItem jMenuItem4;
     private javax.swing.JMenuItem jMenuItem5;
-    private javax.swing.JMenuItem jMenuItem6;
     private javax.swing.JPopupMenu.Separator jSeparator1;
     private javax.swing.JPopupMenu.Separator jSeparator10;
     private javax.swing.JPopupMenu.Separator jSeparator2;
     private javax.swing.JPopupMenu.Separator jSeparator3;
-    private javax.swing.JPopupMenu.Separator jSeparator4;
     private javax.swing.JPopupMenu.Separator jSeparator5;
     private javax.swing.JPopupMenu.Separator jSeparator6;
     private javax.swing.JPopupMenu.Separator jSeparator7;
@@ -968,6 +928,7 @@ public class Viewer extends javax.swing.JFrame implements ListSelectionListener,
     private javax.swing.JMenuItem printMenuItem;
     private javax.swing.JMenu recentMenu;
     private javax.swing.JMenuItem redoMenuItem;
+    private javax.swing.JMenuItem replaceMenuItem;
     private javax.swing.JMenuItem saveAsMenuItem;
     private javax.swing.JMenuItem saveMenuItem;
     private javax.swing.JScrollPane scroll;

@@ -65,14 +65,13 @@ public class AboutDialog extends javax.swing.JDialog {
         jPanel1.setLayout(null);
 
         aboutLabel.setText("About");
-        aboutLabel.setEnabled(false);
         jPanel1.add(aboutLabel);
         aboutLabel.setBounds(20, 20, 300, 16);
 
         descLabel.setText("Written by Morten Laukvik");
         descLabel.setVerticalAlignment(javax.swing.SwingConstants.TOP);
         jPanel1.add(descLabel);
-        descLabel.setBounds(20, 40, 290, 30);
+        descLabel.setBounds(20, 50, 290, 30);
 
         jScrollPane1.setViewportView(jPanel1);
 
