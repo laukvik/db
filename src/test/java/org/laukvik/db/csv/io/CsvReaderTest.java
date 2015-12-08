@@ -53,22 +53,23 @@ public class CsvReaderTest {
 
     @Test
     public void autoDetectTab() {
-        autoDetectSeperators("seperator_tabbed.txt");
+        autoDetectSeperators("seperator_tabbed.txt", CSV.TAB);
     }
 
     @Test
     public void autoDetectPipe() {
-        autoDetectSeperators("seperator_pipe.csv");
+        autoDetectSeperators("seperator_pipe.csv", CSV.PIPE);
     }
 
     @Test
     public void autoDetectSemiColon() {
-        autoDetectSeperators("seperator_semicolon.csv");
+        autoDetectSeperators("seperator_semicolon.csv", CSV.SEMINCOLON);
     }
 
-    public void autoDetectSeperators(String fileName) {
+    public void autoDetectSeperators(String fileName, char seperator) {
         try (CsvReader reader = new CsvReader(new FileInputStream(getResource(fileName)), Charset.forName("utf-8"))) {
             int rows = 0;
+            assertEquals("seperatorChar", seperator, reader.getSeperatorChar());
             VarCharColumn first = (VarCharColumn) reader.getMetaData().getColumn(0);
             assertEquals("First", first.getName());
             VarCharColumn last = (VarCharColumn) reader.getMetaData().getColumn(1);

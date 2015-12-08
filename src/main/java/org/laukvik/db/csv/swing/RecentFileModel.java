@@ -44,9 +44,9 @@ public class RecentFileModel {
 
     private void save() {
         try {
-            LOG.info("Saving recent");
+            LOG.fine("Saving recent");
             CSV.saveAll(files, RecentFile.class);
-            LOG.info("Saved recent!");
+            LOG.fine("Saved recent!");
         }
         catch (Exception e) {
             e.printStackTrace();
@@ -64,7 +64,7 @@ public class RecentFileModel {
             item.setAction(new OpenRecentFileAction(file, listener));
             item.setText(file.getPath());
             recentMenu.add(item);
-            LOG.info("Adding recent!");
+            LOG.fine("Adding recent!");
             if (save) {
                 save();
             }

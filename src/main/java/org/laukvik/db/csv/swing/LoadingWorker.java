@@ -59,6 +59,8 @@ public class LoadingWorker extends javax.swing.JDialog implements ActionListener
 
         @Override
         protected Void doInBackground() throws Exception {
+            int fileSize = (int) file.length();
+            int kb = (int) (fileSize / 1024);
             Dimension size = new Dimension(400, 100);
             setSize(size);
             setPreferredSize(size);
@@ -68,16 +70,20 @@ public class LoadingWorker extends javax.swing.JDialog implements ActionListener
             setUndecorated(true);
             setVisible(true);
             setTitle(bundle.getString("loading"));
-            LOG.info("Starting reading in background...");
+            LOG.fine("Starting reading in background...");
             canContinue = true;
-            progressBar.setIndeterminate(true);
+            progressBar.setIndeterminate(false);
+            progressBar.setMaximum(fileSize);
+            progressBar.setStringPainted(false);
+
             LOG.fine("Setting visible");
-            labelFilename.setText(file.getName());
+            labelFilename.setText(file.getName() + " " + kb + " Kb");
             MessageFormat mf = new MessageFormat(bundle.getString("loading.rows"));
             CSV csv = new CSV();
             try (CsvReader r = new CsvReader(new FileInputStream(file))) {
                 csv.setMetaData(r.getMetaData());
                 while (canContinue && r.hasNext()) {
+                    progressBar.setValue(r.getBytesRead());
                     Row row = r.next();
                     csv.addRow(row);
                     Object[] params = {r.getLineCounter()};
@@ -88,9 +94,11 @@ public class LoadingWorker extends javax.swing.JDialog implements ActionListener
                 setVisible(false);
             }
             catch (IllegalColumnDefinitionException ex) {
+                ex.printStackTrace();
                 MessageFormat f = new MessageFormat(bundle.getString("loading.column_exception"));
                 Object[] params = {file.getAbsolutePath()};
                 JOptionPane.showMessageDialog(viewer, f.format(params), "", JOptionPane.ERROR_MESSAGE);
+
             }
             catch (FileNotFoundException ex) {
                 MessageFormat f = new MessageFormat(bundle.getString("loading.file_not_found"));

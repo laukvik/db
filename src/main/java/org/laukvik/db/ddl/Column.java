@@ -244,12 +244,16 @@ public abstract class Column<T> implements Comparable {
         }
         if (columnName == null || columnName.trim().isEmpty()) {
             throw new IllegalColumnDefinitionException(columnName);
+        } else {
+            System.out.println(columnName);
         }
 
         // Find dataType before continuing
         String dataType = getValue("type", keys, values);
+        // When using MetaData the type attribute is required otherwise it
+        // will become a VarCharColumn
         if (dataType == null) {
-            dataType = "VARCHAR";
+            return new VarCharColumn(columnWithMeta);
         }
 
         boolean allowsNull = true;

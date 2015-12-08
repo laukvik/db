@@ -59,30 +59,200 @@ public class CsvReader implements AutoCloseable, Readable {
     private MetaData metaData;
     private Row row;
     private char seperatorChar;
-    private boolean autoDetect = true;
+    private boolean autoDetectSeperator;
+    private boolean autoDetectCharset;
+    private int bytesRead;
+    private BOM bom;
 
     public CsvReader(InputStream is) throws IOException {
-        this(is, Charset.defaultCharset(), CSV.COMMA);
+        this(is, null, null);
     }
 
     public CsvReader(InputStream is, Charset charset) throws IOException {
-        this(is, charset, CSV.COMMA);
+        this(is, charset, null);
     }
 
-    public CsvReader(InputStream is, Charset charset, char seperatorChar) throws IOException {
-        this.seperatorChar = seperatorChar;
+    public CsvReader(InputStream is, Charset charset, Character seperatorChar) throws IOException {
         this.is = new BufferedInputStream(is);
-        this.lineCounter = 0;
         this.metaData = new MetaData();
-        this.metaData.setCharset(charset);
+
+        this.autoDetectCharset = charset == null;
+        if (charset == null) {
+//            this.metaData.setCharset(Charset.defaultCharset());
+        } else {
+            this.metaData.setCharset(charset);
+        }
+        if (seperatorChar == null) {
+        } else {
+            this.seperatorChar = seperatorChar;
+        }
+        this.autoDetectSeperator = seperatorChar == null;
+
+        this.lineCounter = 0;
+        this.bytesRead = 0;
+        this.bom = null;
         List<String> columns = parseRow();
         for (String rawColumnName : columns) {
+//            System.out.println("RAW: " + rawLine);
             this.metaData.addColumn(Column.parseColumn(rawColumnName));
         }
+        if (this.metaData.getCharset() == null) {
+            this.metaData.setCharset(Charset.forName("utf-8"));
+        }
+
+//        this.seperatorChar = seperatorChar;
+//        this.autoDetectSeperator = false;
+//        this.is = new BufferedInputStream(is);
+//        this.lineCounter = 0;
+//        this.bytesRead = 0;
+//        this.bom = null;
+//        this.metaData = new MetaData();
+//        this.metaData.setCharset(charset);
+//        List<String> columns = parseRow();
+//        for (String rawColumnName : columns) {
+//            this.metaData.addColumn(Column.parseColumn(rawColumnName));
+//        }
+    }
+
+    public char getSeperatorChar() {
+        return seperatorChar;
+    }
+
+    public int getBytesRead() {
+        return bytesRead;
     }
 
     public int getLineCounter() {
         return lineCounter;
+    }
+
+    /**
+     *
+     * @return @throws IOException
+     */
+    private List<String> parseRow() throws IOException {
+        List<String> values = new ArrayList<>();
+        boolean isNextLine = false;
+
+        /* Current value */
+        currentValue = new StringBuilder();
+
+        /* The raw chars being read */
+        rawLine = new StringBuilder();
+
+        boolean isWithinQuote = false;
+        int quoteCount = 0;
+
+        byte[] bomCheck = new byte[4];
+
+        /* Read until */
+        while (is.available() > 0 && !isNextLine) {
+
+            // Read next char
+            byte b = (byte) is.read();
+
+            boolean foundBom = false;
+            // Increase number of bytes read
+            bytesRead++;
+
+            // Determines whether or not to add char
+            boolean addChar = false;
+
+            // Adds the currentValue
+            boolean addValue = false;
+
+            if (bytesRead < 5 && bom == null) {
+                bomCheck[bytesRead - 1] = b;
+                bom = BOM.parse(bomCheck);
+                if (bom != null) {
+                    foundBom = true;
+//                    System.out.println("Found BOM: " + bom);
+                    metaData.setCharset(Charset.forName(bom.name()));
+                }
+            } else {
+                if (bom == null && metaData.getCharset() == null && autoDetectCharset) {
+//                    System.out.println("No BOM found setting charset to utf8");
+                    metaData.setCharset(Charset.forName("utf8"));
+                }
+            }
+
+            currentChar = (char) b;
+
+            // Look for seperator characters in first line
+            if (lineCounter == 0 && autoDetectSeperator) {
+                if (currentChar == CSV.TAB || currentChar == CSV.SEMINCOLON || currentChar == CSV.PIPE || currentChar == CSV.COMMA) {
+                    seperatorChar = currentChar;
+                    autoDetectSeperator = false;
+                }
+            }
+
+            // Check char
+            if (foundBom) {
+                currentValue = new StringBuilder();
+            } else if (currentChar == CSV.RETURN) {
+                addChar = false;
+
+            } else if (currentChar == CSV.LINEFEED) {
+                addChar = false;
+                addValue = true;
+                isNextLine = true;
+                if (isWithinQuote) {
+                    currentValue.deleteCharAt(currentValue.length() - 1);
+                    isWithinQuote = false;
+                }
+
+            } else if (currentChar == CSV.QUOTE) {
+                /*    "Venture ""Extended Edition"""  */
+                addChar = true;
+
+                isWithinQuote = true;
+
+                int read = -1;
+                while (is.available() > 0) {
+                    currentChar = (char) is.read();
+                    rawLine.append(currentChar);
+                    if (currentChar == CSV.QUOTE) {
+                        quoteCount++;
+                        break;
+                    } else {
+                        currentValue.append(currentChar);
+                    }
+                }
+
+                quoteCount--;
+
+            } else if (currentChar == seperatorChar) {
+                addChar = false;
+                addValue = true;
+
+                if (isWithinQuote) {
+                    currentValue.deleteCharAt(currentValue.length() - 1);
+                    isWithinQuote = false;
+                }
+            } else {
+                addChar = true;
+            }
+
+            if (addChar) {
+                currentValue.append(currentChar);
+            }
+            if (!isNextLine) {
+                rawLine.append(currentChar);
+            }
+
+            if (addValue || is.available() == 0) {
+                if (is.available() == 0) {
+                    if (isWithinQuote) {
+                        currentValue.deleteCharAt(currentValue.length() - 1);
+                        isWithinQuote = false;
+                    }
+                }
+                values.add(new String(currentValue.toString().getBytes(), metaData.getCharset()));
+                currentValue = new StringBuilder();
+            }
+        }
+        lineCounter++;
+        return values;
     }
 
     private boolean readRow() throws IOException {
@@ -169,113 +339,6 @@ public class CsvReader implements AutoCloseable, Readable {
             }
         }
         return true;
-    }
-
-    /**
-     *
-     * @return @throws IOException
-     */
-    private List<String> parseRow() throws IOException {
-        List<String> values = new ArrayList<>();
-        boolean isNextLine = false;
-
-        /* Current value */
-        currentValue = new StringBuilder();
-
-        /* the current line */
-//        row = new Row();
-
-        /* The raw chars being read */
-        rawLine = new StringBuilder();
-
-        boolean isWithinQuote = false;
-        int quoteCount = 0;
-
-        /* Read until */
-        while (is.available() > 0 && !isNextLine) {
-
-            // Read next char
-            currentChar = (char) is.read();
-
-            // Determines whether or not to add char
-            boolean addChar;
-
-            // Adds the currentValue
-            boolean addValue = false;
-
-            // Look for seperator characters in first line
-            if (lineCounter == 0 && autoDetect) {
-                if (currentChar == CSV.TAB || currentChar == CSV.SEMINCOLON || currentChar == CSV.PIPE || currentChar == CSV.COMMA) {
-                    seperatorChar = currentChar;
-                    autoDetect = false;
-                }
-            }
-
-            // Check char
-            if (currentChar == CSV.RETURN) {
-                addChar = false;
-
-            } else if (currentChar == CSV.LINEFEED) {
-                addChar = false;
-                addValue = true;
-                isNextLine = true;
-                if (isWithinQuote) {
-                    currentValue.deleteCharAt(currentValue.length() - 1);
-                    isWithinQuote = false;
-                }
-
-            } else if (currentChar == CSV.QUOTE) {
-                /*    "Venture ""Extended Edition"""  */
-                addChar = true;
-
-                isWithinQuote = true;
-
-                int read = -1;
-                while (is.available() > 0) {
-                    currentChar = (char) is.read();
-                    rawLine.append(currentChar);
-                    if (currentChar == CSV.QUOTE) {
-                        quoteCount++;
-                        break;
-                    } else {
-                        currentValue.append(currentChar);
-                    }
-                }
-
-                quoteCount--;
-
-            } else if (currentChar == seperatorChar) { // CSV.COMMA
-                addChar = false;
-                addValue = true;
-
-                if (isWithinQuote) {
-                    currentValue.deleteCharAt(currentValue.length() - 1);
-                    isWithinQuote = false;
-                }
-            } else {
-                addChar = true;
-            }
-
-            if (addChar) {
-                currentValue.append(currentChar);
-            }
-            if (!isNextLine) {
-                rawLine.append(currentChar);
-            }
-
-            if (addValue || is.available() == 0) {
-                if (is.available() == 0) {
-                    if (isWithinQuote) {
-                        currentValue.deleteCharAt(currentValue.length() - 1);
-                        isWithinQuote = false;
-                    }
-                }
-                values.add(currentValue.toString());
-                currentValue = new StringBuilder();
-            }
-        }
-        lineCounter++;
-        return values;
     }
 
     @Override
