@@ -381,11 +381,42 @@
 
       <Layout class="org.netbeans.modules.form.compat2.layouts.DesignBoxLayout"/>
       <SubComponents>
+        <Component class="javax.swing.JLabel" name="rowsLabel">
+          <Properties>
+            <Property name="text" type="java.lang.String" value="Rader: "/>
+            <Property name="enabled" type="boolean" value="false"/>
+          </Properties>
+        </Component>
         <Component class="javax.swing.JLabel" name="statusLabel">
           <Properties>
-            <Property name="text" type="java.lang.String" value="Status"/>
+            <Property name="text" type="java.lang.String" value="StatusValue"/>
             <Property name="toolTipText" type="java.lang.String" value=""/>
+          </Properties>
+        </Component>
+        <Component class="javax.swing.JToolBar$Separator" name="jSeparator4">
+        </Component>
+        <Component class="javax.swing.JLabel" name="encLabel">
+          <Properties>
+            <Property name="text" type="java.lang.String" value="Encoding: "/>
             <Property name="enabled" type="boolean" value="false"/>
+          </Properties>
+        </Component>
+        <Component class="javax.swing.JLabel" name="encodingLabel">
+          <Properties>
+            <Property name="text" type="java.lang.String" value="EncodingValue"/>
+          </Properties>
+        </Component>
+        <Component class="javax.swing.JToolBar$Separator" name="jSeparator11">
+        </Component>
+        <Component class="javax.swing.JLabel" name="sepLabel">
+          <Properties>
+            <Property name="text" type="java.lang.String" value="Seperator: "/>
+            <Property name="enabled" type="boolean" value="false"/>
+          </Properties>
+        </Component>
+        <Component class="javax.swing.JLabel" name="seperatorLabel">
+          <Properties>
+            <Property name="text" type="java.lang.String" value="SeperatorValue"/>
           </Properties>
         </Component>
       </SubComponents>

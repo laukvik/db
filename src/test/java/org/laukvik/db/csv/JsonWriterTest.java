@@ -15,13 +15,12 @@
  */
 package org.laukvik.db.csv;
 
-import org.laukvik.db.csv.CSV;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import org.junit.Test;
-import org.laukvik.db.ddl.VarCharColumn;
 import org.laukvik.db.csv.io.JsonWriter;
+import org.laukvik.db.ddl.VarCharColumn;
 
 /**
  *

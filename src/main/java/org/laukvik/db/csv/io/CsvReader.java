@@ -115,10 +115,10 @@ public class CsvReader implements AutoCloseable, Readable {
             // Try to find BOM signature
             BOM bom = BOM.findBom(file);
             if (bom == null) {
-                LOG.info("BOM signature not found.");
-                this.charset = null;
+                LOG.fine("BOM signature not found.");
+                this.charset = Charset.forName("utf-8");
             } else {
-                LOG.log(Level.INFO, "Found BOM signature {0}", bom);
+                LOG.log(Level.FINE, "Found BOM signature {0}", bom);
                 this.charset = bom.getCharset();
             }
         } else {
@@ -181,6 +181,7 @@ public class CsvReader implements AutoCloseable, Readable {
                 if (currentChar == CSV.TAB || currentChar == CSV.SEMINCOLON || currentChar == CSV.PIPE || currentChar == CSV.COMMA) {
                     seperatorChar = currentChar;
                     autoDetectSeperator = false;
+                    metaData.setSeperator(seperatorChar);
                     LOG.log(Level.FINE, "Detected seperator: {0}", seperatorChar);
                 }
             }

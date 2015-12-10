@@ -62,7 +62,6 @@ public class CSV implements Serializable {
     public final static char TAB = 9;
     public final static char QUOTE = '"';
     public final static char NULL = 0;
-    public final static String CRLF = "\r\n";
 
     protected MetaData metaData;
     protected List<Row> rows;
@@ -215,10 +214,6 @@ public class CSV implements Serializable {
         return (VarCharColumn) metaData.addColumn(new VarCharColumn(name));
     }
 
-//    public String insertColumn(String name, int columnIndex) {
-//        metaData.addColumn(name, columnIndex);
-//        return name;
-//    }
     /**
      * Removes the column and all its data
      *
@@ -360,10 +355,4 @@ public class CSV implements Serializable {
         return values;
     }
 
-//    public Set<String> listDistinct(String column) {
-//        return listDistinct(getMetaData().getColumnIndex(column));
-//    }
-    public void close() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
 }

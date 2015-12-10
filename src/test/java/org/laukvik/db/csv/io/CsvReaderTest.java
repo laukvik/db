@@ -50,17 +50,17 @@ import org.laukvik.db.ddl.VarCharColumn;
  */
 public class CsvReaderTest {
 
-//    @Test
+    @Test
     public void autoDetectTab() {
         autoDetectSeperators("seperator_tabbed.txt", CSV.TAB);
     }
 
-//    @Test
+    @Test
     public void autoDetectPipe() {
         autoDetectSeperators("seperator_pipe.csv", CSV.PIPE);
     }
 
-//    @Test
+    @Test
     public void autoDetectSemiColon() {
         autoDetectSeperators("seperator_semicolon.csv", CSV.SEMINCOLON);
     }
@@ -110,7 +110,7 @@ public class CsvReaderTest {
         }
     }
 
-//    @Test
+    @Test
     public void readSemiColonDelimited() {
         try (CsvReader reader = new CsvReader(getResource("seperator_semicolon.csv"), Charset.forName("utf-8"), CSV.SEMINCOLON)) {
             int rows = 0;
@@ -132,7 +132,7 @@ public class CsvReaderTest {
         }
     }
 
-//    @Test
+    @Test
     public void readNumbers() {
         /**
          * Decimal,DoublePrecision,Integer,Numeric,Real,SmallInt,TinyInt,Bit
@@ -170,7 +170,7 @@ public class CsvReaderTest {
         }
     }
 
-//    @Test
+    @Test
     public void readBinary() {
         /**
          *
@@ -197,7 +197,7 @@ public class CsvReaderTest {
         }
     }
 
-//    @Test
+    @Test
     public void readText() {
         /**
          *
@@ -229,7 +229,7 @@ public class CsvReaderTest {
         }
     }
 
-//    @Test
+    @Test
     public void readDates() {
         try (CsvReader reader = new CsvReader(getResource("datatypes_dates.csv"), Charset.forName("utf-8"))) {
             int rows = 0;
@@ -277,32 +277,32 @@ public class CsvReaderTest {
         }
     }
 
-//    @Test
+    @Test
     public void readAcid() {
         readFile("acid.csv", 5, 4, "us-ascii");
     }
 
-//    @Test
+    @Test
     public void readEmbeddedCommas() {
         readFile("embeddedcommas.csv", 5, 1, "us-ascii");
     }
 
-//    @Test
+    @Test
     public void readEscaped() {
         readFile("escaped.csv", 4, 3, "utf-8");
     }
 
-//    @Test
+    @Test
     public void readQuoted() {
         readFile("quoted.csv", 4, 3, "us-ascii");
     }
 
-//    @Test
+    @Test
     public void readUnquoted() {
         readFile("unquoted.csv", 5, 4, "us-ascii");
     }
 
-//    @Test
+    @Test
     public void readActivity() {
         /*
          *  "ID(type=BIGINT,primaryKey=true,allowNulls=false)",
@@ -341,7 +341,7 @@ public class CsvReaderTest {
         return new File(classLoader.getResource(filename).getFile());
     }
 
-//    @Test
+    @Test
     public void readWithIterator() {
         String filename = "acid.csv";
         String charset = "utf-8";
@@ -369,7 +369,7 @@ public class CsvReaderTest {
         }
     }
 
-//    @Test
+    @Test
     public void readCharset() {
         String filename = "charset.csv";
         String charset = "ISO-8859-1";

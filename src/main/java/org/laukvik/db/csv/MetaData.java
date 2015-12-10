@@ -35,11 +35,20 @@ public class MetaData implements Serializable {
     private final List<Column> columns;
     private Charset charset;
     private Table table;
+    private Character seperator;
 
     public MetaData() {
         charset = Charset.defaultCharset();
         columns = new ArrayList<>();
         table = null;
+    }
+
+    public Character getSeperator() {
+        return seperator;
+    }
+
+    public void setSeperator(Character seperator) {
+        this.seperator = seperator;
     }
 
     public Table getTable() {

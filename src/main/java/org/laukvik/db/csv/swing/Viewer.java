@@ -54,30 +54,8 @@ import org.laukvik.db.ddl.VarCharColumn;
 import org.laukvik.db.sql.swing.SqlTableHeaderRenderer;
 
 /**
- * Milestone
  *
- * @todo Webside
- * @todo Besøksstatistikk
- * @todo Nedlastingsstatistikk
- *
- * Milestone
- *
- * @todo Sortering ved trykk på kolonneheadere
- * @todo Søk i kolonner
- * @todo Eksport JSON
- *
- * Milestone - Redigeringsmuligheter
- *
- * @todo Encoding
- * @todo Redigering av innhold
- * @todo Eksport av selection
- * @todo Recent files funksjon
- * @todo Åpne tab eller pipe separert
- *
- *
- *
- *
- * @author morten
+ * @author Morten Laukvik <morten@laukvik.no>
  */
 public class Viewer extends javax.swing.JFrame implements ListSelectionListener, RecentFileListener {
 
@@ -146,6 +124,7 @@ public class Viewer extends javax.swing.JFrame implements ListSelectionListener,
         recentMenu.setVisible(false);
         undoMenuItem.setVisible(false);
         redoMenuItem.setVisible(false);
+        newDocument();
     }
 
     public File getFile() {
@@ -155,15 +134,21 @@ public class Viewer extends javax.swing.JFrame implements ListSelectionListener,
     public void updateStatusBar() {
         boolean hasQuery = csv.getQuery() != null;
         int resultCount = hasQuery ? csv.getQuery().getResultList().size() : 0;
+        rowsLabel.setText(bundle.getString("status.rows") + ": ");
         if (hasQuery) {
             MessageFormat mf = new MessageFormat(bundle.getString("status.results_with_query"));
             Object[] params = {resultCount, csv.getRowCount()};
             statusLabel.setText(mf.format(params));
+
         } else {
             MessageFormat mf = new MessageFormat(bundle.getString("status.results_empty_query"));
             Object[] params = {csv.getRowCount()};
             statusLabel.setText(mf.format(params));
         }
+        encLabel.setText(bundle.getString("status.encoding") + ": ");
+        encodingLabel.setText(csv.getMetaData().getCharset().displayName());
+        sepLabel.setText(bundle.getString("status.seperator") + ": ");
+        seperatorLabel.setText("" + csv.getMetaData().getSeperator());
         setTitle(file == null ? "" : file.getAbsolutePath());
         getRootPane().putClientProperty("Window.documentFile", file);
     }
@@ -474,7 +459,14 @@ public class Viewer extends javax.swing.JFrame implements ListSelectionListener,
         scroll = new javax.swing.JScrollPane();
         table = new javax.swing.JTable();
         jToolBar2 = new javax.swing.JToolBar();
+        rowsLabel = new javax.swing.JLabel();
         statusLabel = new javax.swing.JLabel();
+        jSeparator4 = new javax.swing.JToolBar.Separator();
+        encLabel = new javax.swing.JLabel();
+        encodingLabel = new javax.swing.JLabel();
+        jSeparator11 = new javax.swing.JToolBar.Separator();
+        sepLabel = new javax.swing.JLabel();
+        seperatorLabel = new javax.swing.JLabel();
         jMenuBar1 = new javax.swing.JMenuBar();
         fileMenu = new javax.swing.JMenu();
         newMenuItem = new javax.swing.JMenuItem();
@@ -544,10 +536,29 @@ public class Viewer extends javax.swing.JFrame implements ListSelectionListener,
         jToolBar2.setFloatable(false);
         jToolBar2.setRollover(true);
 
-        statusLabel.setText("Status");
+        rowsLabel.setText("Rader: ");
+        rowsLabel.setEnabled(false);
+        jToolBar2.add(rowsLabel);
+
+        statusLabel.setText("StatusValue");
         statusLabel.setToolTipText("");
-        statusLabel.setEnabled(false);
         jToolBar2.add(statusLabel);
+        jToolBar2.add(jSeparator4);
+
+        encLabel.setText("Encoding: ");
+        encLabel.setEnabled(false);
+        jToolBar2.add(encLabel);
+
+        encodingLabel.setText("EncodingValue");
+        jToolBar2.add(encodingLabel);
+        jToolBar2.add(jSeparator11);
+
+        sepLabel.setText("Seperator: ");
+        sepLabel.setEnabled(false);
+        jToolBar2.add(sepLabel);
+
+        seperatorLabel.setText("SeperatorValue");
+        jToolBar2.add(seperatorLabel);
 
         getContentPane().add(jToolBar2, java.awt.BorderLayout.PAGE_END);
 
@@ -907,6 +918,8 @@ public class Viewer extends javax.swing.JFrame implements ListSelectionListener,
     private javax.swing.JMenuItem deleteColumnMenuItem;
     private javax.swing.JMenuItem deleteRowMenuItem;
     private javax.swing.JMenu editMenu;
+    private javax.swing.JLabel encLabel;
+    private javax.swing.JLabel encodingLabel;
     private javax.swing.JMenuItem exitMenuItem;
     private javax.swing.JMenuItem exportMenuItem;
     private javax.swing.JMenu fileMenu;
@@ -919,8 +932,10 @@ public class Viewer extends javax.swing.JFrame implements ListSelectionListener,
     private javax.swing.JMenuBar jMenuBar1;
     private javax.swing.JPopupMenu.Separator jSeparator1;
     private javax.swing.JPopupMenu.Separator jSeparator10;
+    private javax.swing.JToolBar.Separator jSeparator11;
     private javax.swing.JPopupMenu.Separator jSeparator2;
     private javax.swing.JPopupMenu.Separator jSeparator3;
+    private javax.swing.JToolBar.Separator jSeparator4;
     private javax.swing.JPopupMenu.Separator jSeparator5;
     private javax.swing.JPopupMenu.Separator jSeparator6;
     private javax.swing.JPopupMenu.Separator jSeparator7;
@@ -935,9 +950,12 @@ public class Viewer extends javax.swing.JFrame implements ListSelectionListener,
     private javax.swing.JMenu recentMenu;
     private javax.swing.JMenuItem redoMenuItem;
     private javax.swing.JMenuItem replaceMenuItem;
+    private javax.swing.JLabel rowsLabel;
     private javax.swing.JMenuItem saveAsMenuItem;
     private javax.swing.JMenuItem saveMenuItem;
     private javax.swing.JScrollPane scroll;
+    private javax.swing.JLabel sepLabel;
+    private javax.swing.JLabel seperatorLabel;
     private javax.swing.JLabel statusLabel;
     private javax.swing.JTabbedPane tabbedPane;
     private javax.swing.JTable table;

@@ -96,11 +96,9 @@ public class LoadingWorker extends javax.swing.JDialog implements ActionListener
                 setVisible(false);
             }
             catch (IllegalColumnDefinitionException ex) {
-                ex.printStackTrace();
                 MessageFormat f = new MessageFormat(bundle.getString("loading.column_exception"));
                 Object[] params = {file.getAbsolutePath()};
                 JOptionPane.showMessageDialog(viewer, f.format(params), "", JOptionPane.ERROR_MESSAGE);
-
             }
             catch (FileNotFoundException ex) {
                 MessageFormat f = new MessageFormat(bundle.getString("loading.file_not_found"));
@@ -108,7 +106,6 @@ public class LoadingWorker extends javax.swing.JDialog implements ActionListener
                 JOptionPane.showMessageDialog(viewer, f.format(params), "", JOptionPane.ERROR_MESSAGE);
             }
             catch (IOException ex) {
-                ex.printStackTrace();
                 MessageFormat f = new MessageFormat(bundle.getString("loading.failed_to_load"));
                 Object[] params = {file.getAbsolutePath()};
                 JOptionPane.showMessageDialog(viewer, f.format(params), "", JOptionPane.ERROR_MESSAGE);
