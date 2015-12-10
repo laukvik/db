@@ -81,7 +81,6 @@ public class GroupReader extends Reader {
                 }
             }
 
-//			System.out.println( "\t\tafter: " + sql );
         }
         return sql;
     }

@@ -15,12 +15,15 @@
  */
 package org.laukvik.db.csv.io;
 
-import java.io.BufferedInputStream;
+import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.charset.Charset;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.laukvik.db.csv.CSV;
 import org.laukvik.db.csv.MetaData;
 import org.laukvik.db.csv.Row;
@@ -51,8 +54,10 @@ import org.laukvik.db.ddl.VarCharColumn;
  */
 public class CsvReader implements AutoCloseable, Readable {
 
-    private final BufferedInputStream is;
-    private char currentChar;
+    private static final Logger LOG = Logger.getLogger(CsvReader.class.getName());
+
+//    private BufferedInputStream is;
+//    private char currentChar;
     private StringBuilder currentValue;
     private StringBuilder rawLine;
     private int lineCounter;
@@ -62,76 +67,88 @@ public class CsvReader implements AutoCloseable, Readable {
     private boolean autoDetectSeperator;
     private boolean autoDetectCharset;
     private int bytesRead;
-    private BOM bom;
+//    private BOM bom;
+    //
+    private File file;
+    private BufferedReader reader;
+    private Charset charset;
 
-    public CsvReader(InputStream is) throws IOException {
-        this(is, null, null);
-    }
-
-    public CsvReader(InputStream is, Charset charset) throws IOException {
-        this(is, charset, null);
-    }
-
-    public CsvReader(InputStream is, Charset charset, Character seperatorChar) throws IOException {
-        this.is = new BufferedInputStream(is);
-        this.metaData = new MetaData();
-
-        this.autoDetectCharset = charset == null;
-        if (charset == null) {
-//            this.metaData.setCharset(Charset.defaultCharset());
-        } else {
-            this.metaData.setCharset(charset);
-        }
-        if (seperatorChar == null) {
-        } else {
-            this.seperatorChar = seperatorChar;
-        }
-        this.autoDetectSeperator = seperatorChar == null;
-
-        this.lineCounter = 0;
-        this.bytesRead = 0;
-        this.bom = null;
-        List<String> columns = parseRow();
-        for (String rawColumnName : columns) {
-//            System.out.println("RAW: " + rawLine);
-            this.metaData.addColumn(Column.parseColumn(rawColumnName));
-        }
-        if (this.metaData.getCharset() == null) {
-            this.metaData.setCharset(Charset.forName("utf-8"));
-        }
-
-//        this.seperatorChar = seperatorChar;
-//        this.autoDetectSeperator = false;
-//        this.is = new BufferedInputStream(is);
-//        this.lineCounter = 0;
-//        this.bytesRead = 0;
-//        this.bom = null;
-//        this.metaData = new MetaData();
-//        this.metaData.setCharset(charset);
-//        List<String> columns = parseRow();
-//        for (String rawColumnName : columns) {
-//            this.metaData.addColumn(Column.parseColumn(rawColumnName));
-//        }
-    }
-
-    public char getSeperatorChar() {
-        return seperatorChar;
-    }
-
-    public int getBytesRead() {
-        return bytesRead;
-    }
-
-    public int getLineCounter() {
-        return lineCounter;
+    /**
+     * Reads the CSV file and detects encoding and seperator characters
+     * automatically
+     *
+     * @param file
+     * @throws IOException
+     */
+    public CsvReader(File file) throws IOException {
+        this(file, null, null);
     }
 
     /**
+     * Reads the CSV file using the specified charset and automatically detects
+     * seperator characters
      *
-     * @return @throws IOException
+     * @param file
+     * @param charset
+     * @throws IOException
+     */
+    public CsvReader(File file, Charset charset) throws IOException {
+        this(file, charset, null);
+    }
+
+    /**
+     * Reads the CSV file using the specified charset and seperator
+     *
+     * @param file
+     * @param charset
+     * @param separator
+     * @throws IOException
+     */
+    public CsvReader(File file, Charset charset, Character separator) throws IOException {
+        this.file = file;
+        this.autoDetectSeperator = separator == null;
+        this.autoDetectCharset = charset == null;
+        if (separator != null) {
+            this.seperatorChar = separator;
+        }
+        if (this.autoDetectCharset) {
+            // Try to find BOM signature
+            BOM bom = BOM.findBom(file);
+            if (bom == null) {
+                LOG.info("BOM signature not found.");
+                this.charset = null;
+            } else {
+                LOG.log(Level.INFO, "Found BOM signature {0}", bom);
+                this.charset = bom.getCharset();
+            }
+        } else {
+            this.charset = charset;
+        }
+        this.metaData = new MetaData();
+        this.metaData.setCharset(this.charset);
+        this.lineCounter = 0;
+        this.bytesRead = 0;
+        if (this.charset == null) {
+            reader = Files.newBufferedReader(file.toPath());
+        } else {
+            reader = Files.newBufferedReader(file.toPath(), this.charset);
+        }
+
+        List<String> columns = parseRow();
+        for (String rawColumnName : columns) {
+            this.metaData.addColumn(Column.parseColumn(rawColumnName));
+        }
+    }
+
+    /**
+     * Parses one row of data
+     *
+     * @return
+     * @throws IOException
      */
     private List<String> parseRow() throws IOException {
         List<String> values = new ArrayList<>();
+
         boolean isNextLine = false;
 
         /* Current value */
@@ -143,13 +160,11 @@ public class CsvReader implements AutoCloseable, Readable {
         boolean isWithinQuote = false;
         int quoteCount = 0;
 
-        byte[] bomCheck = new byte[4];
-
         /* Read until */
-        while (is.available() > 0 && !isNextLine) {
+        while (reader.ready() && !isNextLine) {
 
             // Read next char
-            byte b = (byte) is.read();
+            char currentChar = (char) reader.read();
 
             boolean foundBom = false;
             // Increase number of bytes read
@@ -161,38 +176,21 @@ public class CsvReader implements AutoCloseable, Readable {
             // Adds the currentValue
             boolean addValue = false;
 
-            if (bytesRead < 5 && bom == null) {
-                bomCheck[bytesRead - 1] = b;
-                bom = BOM.parse(bomCheck);
-                if (bom != null) {
-                    foundBom = true;
-//                    System.out.println("Found BOM: " + bom);
-                    metaData.setCharset(Charset.forName(bom.name()));
-                }
-            } else {
-                if (bom == null && metaData.getCharset() == null && autoDetectCharset) {
-//                    System.out.println("No BOM found setting charset to utf8");
-                    metaData.setCharset(Charset.forName("utf8"));
-                }
-            }
-
-            currentChar = (char) b;
-
             // Look for seperator characters in first line
             if (lineCounter == 0 && autoDetectSeperator) {
                 if (currentChar == CSV.TAB || currentChar == CSV.SEMINCOLON || currentChar == CSV.PIPE || currentChar == CSV.COMMA) {
                     seperatorChar = currentChar;
                     autoDetectSeperator = false;
+                    LOG.log(Level.FINE, "Detected seperator: {0}", seperatorChar);
                 }
             }
 
             // Check char
-            if (foundBom) {
-                currentValue = new StringBuilder();
-            } else if (currentChar == CSV.RETURN) {
+            if (currentChar == CSV.RETURN) {
                 addChar = false;
 
             } else if (currentChar == CSV.LINEFEED) {
+
                 addChar = false;
                 addValue = true;
                 isNextLine = true;
@@ -202,14 +200,11 @@ public class CsvReader implements AutoCloseable, Readable {
                 }
 
             } else if (currentChar == CSV.QUOTE) {
-                /*    "Venture ""Extended Edition"""  */
                 addChar = true;
 
                 isWithinQuote = true;
-
-                int read = -1;
-                while (is.available() > 0) {
-                    currentChar = (char) is.read();
+                while (reader.ready()) {
+                    currentChar = (char) reader.read();
                     rawLine.append(currentChar);
                     if (currentChar == CSV.QUOTE) {
                         quoteCount++;
@@ -229,6 +224,7 @@ public class CsvReader implements AutoCloseable, Readable {
                     currentValue.deleteCharAt(currentValue.length() - 1);
                     isWithinQuote = false;
                 }
+
             } else {
                 addChar = true;
             }
@@ -240,14 +236,25 @@ public class CsvReader implements AutoCloseable, Readable {
                 rawLine.append(currentChar);
             }
 
-            if (addValue || is.available() == 0) {
-                if (is.available() == 0) {
+            if (!reader.ready()) {
+                addValue = true;
+            }
+
+            if (addValue) {
+                if (!reader.ready()) {
                     if (isWithinQuote) {
                         currentValue.deleteCharAt(currentValue.length() - 1);
                         isWithinQuote = false;
                     }
                 }
-                values.add(new String(currentValue.toString().getBytes(), metaData.getCharset()));
+
+//                if (metaData.getCharset() == null) {
+//                    values.add(currentValue.toString());
+//                } else {
+//                    values.add(new String(currentValue.toString().getBytes(), metaData.getCharset()));
+//                }
+                values.add(currentValue.toString());
+
                 currentValue = new StringBuilder();
             }
         }
@@ -255,8 +262,14 @@ public class CsvReader implements AutoCloseable, Readable {
         return values;
     }
 
+    /**
+     * Reads the next row
+     *
+     * @return a boolean whether a new row was found
+     * @throws IOException
+     */
     private boolean readRow() throws IOException {
-        if (is.available() == 0) {
+        if (!reader.ready()) {
             return false;
         }
         row = new Row();
@@ -341,6 +354,18 @@ public class CsvReader implements AutoCloseable, Readable {
         return true;
     }
 
+    public char getSeperatorChar() {
+        return seperatorChar;
+    }
+
+    public int getBytesRead() {
+        return bytesRead;
+    }
+
+    public int getLineCounter() {
+        return lineCounter;
+    }
+
     @Override
     public Row getRow() {
         return row;
@@ -353,7 +378,7 @@ public class CsvReader implements AutoCloseable, Readable {
 
     @Override
     public void close() throws IOException {
-        is.close();
+        reader.close();
     }
 
     @Override

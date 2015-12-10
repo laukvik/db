@@ -20,9 +20,9 @@ import java.awt.FileDialog;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.text.MessageFormat;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
@@ -51,6 +51,7 @@ public class LoadingWorker extends javax.swing.JDialog implements ActionListener
 
         File file;
         Viewer viewer;
+        Charset charset;
 
         public Task(File file, Viewer viewer) {
             this.file = file;
@@ -80,7 +81,8 @@ public class LoadingWorker extends javax.swing.JDialog implements ActionListener
             labelFilename.setText(file.getName() + " " + kb + " Kb");
             MessageFormat mf = new MessageFormat(bundle.getString("loading.rows"));
             CSV csv = new CSV();
-            try (CsvReader r = new CsvReader(new FileInputStream(file))) {
+            boolean success = false;
+            try (CsvReader r = new CsvReader(file, charset)) {
                 csv.setMetaData(r.getMetaData());
                 while (canContinue && r.hasNext()) {
                     progressBar.setValue(r.getBytesRead());
@@ -90,7 +92,7 @@ public class LoadingWorker extends javax.swing.JDialog implements ActionListener
                     label.setText(mf.format(params));
                     LOG.log(Level.FINE, "Reading row {0}", r.getLineCounter());
                 }
-                viewer.openCSV(csv, file);
+                success = true;
                 setVisible(false);
             }
             catch (IllegalColumnDefinitionException ex) {
@@ -106,6 +108,7 @@ public class LoadingWorker extends javax.swing.JDialog implements ActionListener
                 JOptionPane.showMessageDialog(viewer, f.format(params), "", JOptionPane.ERROR_MESSAGE);
             }
             catch (IOException ex) {
+                ex.printStackTrace();
                 MessageFormat f = new MessageFormat(bundle.getString("loading.failed_to_load"));
                 Object[] params = {file.getAbsolutePath()};
                 JOptionPane.showMessageDialog(viewer, f.format(params), "", JOptionPane.ERROR_MESSAGE);
@@ -113,6 +116,9 @@ public class LoadingWorker extends javax.swing.JDialog implements ActionListener
 
             LOG.fine("Done reading");
             dispose();
+            if (success) {
+                viewer.openCSV(csv, file);
+            }
             return null;
         }
 
@@ -127,6 +133,7 @@ public class LoadingWorker extends javax.swing.JDialog implements ActionListener
      * Creates new form ProgressDialog
      *
      * @param viewer
+     * @param bundle
      */
     public LoadingWorker(Viewer viewer, ResourceBundle bundle) {
         super(viewer);
@@ -138,19 +145,35 @@ public class LoadingWorker extends javax.swing.JDialog implements ActionListener
     @Override
     public void actionPerformed(ActionEvent e) {
         LOG.fine("ActionPerformed");
-        java.awt.FileDialog fd = new FileDialog(viewer, "Velg fil", FileDialog.LOAD);
-        fd.setFilenameFilter(new org.laukvik.db.csv.swing.CSVFileFilter());
-        fd.setVisible(true);
-        String filename = fd.getFile();
-        if (filename == null) {
-        } else {
-            openFile(new File(fd.getDirectory(), filename));
+
+        Charset charset = null;
+        try {
+            // Reload current file if actioncommand with encoding is set
+            charset = Charset.forName(e.getActionCommand());
         }
+        catch (Exception e2) {
+        }
+
+        if (charset == null) {
+            java.awt.FileDialog fd = new FileDialog(viewer, "Velg fil", FileDialog.LOAD);
+            fd.setFilenameFilter(new org.laukvik.db.csv.swing.CSVFileFilter());
+            fd.setVisible(true);
+            String filename = fd.getFile();
+            if (filename == null) {
+            } else {
+                File file = new File(fd.getDirectory(), filename);
+                openFile(file, null);
+            }
+        } else {
+            openFile(viewer.getFile(), charset);
+        }
+
     }
 
-    public void openFile(File file) {
-        LOG.log(Level.FINE, "Opening file {0}", file.getAbsolutePath());
+    public void openFile(File file, Charset charset) {
+        LOG.log(Level.FINE, "Opening file {0} with charset {1}", new Object[]{file.getAbsolutePath(), charset});
         task = new Task(file, viewer);
+        task.charset = charset;
         task.execute();
     }
 

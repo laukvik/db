@@ -53,7 +53,6 @@ public class TextStatement implements Statement {
     }
 
     public ResultSet executeQuery(String sql) throws SQLException {
-//		System.out.println( "executeQuery: " + mgr.home );
         return mgr.executeQuery(sql);
     }
 

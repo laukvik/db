@@ -110,14 +110,17 @@ public class Viewer extends javax.swing.JFrame implements ListSelectionListener,
         gotoMenuItem.setAccelerator(getKeystroke(java.awt.event.KeyEvent.VK_G));
 
         findMenuItem.setAccelerator(getKeystroke(java.awt.event.KeyEvent.VK_F));
-        toolsMenu.setVisible(false);
+        toolsMenu.setVisible(true);
         file = null;
         csv = new org.laukvik.db.csv.CSV();
         model = new CSVTableModel(csv);
         table.setModel(model);
 
+        loadingWorker = new LoadingWorker(this, bundle);
         for (Charset c : Charset.availableCharsets().values()) {
             JMenuItem item = new JMenuItem(c.name());
+            item.setActionCommand(c.name());
+            item.addActionListener(loadingWorker);
             charsetMenu.add(item);
         }
 
@@ -130,8 +133,9 @@ public class Viewer extends javax.swing.JFrame implements ListSelectionListener,
         Float height = size.height * 0.7f;
         Float split = size.width * 0.2f;
         jSplitPane1.setDividerLocation(split.intValue());
-        loadingWorker = new LoadingWorker(this, bundle);
+
         openMenuItem.addActionListener(loadingWorker);
+        openMenuItem.setActionCommand(null);
         setSize(width.intValue(), height.intValue());
         importMenuItem.setVisible(false);
         exportMenuItem.setVisible(false);
@@ -142,6 +146,10 @@ public class Viewer extends javax.swing.JFrame implements ListSelectionListener,
         recentMenu.setVisible(false);
         undoMenuItem.setVisible(false);
         redoMenuItem.setVisible(false);
+    }
+
+    public File getFile() {
+        return file;
     }
 
     public void updateStatusBar() {
@@ -274,7 +282,7 @@ public class Viewer extends javax.swing.JFrame implements ListSelectionListener,
     }
 
     public void createUniqueModels() {
-        LOG.log(Level.FINE, "Adding unique models: {0}", csv.getMetaData().getColumnCount());
+        LOG.log(Level.INFO, "Adding unique models: {0}", csv.getMetaData().getColumnCount());
         tabbedPane.removeAll();
         tableModels = new ArrayList<>();
 
@@ -410,20 +418,29 @@ public class Viewer extends javax.swing.JFrame implements ListSelectionListener,
 
     /**
      *
+     *
+     *
+     * @param charset
+     */
+    public void reloadFile(Charset charset) {
+        LOG.log(Level.INFO, "Reopening file with charset: {0}", charset);
+    }
+
+    /**
+     *
      * @param csv
      * @param file
      */
     public void openCSV(CSV csv, File file) {
-        LOG.log(Level.FINE, "Opening csv with columns: {0} rows: {1}", new Object[]{csv.getMetaData().getColumnCount(), csv.getRowCount()});
+        LOG.log(Level.INFO, "Opening csv with columns: {0} rows: {1}", new Object[]{csv.getMetaData().getColumnCount(), csv.getRowCount()});
         this.csv = csv;
         this.file = file;
         createModel(new CSVTableModel(csv));
-        setTitle(file.getAbsolutePath());
-        getRootPane().putClientProperty("Window.documentFile", file);
-        recentFileModel.add(new RecentFile(file.getAbsolutePath()));
+        setTitle(this.file.getAbsolutePath());
+        getRootPane().putClientProperty("Window.documentFile", this.file);
+//        recentFileModel.add(new RecentFile(file.getAbsolutePath()));
         createUniqueModels();
         updateStatusBar();
-        openFile(file);
     }
 
     @Override
@@ -493,8 +510,6 @@ public class Viewer extends javax.swing.JFrame implements ListSelectionListener,
         replaceMenuItem = new javax.swing.JMenuItem();
         toolsMenu = new javax.swing.JMenu();
         charsetMenu = new javax.swing.JMenu();
-        jMenuItem4 = new javax.swing.JMenuItem();
-        jMenuItem5 = new javax.swing.JMenuItem();
         helpMenu = new javax.swing.JMenu();
         aboutMenuItem = new javax.swing.JMenuItem();
 
@@ -673,13 +688,6 @@ public class Viewer extends javax.swing.JFrame implements ListSelectionListener,
         toolsMenu.setText(bundle.getString("tools")); // NOI18N
 
         charsetMenu.setText("Encoding");
-
-        jMenuItem4.setText("UTF-8");
-        charsetMenu.add(jMenuItem4);
-
-        jMenuItem5.setText("ISO-8859-1");
-        charsetMenu.add(jMenuItem5);
-
         toolsMenu.add(charsetMenu);
 
         jMenuBar1.add(toolsMenu);
@@ -909,8 +917,6 @@ public class Viewer extends javax.swing.JFrame implements ListSelectionListener,
     private javax.swing.JMenuItem insertColumnMenuItem;
     private javax.swing.JMenuItem insertRowMenuItem;
     private javax.swing.JMenuBar jMenuBar1;
-    private javax.swing.JMenuItem jMenuItem4;
-    private javax.swing.JMenuItem jMenuItem5;
     private javax.swing.JPopupMenu.Separator jSeparator1;
     private javax.swing.JPopupMenu.Separator jSeparator10;
     private javax.swing.JPopupMenu.Separator jSeparator2;

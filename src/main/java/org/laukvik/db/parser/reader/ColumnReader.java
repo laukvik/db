@@ -115,7 +115,6 @@ public class ColumnReader extends Either {
     }
 
     public Column getColumn() {
-//		System.out.println("table: " + table + " column: " + column + " type: " + type );
         if (type == WILDCARD) {
             Column c = Column.ALL;
             c.setTable(Table.EVERYTHING);

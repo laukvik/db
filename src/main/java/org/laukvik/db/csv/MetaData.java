@@ -202,12 +202,9 @@ public class MetaData implements Serializable {
         }
         for (int x = 0; x < getColumnCount(); x++) {
             Column c = getColumn(x);
-//            System.out.println(c.getName() + ": " + (c instanceof AutoIncrementColumn));
             if (c instanceof AutoIncrementColumn) {
                 AutoIncrementColumn aic = (AutoIncrementColumn) c;
-//                System.out.println("inc: " + c.getName() + " " + aic.isAutoIncrement());
                 if (aic.isAutoIncrement()) {
-//                    System.out.println("inc: " + c.getName());
                     switch (dbType) {
                         case MySQL:
                             list.add("ALTER TABLE " + name + " MODIFY COLUMN " + c.getName() + " " + c.getColumnName() + " auto_increment;");

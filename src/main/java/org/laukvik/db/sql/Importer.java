@@ -1,7 +1,6 @@
 package org.laukvik.db.sql;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.nio.charset.Charset;
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -70,7 +69,7 @@ public class Importer {
         for (File f : files) {
             x++;
             String tableName = BackupMetaDataFileFilter.getName(f);
-            try (CsvReader r = new CsvReader(new FileInputStream(f), charset)) {
+            try (CsvReader r = new CsvReader(f, charset)) {
                 System.out.print(x + "/" + max + " " + tableName + " - ");
                 MetaData metaData = r.getMetaData();
                 // Save table name and meta data for post installation script

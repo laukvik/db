@@ -118,7 +118,6 @@ public class SelectReader extends GroupReader {
 
         lr.addNumberListener(new NumberListener() {
             public void found(Number number) {
-                //System.out.println("Found: " + number);
                 query.setLimit(number.intValue());
             }
         }
@@ -126,7 +125,6 @@ public class SelectReader extends GroupReader {
 
         ofr.addNumberListener(new NumberListener() {
             public void found(Number number) {
-                //System.out.println("Found: " + number);
                 query.setOffset(number.intValue());
             }
         }

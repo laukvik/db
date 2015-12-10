@@ -24,8 +24,6 @@ import org.laukvik.db.csv.CSV;
 import org.laukvik.db.csv.MetaData;
 import org.laukvik.db.csv.Row;
 import org.laukvik.db.ddl.DateColumn;
-import org.laukvik.db.ddl.DoublePrecisionColumn;
-import org.laukvik.db.ddl.FloatColumn;
 import org.laukvik.db.ddl.IntegerColumn;
 import org.laukvik.db.ddl.VarCharColumn;
 
@@ -278,7 +276,6 @@ public class Query {
 
     public Select select(org.laukvik.db.ddl.Column... columns) {
 //        select.setColumns(columns);
-        System.out.println("Select: " + select.where);
         return select;
     }
 
@@ -293,11 +290,13 @@ public class Query {
             } else {
                 /* Use filtering */
                 int matchCount = 0;
-                for (Column c : where.columns) {
-                    if (c.matcher.mathes(r)) {
-                        matchCount++;
-                    }
-                }
+                matchCount = where.columns.stream().filter((c) -> (c.matcher.mathes(r))).map((_item) -> 1).reduce(matchCount, Integer::sum);
+
+//                for (Column c : where.columns) {
+//                    if (c.matcher.mathes(r)) {
+//                        matchCount++;
+//                    }
+//                }
                 if (matchCount == matchesRequired) {
                     filteredRows.add(r);
                 }

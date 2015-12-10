@@ -245,7 +245,6 @@ public abstract class Column<T> implements Comparable {
         if (columnName == null || columnName.trim().isEmpty()) {
             throw new IllegalColumnDefinitionException(columnName);
         } else {
-            System.out.println(columnName);
         }
 
         // Find dataType before continuing

@@ -28,7 +28,6 @@ public class ListItemReader extends Reader {
                 boolean isQoute = (c == '"');
                 boolean isDouble = (c == '"' && n == c);
                 boolean isDelimiter = (!isDouble && isQoute);
-//				System.out.println( "Char: " + x + "=\t" + c + "\t" + isDouble + "\t" + isDelimiter );
                 /* Skip next char if double quote */
                 if (isDouble) {
                     x++;

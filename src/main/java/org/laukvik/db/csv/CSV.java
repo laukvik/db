@@ -29,8 +29,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.laukvik.db.csv.io.CsvReader;
 import org.laukvik.db.csv.io.CsvWriter;
 import org.laukvik.db.csv.io.Readable;
@@ -63,6 +61,7 @@ public class CSV implements Serializable {
     public final static char PIPE = '|';
     public final static char TAB = 9;
     public final static char QUOTE = '"';
+    public final static char NULL = 0;
     public final static String CRLF = "\r\n";
 
     protected MetaData metaData;
@@ -82,7 +81,7 @@ public class CSV implements Serializable {
      * @throws IOException
      */
     public void read(File file) throws IOException {
-        read(new CsvReader(new FileInputStream(file)));
+        read(new CsvReader(file));
     }
 
     /**
@@ -296,22 +295,22 @@ public class CSV implements Serializable {
 
     public static <T> List<T> findByClass(InputStream inputStream, Charset charset, Class<T> aClass) {
         List<T> items = new ArrayList<>();
-        try (CsvReader reader = new CsvReader(inputStream, charset)) {
-            while (reader.hasNext()) {
-                Row row = reader.getRow();
-//                row.setMetaData(reader.getMetaData());
-                items.add(createInstance(row, aClass));
-            }
-        }
-        catch (IOException e) {
-            Logger.getLogger(CSV.class.getName()).log(Level.SEVERE, null, e);
-        }
-        catch (InstantiationException ex) {
-            Logger.getLogger(CSV.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        catch (IllegalAccessException ex) {
-            Logger.getLogger(CSV.class.getName()).log(Level.SEVERE, null, ex);
-        }
+//        try (CsvReader reader = new CsvReader(inputStream, charset)) {
+//            while (reader.hasNext()) {
+//                Row row = reader.getRow();
+////                row.setMetaData(reader.getMetaData());
+//                items.add(createInstance(row, aClass));
+//            }
+//        }
+//        catch (IOException e) {
+//            Logger.getLogger(CSV.class.getName()).log(Level.SEVERE, null, e);
+//        }
+//        catch (InstantiationException ex) {
+//            Logger.getLogger(CSV.class.getName()).log(Level.SEVERE, null, ex);
+//        }
+//        catch (IllegalAccessException ex) {
+//            Logger.getLogger(CSV.class.getName()).log(Level.SEVERE, null, ex);
+//        }
         return items;
     }
 

@@ -22,7 +22,7 @@ package org.laukvik.db.ddl;
 public class IllegalColumnDefinitionException extends RuntimeException {
 
     public IllegalColumnDefinitionException(String message) {
-        super(message);
+        super("'" + message + "'");
     }
 
 }

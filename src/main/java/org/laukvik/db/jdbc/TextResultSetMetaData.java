@@ -21,7 +21,6 @@ public class TextResultSetMetaData implements ResultSetMetaData {
     }
 
     public int getColumnCount() throws SQLException {
-//		System.out.println( "getColumnCount:" +  data.getColumnCount() );
         return data.getColumnCount();
     }
 

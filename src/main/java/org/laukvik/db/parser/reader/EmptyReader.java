@@ -22,7 +22,6 @@ public class EmptyReader extends Reader {
                 }
             }
         }
-//		System.out.println( "EMPTY:" + sql.substring( found ) );
         return sql.substring(found);
     }
 

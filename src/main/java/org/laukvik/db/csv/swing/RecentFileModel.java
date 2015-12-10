@@ -34,12 +34,12 @@ public class RecentFileModel {
     private static final Logger LOG = Logger.getLogger(RecentFileModel.class.getName());
 
     public RecentFileModel(JMenu recentMenu, RecentFileListener listener) {
-        this.files = CSV.findByClass(RecentFile.class);
-        this.recentMenu = recentMenu;
-        this.listener = listener;
-        for (RecentFile rf : files) {
-            add(rf, false);
-        }
+//        this.files = CSV.findByClass(RecentFile.class);
+//        this.recentMenu = recentMenu;
+//        this.listener = listener;
+//        for (RecentFile rf : files) {
+//            add(rf, false);
+//        }
     }
 
     private void save() {

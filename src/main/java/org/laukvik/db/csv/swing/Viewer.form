@@ -232,18 +232,6 @@
               <Properties>
                 <Property name="text" type="java.lang.String" value="Encoding"/>
               </Properties>
-              <SubComponents>
-                <MenuItem class="javax.swing.JMenuItem" name="jMenuItem4">
-                  <Properties>
-                    <Property name="text" type="java.lang.String" value="UTF-8"/>
-                  </Properties>
-                </MenuItem>
-                <MenuItem class="javax.swing.JMenuItem" name="jMenuItem5">
-                  <Properties>
-                    <Property name="text" type="java.lang.String" value="ISO-8859-1"/>
-                  </Properties>
-                </MenuItem>
-              </SubComponents>
             </Menu>
           </SubComponents>
         </Menu>
