@@ -15,6 +15,7 @@
  */
 package org.laukvik.db.csv.swing;
 
+import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.FileDialog;
 import java.awt.Rectangle;
@@ -69,6 +70,7 @@ public class Viewer extends javax.swing.JFrame implements ListSelectionListener,
     private List<UniqueTableModel> tableModels;
     private final RecentFileModel recentFileModel;
     private final LoadingWorker loadingWorker;
+    private EmptyPanel emptyPanel;
 
     /**
      * Creates new form Viewer
@@ -101,6 +103,7 @@ public class Viewer extends javax.swing.JFrame implements ListSelectionListener,
             item.addActionListener(loadingWorker);
             charsetMenu.add(item);
         }
+        emptyPanel = new EmptyPanel(bundle.getString("status.nofile"));
 
         /* Recent stuff */
         recentFileModel = new RecentFileModel(recentMenu, this);
@@ -108,7 +111,7 @@ public class Viewer extends javax.swing.JFrame implements ListSelectionListener,
         Dimension size = Toolkit.getDefaultToolkit().getScreenSize();
 
         Float width = size.width * 0.8f;
-        Float height = size.height * 0.7f;
+        Float height = size.height * 0.8f;
         Float split = size.width * 0.2f;
         jSplitPane1.setDividerLocation(split.intValue());
 
@@ -135,6 +138,7 @@ public class Viewer extends javax.swing.JFrame implements ListSelectionListener,
         boolean hasQuery = csv.getQuery() != null;
         int resultCount = hasQuery ? csv.getQuery().getResultList().size() : 0;
         rowsLabel.setText(bundle.getString("status.rows") + ": ");
+
         if (hasQuery) {
             MessageFormat mf = new MessageFormat(bundle.getString("status.results_with_query"));
             Object[] params = {resultCount, csv.getRowCount()};
@@ -145,10 +149,22 @@ public class Viewer extends javax.swing.JFrame implements ListSelectionListener,
             Object[] params = {csv.getRowCount()};
             statusLabel.setText(mf.format(params));
         }
+        colsLabel.setText(bundle.getString("status.columns") + ": ");
+        columnsLabel.setText("" + csv.getMetaData().getColumnCount());
         encLabel.setText(bundle.getString("status.encoding") + ": ");
         encodingLabel.setText(csv.getMetaData().getCharset().displayName());
         sepLabel.setText(bundle.getString("status.seperator") + ": ");
-        seperatorLabel.setText("" + csv.getMetaData().getSeperator());
+        seperatorLabel.setText("" + (csv.getMetaData().getSeperator() == null ? CSV.COMMA : csv.getMetaData().getSeperator()));
+
+        sizLabel.setText(bundle.getString("status.filesize") + ": ");
+
+        if (file == null) {
+            sizeLabel.setText("" + "0 Kb");
+        } else {
+            long size = file.length() / 1024;
+            sizeLabel.setText("" + size + " Kb");
+        }
+
         setTitle(file == null ? "" : file.getAbsolutePath());
         getRootPane().putClientProperty("Window.documentFile", file);
     }
@@ -420,6 +436,7 @@ public class Viewer extends javax.swing.JFrame implements ListSelectionListener,
         LOG.log(Level.INFO, "Opening csv with columns: {0} rows: {1}", new Object[]{csv.getMetaData().getColumnCount(), csv.getRowCount()});
         this.csv = csv;
         this.file = file;
+        setEmptyVisible(false);
         createModel(new CSVTableModel(csv));
         setTitle(this.file.getAbsolutePath());
         getRootPane().putClientProperty("Window.documentFile", this.file);
@@ -462,11 +479,17 @@ public class Viewer extends javax.swing.JFrame implements ListSelectionListener,
         rowsLabel = new javax.swing.JLabel();
         statusLabel = new javax.swing.JLabel();
         jSeparator4 = new javax.swing.JToolBar.Separator();
+        colsLabel = new javax.swing.JLabel();
+        columnsLabel = new javax.swing.JLabel();
+        jSeparator12 = new javax.swing.JToolBar.Separator();
         encLabel = new javax.swing.JLabel();
         encodingLabel = new javax.swing.JLabel();
         jSeparator11 = new javax.swing.JToolBar.Separator();
         sepLabel = new javax.swing.JLabel();
         seperatorLabel = new javax.swing.JLabel();
+        jSeparator13 = new javax.swing.JToolBar.Separator();
+        sizLabel = new javax.swing.JLabel();
+        sizeLabel = new javax.swing.JLabel();
         jMenuBar1 = new javax.swing.JMenuBar();
         fileMenu = new javax.swing.JMenu();
         newMenuItem = new javax.swing.JMenuItem();
@@ -507,7 +530,7 @@ public class Viewer extends javax.swing.JFrame implements ListSelectionListener,
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
-        jSplitPane1.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+        jSplitPane1.setBorder(null);
         jSplitPane1.setDividerLocation(250);
         jSplitPane1.setOneTouchExpandable(true);
         jSplitPane1.setLeftComponent(tabbedPane);
@@ -545,6 +568,15 @@ public class Viewer extends javax.swing.JFrame implements ListSelectionListener,
         jToolBar2.add(statusLabel);
         jToolBar2.add(jSeparator4);
 
+        colsLabel.setText("Columns");
+        colsLabel.setToolTipText("");
+        colsLabel.setEnabled(false);
+        jToolBar2.add(colsLabel);
+
+        columnsLabel.setText("jLabel1");
+        jToolBar2.add(columnsLabel);
+        jToolBar2.add(jSeparator12);
+
         encLabel.setText("Encoding: ");
         encLabel.setEnabled(false);
         jToolBar2.add(encLabel);
@@ -559,6 +591,14 @@ public class Viewer extends javax.swing.JFrame implements ListSelectionListener,
 
         seperatorLabel.setText("SeperatorValue");
         jToolBar2.add(seperatorLabel);
+        jToolBar2.add(jSeparator13);
+
+        sizLabel.setText("Size");
+        sizLabel.setEnabled(false);
+        jToolBar2.add(sizLabel);
+
+        sizeLabel.setText("jLabel2");
+        jToolBar2.add(sizeLabel);
 
         getContentPane().add(jToolBar2, java.awt.BorderLayout.PAGE_END);
 
@@ -778,7 +818,21 @@ public class Viewer extends javax.swing.JFrame implements ListSelectionListener,
         table.setModel(model);
         tabbedPane.removeAll();
         tableModels.clear();
+        scroll.setViewportView(new EmptyPanel(bundle.getString("status.nofile")));
+        setEmptyVisible(true);
         updateStatusBar();
+    }
+
+    public void setEmptyVisible(boolean isVisible) {
+        if (isVisible) {
+            this.remove(jSplitPane1);
+            this.add(emptyPanel, BorderLayout.CENTER);
+        } else {
+            this.remove(emptyPanel);
+            this.add(jSplitPane1, BorderLayout.CENTER);
+        }
+        invalidate();
+        repaint();
     }
 
     public void addColumn() {
@@ -913,6 +967,8 @@ public class Viewer extends javax.swing.JFrame implements ListSelectionListener,
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JMenuItem aboutMenuItem;
     private javax.swing.JMenu charsetMenu;
+    private javax.swing.JLabel colsLabel;
+    private javax.swing.JLabel columnsLabel;
     private javax.swing.JMenuItem copyMenuItem;
     private javax.swing.JMenuItem cutMenuItem;
     private javax.swing.JMenuItem deleteColumnMenuItem;
@@ -933,6 +989,8 @@ public class Viewer extends javax.swing.JFrame implements ListSelectionListener,
     private javax.swing.JPopupMenu.Separator jSeparator1;
     private javax.swing.JPopupMenu.Separator jSeparator10;
     private javax.swing.JToolBar.Separator jSeparator11;
+    private javax.swing.JToolBar.Separator jSeparator12;
+    private javax.swing.JToolBar.Separator jSeparator13;
     private javax.swing.JPopupMenu.Separator jSeparator2;
     private javax.swing.JPopupMenu.Separator jSeparator3;
     private javax.swing.JToolBar.Separator jSeparator4;
@@ -956,6 +1014,8 @@ public class Viewer extends javax.swing.JFrame implements ListSelectionListener,
     private javax.swing.JScrollPane scroll;
     private javax.swing.JLabel sepLabel;
     private javax.swing.JLabel seperatorLabel;
+    private javax.swing.JLabel sizLabel;
+    private javax.swing.JLabel sizeLabel;
     private javax.swing.JLabel statusLabel;
     private javax.swing.JTabbedPane tabbedPane;
     private javax.swing.JTable table;

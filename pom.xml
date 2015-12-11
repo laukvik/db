@@ -3,11 +3,11 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>org.laukvik</groupId>
-    <artifactId>db</artifactId>
+    <artifactId>Featherine</artifactId>
     <version>1.0</version>
     <packaging>jar</packaging>
 
-    <name>db</name>
+    <name>Featherine</name>
     <description></description>
 
     <developers>
@@ -102,7 +102,7 @@
                 <version>1.0.4</version>
                 <configuration>
                     <mainClass>org.laukvik.db.csv.swing.Viewer</mainClass>
-                    <iconFile>archive.icns</iconFile>
+                    <iconFile>feather.icns</iconFile>
                 </configuration>
                 <executions>
                     <execution>
@@ -210,6 +210,7 @@
                     <include>**/*.icns</include>
                     <include>**/*.gif</include>
                     <include>**/*.jpg</include>
+                    <include>**/*.png</include>
                 </includes>
             </resource>
         </resources>

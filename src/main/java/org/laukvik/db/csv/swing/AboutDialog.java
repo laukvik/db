@@ -64,14 +64,19 @@ public class AboutDialog extends javax.swing.JDialog {
 
         jPanel1.setLayout(null);
 
+        aboutLabel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        aboutLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/feather.png"))); // NOI18N
         aboutLabel.setText("About");
+        aboutLabel.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        aboutLabel.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
         jPanel1.add(aboutLabel);
-        aboutLabel.setBounds(20, 20, 300, 16);
+        aboutLabel.setBounds(20, 20, 300, 170);
 
+        descLabel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         descLabel.setText("Written by Morten Laukvik");
         descLabel.setVerticalAlignment(javax.swing.SwingConstants.TOP);
         jPanel1.add(descLabel);
-        descLabel.setBounds(20, 50, 290, 30);
+        descLabel.setBounds(30, 200, 290, 90);
 
         jScrollPane1.setViewportView(jPanel1);
 
@@ -79,11 +84,11 @@ public class AboutDialog extends javax.swing.JDialog {
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 335, Short.MAX_VALUE)
+            .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 354, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 124, Short.MAX_VALUE)
+            .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 343, Short.MAX_VALUE)
         );
 
         pack();
